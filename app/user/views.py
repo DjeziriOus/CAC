@@ -1,17 +1,36 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from core.models import User
-from .serializers import UserSerializer
+"""
+Views for user APIs.
+"""
 
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
-def manage_users(request):
-    if request.user.role != 'admin':
-        return Response({"error": "You do not have permission to manage users."}, status=403)
+from rest_framework import generics, authentication, permissions
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
+from rest_framework.exceptions import PermissionDenied
 
-    if request.method == 'GET':
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-    # Handle POST, PUT, DELETE for user management (not implemented in this example)
+from .serializers import UserSerializer, AuthTokenSerializer
+
+
+class CreateUserView(generics.CreateAPIView):
+    """Create a new user in the system."""
+    serializer_class = UserSerializer
+    authentication_classes = []  # Allow unauthenticated users to create accounts
+    permission_classes = [permissions.AllowAny]  # Publicly accessible
+
+
+class CreateTokenView(ObtainAuthToken):
+    """Create a new auth token for user."""
+    serializer_class = AuthTokenSerializer
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+class ManageUserView(generics.RetrieveUpdateAPIView):
+    """Manage the authenticated user."""
+    serializer_class = UserSerializer
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        """Retrieve and return the authenticated user."""
+        if self.request.user.role != "admin" and self.request.user != self.request.user:
+            raise PermissionDenied("You do not have permission to manage other users.")
+        return self.request.user

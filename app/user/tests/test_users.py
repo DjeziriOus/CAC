@@ -3,73 +3,128 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from rest_framework import status
 
+CREATE_USER_URL = '/user/create/'
+TOKEN_URL = '/user/token/'
+ME_URL = '/user/me/'
 
-User = get_user_model()
+
+def create_user(**params):
+    """Helper function to create a user."""
+    return get_user_model().objects.create_user(**params)
 
 
-class UserTestCase(TestCase):
+class PublicUserApiTests(TestCase):
+    """Tests for the public user API (unauthenticated)."""
+
     def setUp(self):
-        """Set up users and client."""
         self.client = APIClient()
 
-        # Create users
-        self.patient = User.objects.create_user(
-            email="patient@example.com",
-            password="patientpassword",
-            role="patient",
-        )
-        self.student = User.objects.create_user(
-            email="student@example.com",
-            password="studentpassword",
-            role="student",
-        )
-        self.doctor = User.objects.create_user(
-            email="doctor@example.com",
-            password="doctorpassword",
-            role="doctor",
-        )
-        self.admin = User.objects.create_superuser(
-            email="admin@example.com",
-            password="adminpassword",
-            role="admin",
-        )
-
-    def test_patient_can_ask_question(self):
-        """Test that patients can ask a question."""
-        self.client.force_authenticate(user=self.patient)
-
-        question_data = {
-            "title": "What is diabetes?",
-            "body": "I want to know more about diabetes.",
+    def test_create_valid_user_success(self):
+        """Test creating a user with valid payload is successful."""
+        payload = {
+            'email': 'test@example.com',
+            'password': 'testpassword',
+            'first_name': 'Test',
+            'last_name': 'User',
+            'role': 'student'
         }
-        response = self.client.post("/question/ask-question/", question_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        res = self.client.post(CREATE_USER_URL, payload)
 
-    def test_student_can_ask_question(self):
-        """Test that students can ask a question."""
-        self.client.force_authenticate(user=self.student)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        user = get_user_model().objects.get(email=payload['email'])
+        self.assertTrue(user.check_password(payload['password']))
+        self.assertNotIn('password', res.data)
 
-        question_data = {
-            "title": "What is AI?",
-            "body": "I want to learn about artificial intelligence.",
-        }
-        response = self.client.post("/question/ask-question/", question_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    def test_user_already_exists(self):
+        """Test creating a user that already exists fails."""
+        payload = {'email': 'test@example.com', 'password': 'testpassword'}
+        create_user(**payload)
+        res = self.client.post(CREATE_USER_URL, payload)
 
-    def test_doctor_can_add_article(self):
-        """Test that doctors can add an article."""
-        self.client.force_authenticate(user=self.doctor)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-        article_data = {
-            "title": "The Importance of Exercise",
-            "content": "Exercise improves your health significantly.",
-        }
-        response = self.client.post("/article/add-article/", article_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    def test_password_too_short(self):
+        """Test that the password must be more than 5 characters."""
+        payload = {'email': 'test@example.com', 'password': 'pw'}
+        res = self.client.post(CREATE_USER_URL, payload)
 
-    def test_non_admin_cannot_manage_users(self):
-        """Test that non-admin users cannot access the manage-users endpoint."""
-        self.client.force_authenticate(user=self.patient)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        user_exists = get_user_model().objects.filter(email=payload['email']).exists()
+        self.assertFalse(user_exists)
 
-        response = self.client.get("/user/manage-users/")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_create_token_for_user(self):
+        """Test that a token is created for the user."""
+        payload = {'email': 'test@example.com', 'password': 'testpassword'}
+        create_user(**payload)
+        res = self.client.post(TOKEN_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('token', res.data)
+
+    def test_create_token_invalid_credentials(self):
+        """Test that token is not created if invalid credentials are given."""
+        create_user(email='test@example.com', password='testpassword')
+        payload = {'email': 'test@example.com', 'password': 'wrongpassword'}
+        res = self.client.post(TOKEN_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn('token', res.data)
+
+    def test_create_token_no_user(self):
+        """Test that token is not created if user doesn't exist."""
+        payload = {'email': 'test@example.com', 'password': 'testpassword'}
+        res = self.client.post(TOKEN_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn('token', res.data)
+
+    def test_retrieve_user_unauthorized(self):
+        """Test that authentication is required for users."""
+        res = self.client.get(ME_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class PrivateUserApiTests(TestCase):
+    """Tests for the private user API (authenticated)."""
+
+    def setUp(self):
+        self.user = create_user(
+            email='test@example.com',
+            password='testpassword',
+            first_name='Test',
+            last_name='User',
+            role='student',
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_retrieve_profile_success(self):
+        """Test retrieving profile for logged in user."""
+        res = self.client.get(ME_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, {
+            'id': self.user.id,
+            'email': self.user.email,
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'role': self.user.role,
+            'is_active': self.user.is_active,
+        })
+
+    def test_post_me_not_allowed(self):
+        """Test that POST is not allowed on the me endpoint."""
+        res = self.client.post(ME_URL, {})
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_update_user_profile(self):
+        """Test updating the user profile for authenticated user."""
+        payload = {'first_name': 'NewName', 'password': 'newpassword123'}
+        res = self.client.patch(ME_URL, payload)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, payload['first_name'])
+        self.assertTrue(self.user.check_password(payload['password']))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
