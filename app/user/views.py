@@ -16,12 +16,10 @@ class CreateUserView(generics.CreateAPIView):
     authentication_classes = []  # Allow unauthenticated users to create accounts
     permission_classes = [permissions.AllowAny]  # Publicly accessible
 
-
 class CreateTokenView(ObtainAuthToken):
     """Create a new auth token for user."""
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user."""
