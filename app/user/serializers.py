@@ -5,18 +5,28 @@ from django.utils.translation import gettext as _
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for the user objects."""
+    """Serializer for user objects."""
     class Meta:
         model = User
         fields = ['id', 'email', 'password', 'first_name', 'last_name', 'role', 'is_active']
         extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
+
+    def validate_role(self, value):
+        """Validate that the role is either student or patient."""
+        if value not in ['student', 'patient']:
+            raise serializers.ValidationError("Role must be either 'student' or 'patient'.")
+        return value
 
     def create(self, validated_data):
         """Create and return a user with an encrypted password."""
         return User.objects.create_user(**validated_data)
 
     def update(self, instance, validated_data):
-        """Update and return a user."""
+        """Update and return the user."""
+        # Prevent email updates
+        validated_data.pop('email', None)
+
+        # Handle password changes
         password = validated_data.pop('password', None)
         user = super().update(instance, validated_data)
 

@@ -99,6 +99,24 @@ class PrivateUserApiTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
+    def test_email_is_unchangeable(self):
+        """Test that the email field cannot be changed."""
+        payload = {'email': 'newemail@example.com'}
+        res = self.client.patch(ME_URL, payload)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, 'test@example.com')  # Email should remain unchanged
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+    
+    def test_update_password_successful(self):
+        """Test updating the password for the authenticated user."""
+        payload = {'password': 'newpassword123'}
+        res = self.client.patch(ME_URL, payload)
+
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(payload['password']))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
     def test_retrieve_profile_success(self):
         """Test retrieving profile for logged in user."""
         res = self.client.get(ME_URL)
