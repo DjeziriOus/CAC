@@ -21,14 +21,48 @@ class CreateTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
-class ManageUserView(generics.RetrieveUpdateAPIView):
-    """Manage the authenticated user."""
+from rest_framework import generics, authentication, permissions
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from core.models import User
+from user.serializers import UserSerializer
+
+class ManageUserView(generics.GenericAPIView):
+    """Manage the authenticated user and allow admins to list all users."""
     serializer_class = UserSerializer
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        """Retrieve and return the authenticated user."""
-        if self.request.user.role != "admin" and self.request.user != self.request.user:
-            raise PermissionDenied("You do not have permission to manage other users.")
-        return self.request.user
+    def get_queryset(self):
+        """Return all users if the authenticated user is an admin."""
+        if self.request.user.role == 'admin':
+            return User.objects.all()
+        return User.objects.filter(id=self.request.user.id)
+
+    def get(self, request, *args, **kwargs):
+        """Retrieve the authenticated user or list all users if admin."""
+        if self.request.user.role == 'admin':
+            queryset = User.objects.all()
+            print(f"Admin is fetching all users: {queryset.count()}")  # Debugging
+            serializer = self.get_serializer(queryset, many=True)
+            print(f"Admin Serialized Data: {serializer.data}")  # Debugging
+            return Response(serializer.data)
+
+        # For non-admin users
+        print(f"Non-Admin Fetching: {request.user}")  # Debugging
+        serializer = self.get_serializer(self.request.user)
+        print(f"Non-Admin Serialized Data: {serializer.data}")  # Debugging
+        return Response(serializer.data)
+
+
+    def patch(self, request, *args, **kwargs):
+        """Allow users to update their details except for email."""
+        if 'email' in request.data:
+            raise PermissionDenied("You cannot update the email address.")
+
+        serializer = self.get_serializer(self.request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()  # Ensure the save method is called
+        return Response(serializer.data)
+
+
