@@ -56,7 +56,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.email} ({self.role})"
     
+class Question(models.Model):
+    """Question model."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    description = models.CharField(max_length=255, blank=False)
 
-
+    def __str__(self):
+        return f"{self.description}"
 
 

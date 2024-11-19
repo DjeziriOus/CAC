@@ -56,3 +56,16 @@ class ModelTests(TestCase):
 
         self.assertTrue(User.is_superuser)
         self.assertTrue(User.is_staff)
+    
+    def test_create_question(self):
+        """test creating question"""
+
+        user = get_user_model().objects.create_user(
+            'test@example.com',
+            'test123'
+        )
+        question = models.Question.objects.create(
+            user = user,
+            description = 'description',
+        )
+        self.assertEqual(str(question),question.description)

@@ -43,15 +43,11 @@ class ManageUserView(generics.GenericAPIView):
         """Retrieve the authenticated user or list all users if admin."""
         if self.request.user.role == 'admin':
             queryset = User.objects.all()
-            print(f"Admin is fetching all users: {queryset.count()}")  # Debugging
             serializer = self.get_serializer(queryset, many=True)
-            print(f"Admin Serialized Data: {serializer.data}")  # Debugging
             return Response(serializer.data)
 
         # For non-admin users
-        print(f"Non-Admin Fetching: {request.user}")  # Debugging
         serializer = self.get_serializer(self.request.user)
-        print(f"Non-Admin Serialized Data: {serializer.data}")  # Debugging
         return Response(serializer.data)
 
 
