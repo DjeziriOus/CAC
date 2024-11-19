@@ -2,30 +2,29 @@ import bienvenue from "@/images/bienvenue.png";
 import calendar from "@/images/Calendar.svg";
 import message from "@/images/message.svg";
 import user from "@/images/user.svg";
-
+const content = [
+  {
+    id: 1,
+    title: "Horaires de travail",
+    content:
+      "Parce que votre santé n'attend pas, notre service est ouvert 24h/24 et 7j/7.",
+    icon: calendar,
+  },
+  {
+    id: 2,
+    title: "Les meilleurs médecins",
+    content:
+      "Nous avons une équipe de médecins professionnels qui peuvent vous aider à tout moment",
+    icon: user,
+  },
+  {
+    id: 3,
+    title: "Poser des questions",
+    content: "Besoin d’informations ? Nous répondons à toutes vos questions",
+    icon: message,
+  },
+];
 function Bienvenue() {
-  const content = [
-    {
-      id: 1,
-      title: "Horaires de travail",
-      content:
-        "Parce que votre santé n'attend pas, notre service est ouvert 24h/24 et 7j/7.",
-      icon: calendar,
-    },
-    {
-      id: 2,
-      title: "Les meilleurs médecins",
-      content:
-        "Nous avons une équipe de médecins professionnels qui peuvent vous aider à tout moment",
-      icon: user,
-    },
-    {
-      id: 3,
-      title: "Poser des questions",
-      content: "Besoin d’informations ? Nous répondons à toutes vos questions",
-      icon: message,
-    },
-  ];
   return (
     <div className="bg-lgt-1 xl:py-14 4xl:py-24">
       <div className="mx-auto flex w-[78%] xl:gap-10 2xl:gap-20">
