@@ -1,0 +1,5 @@
+/* CSS Modules feature */
+.nav a:global(.active) button {
+  color: #24bee0;
+  text-decoration: underline;
+}
