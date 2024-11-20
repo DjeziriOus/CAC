@@ -72,6 +72,10 @@
   --color-brand--2: #e5661e;
   --color-dark--0: #062126;
 }
+.orange-filter {
+  filter: brightness(0) saturate(100%) invert(48%) sepia(81%) saturate(427%)
+    hue-rotate(338deg) brightness(93%) contrast(91%);
+}
 html {
   scroll-behavior: smooth;
 }

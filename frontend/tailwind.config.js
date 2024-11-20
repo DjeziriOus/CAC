@@ -7,6 +7,10 @@ export default {
       sans: "Inter, monospace",
     },
     extend: {
+      filter: {
+        "custom-ribbon":
+          "brightness(0) saturate(100%) invert(48%) sepia(81%) saturate(427%) hue-rotate(338deg) brightness(93%) contrast(91%)",
+      },
       screens: {
         "4xl": "1920px",
         "3xl": "1600px",
@@ -22,12 +26,13 @@ export default {
       colors: {
         main: "#12CCF4",
         "main-10": "#24BEE01A",
-        accOld: "#E5661E",
+        "acc-02": "#CF7D4E0D",
         acc: "#CF7D4E",
         "blue-2": "#0F97B5",
         blk: "#062126",
         "lgt-1": "#F7FCFD",
         "lgt-2": "#12CCF41A",
+        "wht-30": "#FFFFFF33",
         "blk-60": "#06212699",
         "blk-70": "#062126B2",
         "blk-80": "#062126CC",
@@ -104,6 +109,9 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
+  },
+  variants: {
+    filter: ["responsive", "hover", "focus"], // Allow variants like hover or focus
   },
   // eslint-disable-next-line
   plugins: [require("tailwindcss-animate")],
