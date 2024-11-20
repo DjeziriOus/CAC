@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator";
+import React from "react";
 
 const content = [
   {
@@ -27,8 +28,8 @@ function Stats() {
   return (
     <div className="flex h-[11rem] items-center justify-center gap-10 bg-blk py-5">
       {content.map((item, index) => (
-        <>
-          <div key={item.id} className="flex flex-col text-center">
+        <React.Fragment key={item.id}>
+          <div className="flex flex-col text-center">
             <span className="text-center text-[2.7rem] font-extrabold tracking-wider text-white">
               {item.value}
             </span>
@@ -40,7 +41,7 @@ function Stats() {
               className="bg-wht-30 =page?=3/ h-[95%]"
             />
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   );
