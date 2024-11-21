@@ -25,9 +25,7 @@ function Header() {
       secondaryName: "Contactez-nous",
     },
   ];
-  // const [open, setOpen] = useState(false);
-  // const location = useLocation();
-  // const activeLink = location.pathname;
+
   return (
     <div className="flex justify-between bg-lgt-1 p-4 xl:p-3 4xl:p-6">
       <div className="flex grow items-center justify-center">

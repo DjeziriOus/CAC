@@ -25,7 +25,7 @@ export default {
       },
       colors: {
         main: "#12CCF4",
-        "main-10": "#24BEE01A",
+        "main-10": "#12CCF41A",
         "acc-02": "#CF7D4E0D",
         acc: "#CF7D4E",
         "blue-2": "#0F97B5",
@@ -34,6 +34,7 @@ export default {
         "lgt-2": "#12CCF41A",
         "wht-30": "#FFFFFF33",
         "blk-60": "#06212699",
+        "blk-40": "#06212666",
         "blk-70": "#062126B2",
         "blk-80": "#062126CC",
         background: "hsl(var(--background))",
