@@ -58,14 +58,55 @@ class ModelTests(TestCase):
         self.assertTrue(User.is_staff)
     
     def test_create_question(self):
-        """test creating question"""
-
+        """Test creating a question."""
+        # Create a user with role 'student'
         user = get_user_model().objects.create_user(
-            'test@example.com',
-            'test123'
+            email='teststudent@example.com',
+            password='test123',
+            role='student'
+        )
+        # Create a question
+        question = models.Question.objects.create(
+            user=user,
+            question ='What is Django?',
+        )
+        # Verify the string representation
+        self.assertEqual(str(question), question.question)
+        # Verify the user and state
+        self.assertEqual(question.user, user)
+        self.assertEqual(question.state, 'pas encore répondu')  # Use the correct default value
+
+
+    def test_create_answer(self):
+        """Test creating an answer."""
+        # Create a user with role 'doctor'
+        doctor = get_user_model().objects.create_user(
+            email='testdoctor@example.com',
+            password='test123',
+            role='doctor'
+        )
+        # Create a student user and a question
+        student = get_user_model().objects.create_user(
+            email='teststudent@example.com',
+            password='test123',
+            role='student'
         )
         question = models.Question.objects.create(
-            user = user,
-            description = 'description',
+            user=student,
+            question='What is Django?',
         )
-        self.assertEqual(str(question),question.description)
+        # Create an answer for the question
+        answer = models.Answer.objects.create(
+            question=question,
+            user=doctor,
+            response='Django is a high-level Python web framework.'
+        )
+        # Verify the string representation
+        self.assertEqual(
+            str(answer), 
+            answer.response
+        )
+        # Verify the answer's attributes
+        self.assertEqual(answer.question, question)
+        self.assertEqual(answer.user, doctor)
+        self.assertEqual(answer.response, 'Django is a high-level Python web framework.')
