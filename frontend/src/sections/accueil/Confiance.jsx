@@ -58,7 +58,7 @@ function Confiance() {
       </h1>
       <div className="grid grid-cols-3 gap-x-28 gap-y-5">
         {content.map((e, i) => (
-          <div key={i} className="">
+          <div key={i} className="space-y-4">
             <OrangeIcon src={e.icon} h={"2.35rem"} p={"1.7rem"} />
             <div className="flex flex-col gap-2">
               <h1 className="text-xl font-semibold text-blk">{e.title}</h1>

@@ -24,7 +24,7 @@ function Trouver() {
     <div className="flex bg-lgt-1 xl:py-14 4xl:py-24">
       <div className="mx-auto w-[78%] xl:gap-6 2xl:gap-20">
         <div className="grid grid-cols-[5fr,2fr,5fr] xl:gap-6">
-          <div className="aspect-square w-full bg-slate-400">
+          <div className="aspect-square w-full">
             <Map />
           </div>
           <div className="bg-lgt-2 flex items-center justify-center text-center xl:rounded-2xl xl:px-8">
