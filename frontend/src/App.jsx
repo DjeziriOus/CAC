@@ -6,6 +6,7 @@ import {
 import AppLayout from "./AppLayout";
 import Error from "./components/ui/Error";
 import Home from "./pages/Home";
+import International from "./pages/International";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,15 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         element: <Home />,
+      },
+      {
+        path: "/questions",
+        children: [
+          {
+            path: "/questions/international",
+            element: <International />,
+          },
+        ],
       },
       {
         path: "*",

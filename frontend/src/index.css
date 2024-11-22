@@ -67,6 +67,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 :root {
   --color-brand--1: ##12ccf4;
   --color-brand--2: #e5661e;
@@ -78,6 +79,9 @@
 }
 html {
   scroll-behavior: smooth;
+}
+body[data-scroll-locked] {
+  margin-right: 0px !important;
 }
 @layer components {
   .input {

@@ -17,7 +17,7 @@ function LinkButton({ children, to }) {
     <NavLink to={to} className="font-medium">
       <Button
         variant="link"
-        className="text-sm text-blk-60 xl:text-xs 4xl:text-lg"
+        className="text-sm text-blk-60 xl:text-xs 4xl:text-base"
       >
         {children}
       </Button>

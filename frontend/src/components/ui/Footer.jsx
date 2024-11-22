@@ -73,10 +73,10 @@ function Footer() {
       <div className="mx-auto flex justify-center">
         <Separator
           orientation="horizontal"
-          className="h-[1px] w-[72%] bg-[#0621261A]"
+          className="h-[1px] w-[1050px] bg-[#0621261A]"
         />
       </div>
-      <div className="text-blk-40 mx-auto flex w-[72%] justify-between text-xs">
+      <div className="text-blk-40 mx-auto flex w-[1050px] justify-between text-xs">
         <span>© 2024 Centre anti cancer Batna - Tous droits réservés</span>
         <div className="flex gap-4">
           <span>Politique de confidentialité</span>

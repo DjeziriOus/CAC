@@ -52,7 +52,7 @@ const content = [
 ];
 function Confiance() {
   return (
-    <div className="mx-auto flex w-[83%] flex-col justify-center xl:gap-10 xl:py-14 2xl:gap-20 4xl:py-24">
+    <div className="mx-auto flex w-[1050px] flex-col justify-center gap-10 py-14">
       <h1 className="text-center text-[2.7rem] font-bold text-blk">
         Pourquoi Nous Faire Confiance ?
       </h1>
