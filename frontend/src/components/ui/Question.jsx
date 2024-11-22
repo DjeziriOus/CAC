@@ -6,7 +6,8 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import { Separator } from "./separator";
 import { useState, useRef } from "react";
 import moment from "moment";
-import "./Question.css"; // Add this CSS file for animations
+import { CSSTransition } from "react-transition-group";
+import "./Question.css"; // Ensure the animations are defined here
 
 function Question({ question }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,7 @@ function Question({ question }) {
   return (
     <div>
       {Object.keys(question.answer).length !== 0 ? (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           <div className="shadow-question space-y-2 rounded-lg bg-white px-4 py-3">
             <div className="flex items-center gap-1.5">
               <Avatar className="aspect-square h-8 w-auto">
@@ -47,38 +48,47 @@ function Question({ question }) {
           <div
             ref={contentRef}
             className={`answer-container overflow-hidden transition-all duration-300 ease-in-out ${
-              isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+              isOpen ? "max-h-[1000px]" : "max-h-0"
             }`}
           >
-            <div className="shadow-question bg-blue-20 space-y-2 rounded-lg px-4 py-3">
-              <div className="flex items-center gap-1.5">
-                <Avatar className="aspect-square h-8 w-auto">
-                  <AvatarImage
-                    src={img2}
-                    alt="@shadcn"
-                    className="object-cover"
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-semibold">
-                  Dr.{" "}
-                  {question.answer.user.nom + " " + question.answer.user.prenom}
-                </span>
+            <CSSTransition
+              in={isOpen}
+              timeout={300}
+              classNames="fade"
+              unmountOnExit
+            >
+              <div className="shadow-question bg-blue-20 space-y-2 rounded-lg px-4 py-3">
+                <div className="flex items-center gap-1.5">
+                  <Avatar className="aspect-square h-8 w-auto">
+                    <AvatarImage
+                      src={img2}
+                      alt="@shadcn"
+                      className="object-cover"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-semibold">
+                    Dr.{" "}
+                    {question.answer.user.nom +
+                      " " +
+                      question.answer.user.prenom}
+                  </span>
+                </div>
+                <p className="text-xs">{question.answer.answer_text}</p>
+                <Separator className="bg-black-10" />
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-blk-60">
+                    {moment(question.answer.time).format("DD/MM/YYYY - h:mm A")}
+                  </span>
+                  <Button
+                    className="bg-blue-2 text-white"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Cacher <ArrowUp />
+                  </Button>
+                </div>
               </div>
-              <p className="text-xs">{question.answer.answer_text}</p>
-              <Separator className="bg-black-10" />
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-blk-60">
-                  {moment(question.answer.time).format("DD/MM/YYYY - h:mm A")}
-                </span>
-                <Button
-                  className="bg-blue-2 text-white"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Cacher <ArrowUp />
-                </Button>
-              </div>
-            </div>
+            </CSSTransition>
           </div>
         </div>
       ) : (
