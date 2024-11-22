@@ -22,6 +22,7 @@ export default {
       },
       boxShadow: {
         haze: "0px 24px 61px -14px rgba(15, 151, 181, 0.14)",
+        question: "0px 4px 8px 0px rgba(10, 58, 100, 0.15)", // Equivalent to #0A3A6426
       },
       colors: {
         main: "#12CCF4",
@@ -29,6 +30,7 @@ export default {
         "acc-02": "#CF7D4E0D",
         acc: "#CF7D4E",
         "blue-2": "#0F97B5",
+        "blue-20": "#24BEE033",
         blk: "#062126",
         "lgt-1": "#F7FCFD",
         "lgt-2": "#12CCF41A",
@@ -37,6 +39,7 @@ export default {
         "blk-40": "#06212666",
         "blk-70": "#062126B2",
         "blk-80": "#062126CC",
+        "black-10": "#0000001A",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

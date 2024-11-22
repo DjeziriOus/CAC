@@ -3,14 +3,7 @@ import { useLocation } from "react-router-dom";
 import LinkButton from "./LinkButton";
 import styles from "./Header.module.css";
 import logo from "../../images/CAClogo.svg";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./dropdown-menu";
-import { Button } from "./button";
-import { useLayoutEffect } from "react";
+import { ChevronDown } from "lucide-react";
 
 function Header() {
   const navItems = [
@@ -42,61 +35,64 @@ function Header() {
       secondaryName: "Contactez-nous",
     },
   ];
-  let location = useLocation();
-  const [open, setOpen] = useState(false); // Dropdown menu state
-  // Usage
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "scroll";
-      document.body.style.paddingRight = "0px";
-      document.body.style.marginRight = "0px";
-    } else {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "0px";
-      document.body.style.marginRight = "0px";
-    }
-  }, [open]);
+  // let location = useLocation();
+  const [open, setOpen] = useState(false);
 
   return (
     <header className="fixed top-0 z-[999] flex w-full bg-[#F7FCFD80] p-4 drop-shadow-[0px_0px_10px_#ffffff] backdrop-blur-md xl:p-3 4xl:p-4">
-      <div className="flex w-full items-center justify-center gap-60">
+      <div className="flex w-full items-center justify-center gap-32">
         <img src={logo} className="h-6 4xl:h-8" />
         <div className={styles.nav}>
           <div className="flex w-full justify-center gap-5">
-            <DropdownMenu open={open} onOpenChange={setOpen}>
-              {navItems.map((item) =>
-                item.components ? (
-                  <div key={item.name}>
-                    <DropdownMenuTrigger>
-                      <LinkButton
-                        to={item.href}
-                        className={`text-sm text-blk-60 xl:text-xs 4xl:text-base`}
-                      >
-                        {item.name}
-                      </LinkButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="z-[9999]">
-                      {item.components.map((component) => (
-                        <DropdownMenuItem
+            {navItems.map((item) =>
+              item.components ? (
+                <div
+                  key={item.name}
+                  onMouseEnter={() => setOpen(true)}
+                  onMouseLeave={() => setOpen(false)}
+                >
+                  <LinkButton
+                    to={item.href}
+                    className={`text-sm text-blk-60 xl:text-xs 4xl:text-base`}
+                    isDisabled={true}
+                    isSublink={true}
+                  >
+                    {item.name}
+                    <ChevronDown className="p-0" />
+                  </LinkButton>
+                  {open ? (
+                    <div
+                      className="absolute rounded-xl bg-gray-50 shadow-lg"
+                      onMouseLeave={() => setOpen(false)}
+                    >
+                      {item.components.map((component, i) => (
+                        <div
                           key={component.name}
                           onClick={() => {
                             setOpen(false); // Close the menu
                           }}
+                          className={`p-1.5 hover:bg-slate-100 ${
+                            i === item.components.length - 1
+                              ? `rounded-b-xl`
+                              : i === 0
+                                ? `rounded-t-xl`
+                                : ``
+                          }`}
                         >
                           <LinkButton to={component.href}>
                             {component.name}
                           </LinkButton>
-                        </DropdownMenuItem>
+                        </div>
                       ))}
-                    </DropdownMenuContent>
-                  </div>
-                ) : (
-                  <LinkButton key={item.name} to={item.href}>
-                    {item.name}
-                  </LinkButton>
-                ),
-              )}
-            </DropdownMenu>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <LinkButton key={item.name} to={item.href}>
+                  {item.name}
+                </LinkButton>
+              ),
+            )}
           </div>
         </div>
       </div>

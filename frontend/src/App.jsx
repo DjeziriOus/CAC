@@ -6,7 +6,10 @@ import {
 import AppLayout from "./AppLayout";
 import Error from "./components/ui/Error";
 import Home from "./pages/Home";
-import International from "./pages/International";
+import International from "./pages/questions/International";
+import Questions from "./pages/Questions";
+import Patients from "./pages/questions/Patients";
+import Etudiants from "./pages/questions/Etudiants";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +27,18 @@ const router = createBrowserRouter([
       {
         path: "/questions",
         children: [
+          {
+            index: true, // Matches /questions directly
+            element: <Navigate to="/" />,
+          },
+          {
+            path: "/questions/etudiants",
+            element: <Etudiants />,
+          },
+          {
+            path: "/questions/patients",
+            element: <Patients />,
+          },
           {
             path: "/questions/international",
             element: <International />,

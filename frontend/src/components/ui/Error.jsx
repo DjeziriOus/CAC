@@ -1,5 +1,5 @@
 function Error() {
-  return <div>ERROR ELEMENT</div>;
+  return <div className="h-[70dvh]">ERROR ELEMENT</div>;
 }
 
 export default Error;
