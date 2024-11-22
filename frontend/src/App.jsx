@@ -7,7 +7,7 @@ import AppLayout from "./AppLayout";
 import Error from "./components/ui/Error";
 import Home from "./pages/Home";
 import International from "./pages/questions/International";
-import Questions from "./pages/Questions";
+import Questions from "./components/ui/Questions";
 import Patients from "./pages/questions/Patients";
 import Etudiants from "./pages/questions/Etudiants";
 
@@ -32,15 +32,21 @@ const router = createBrowserRouter([
             element: <Navigate to="/" />,
           },
           {
-            path: "/questions/etudiants",
+            path: "patients",
+            element: <Patients />,
+            children: [
+              {
+                path: "my",
+                element: <Questions />,
+              },
+            ],
+          },
+          {
+            path: "etudiants",
             element: <Etudiants />,
           },
           {
-            path: "/questions/patients",
-            element: <Patients />,
-          },
-          {
-            path: "/questions/international",
+            path: "international",
             element: <International />,
           },
         ],
