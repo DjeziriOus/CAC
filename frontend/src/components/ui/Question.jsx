@@ -4,13 +4,14 @@ import img2 from "@/images/pfp/img-2.png";
 import { Button } from "./button";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Separator } from "./separator";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import moment from "moment";
-import { CSSTransition } from "react-transition-group";
 import "./Question.css"; // Add this CSS file for animations
 
 function Question({ question }) {
   const [isOpen, setIsOpen] = useState(false);
+  const contentRef = useRef(null);
+
   return (
     <div>
       {Object.keys(question.answer).length !== 0 ? (
@@ -43,11 +44,11 @@ function Question({ question }) {
               </Button>
             </div>
           </div>
-          <CSSTransition
-            in={isOpen}
-            timeout={300}
-            classNames="fade"
-            unmountOnExit
+          <div
+            ref={contentRef}
+            className={`answer-container overflow-hidden transition-all duration-300 ease-in-out ${
+              isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+            }`}
           >
             <div className="shadow-question bg-blue-20 space-y-2 rounded-lg px-4 py-3">
               <div className="flex items-center gap-1.5">
@@ -71,14 +72,14 @@ function Question({ question }) {
                   {moment(question.answer.time).format("DD/MM/YYYY - h:mm A")}
                 </span>
                 <Button
-                  className="hover:bg-blue-20 bg-blue-2 text-white transition-all duration-300 hover:text-blue-2"
+                  className="bg-blue-2 text-white"
                   onClick={() => setIsOpen(false)}
                 >
                   Cacher <ArrowUp />
                 </Button>
               </div>
             </div>
-          </CSSTransition>
+          </div>
         </div>
       ) : (
         <div className="shadow-question space-y-2 rounded-lg bg-white px-4 py-3">
