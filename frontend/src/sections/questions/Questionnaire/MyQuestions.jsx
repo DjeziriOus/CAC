@@ -1,22 +1,41 @@
-import { Suspense } from "react";
-import { defer, Await, useLoaderData } from "react-router-dom";
+import { Suspense, useState } from "react";
+import {
+  defer,
+  Await,
+  useLoaderData,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 import Question from "../../../components/ui/Question";
 import { getMyQuestions } from "@/services/apiQuestions";
 import SkeletonLoader from "@/components/ui/SkeletonQuestion";
+import ErrorElement from "@/components/ui/ErrorElement";
 
 function MyQuestions() {
-  const { questions } = useLoaderData();
+  let { questions } = useLoaderData();
+  const [error, setError] = useState(false);
+
+  const nav = useNavigate();
+  const handleRetry = () => {
+    nav("/questions/my");
+  };
+
+  // if (error) {
+  //   return <ErrorElement errorMessage={error} onRetry={handleRetry} />;
+  // }
 
   return (
     <div className="my-10 flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
       <Suspense
         fallback={
-          <div>
-            <SkeletonLoader></SkeletonLoader>
-          </div>
+          // <div>
+          <SkeletonLoader />
         }
       >
-        <Await resolve={questions}>
+        <Await
+          resolve={questions}
+          errorElement={<ErrorElement onRetry={handleRetry} />}
+        >
           {(loadedQuestions) =>
             loadedQuestions.map((q) => <Question question={q} key={q.id} />)
           }
@@ -27,8 +46,9 @@ function MyQuestions() {
 }
 
 export async function loader() {
-  const questionsPromise = getMyQuestions();
-  return defer({ questions: questionsPromise });
+  return {
+    questions: getMyQuestions(),
+  };
 }
 
 export default MyQuestions;

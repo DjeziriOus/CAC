@@ -7,6 +7,7 @@ export async function getMyQuestions() {
   if (!res.ok) throw Error("Failed getting my questions");
 
   const data = await res.json();
+  console.log(data);
 
   return data;
 }
