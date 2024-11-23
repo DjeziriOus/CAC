@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "json-server --watch data/questions.json --port 9000"
+    "server": "node data/routes.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.1",
@@ -19,7 +19,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "json-server": "^1.0.0-beta.3",
+    "json-server": "^0.17.4",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.460.0",
     "moment": "^2.30.1",

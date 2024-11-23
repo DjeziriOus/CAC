@@ -1,10 +1,16 @@
 import { Button } from "@/components/ui/button";
+import Loader from "@/components/ui/Loader";
 import { Separator } from "@/components/ui/separator";
 import TabSwitcher from "@/components/ui/TabSwitcher";
 // import Questionaire from "@/components/ui/Questionaire";
 import { ArrowDown } from "lucide-react";
 import { useRef } from "react";
-import { Outlet, ScrollRestoration, useLoaderData } from "react-router-dom";
+import {
+  Outlet,
+  ScrollRestoration,
+  useLoaderData,
+  useNavigation,
+} from "react-router-dom";
 const tabs = [
   { name: "Mes Questions", link: "my" },
   { name: "Questions les plus récentes", link: "recents" },
@@ -16,6 +22,9 @@ function Patients() {
   const scrollToSection = () => {
     targetRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const navigation = useNavigation();
+
+  const isLoading = navigation.state === "loading";
   return (
     <div className="mt-16 bg-lgt-1">
       <div className="flex h-[38rem] w-full items-center justify-center bg-[url('/src/images/Patients.png')] bg-cover bg-center">
@@ -45,10 +54,10 @@ function Patients() {
         className="mx-auto flex w-[1000px] flex-col items-center justify-center bg-lgt-1 pt-16"
       >
         <TabSwitcher tabs={tabs} />
+        {/* {isLoading && <Loader />} */}
         <Separator />
         <Outlet />
       </div>
-      export default Questionaire;
     </div>
   );
 }

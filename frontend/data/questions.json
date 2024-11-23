@@ -1,94 +1,159 @@
 {
-  "questions": [
-    {
-      "id": 1,
-      "user": {
-        "nom": "Ourred",
-        "prenom": "Islem Charaf Eddine",
-        "profile_picture": "/pfp/img-1"
-      },
-      "question_text": "Est-il sécuritaire de pratiquer une activité sportive après une opération ?",
-      "time": "2024-11-22T15:53:07",
-      "answer": {
+  "questions": {
+    "my": [
+      {
+        "id": 1,
         "user": {
-          "nom": "Allag",
-          "prenom": "Aymen",
-          "profile_picture": "/images/pfp/img-2"
+          "nom": "Ourred",
+          "prenom": "Islem Charaf Eddine",
+          "profile_picture": "/images/pfp/img-1.png"
         },
-        "answer_text": "Oui, les maux de tête légers sont un effet secondaire courant après certains vaccins. Ils sont généralement temporaires et disparaissent en un ou deux jours. Cependant, si le mal de tête persiste ou s’accompagne d’autres symptômes graves comme une forte fièvre, consultez un médecin immédiatement.",
-        "time": "2024-11-22T15:53:07"
-      }
-    },
-    {
-      "id": 2,
-      "user": {
-        "nom": "Bouchareb",
-        "prenom": "Sofiane",
-        "profile_picture": "/pfp/img-3"
+        "question_text": "Est-il sécuritaire de pratiquer une activité sportive après une opération ?",
+        "time": "2024-11-22T15:53:07",
+        "answer": {
+          "user": {
+            "nom": "Allag",
+            "prenom": "Aymen",
+            "profile_picture": "/images/pfp/img-1.png"
+          },
+          "answer_text": "Oui, les maux de tête légers sont un effet secondaire courant après certains vaccins. Ils sont généralement temporaires et disparaissent en un ou deux jours. Cependant, si le mal de tête persiste ou s’accompagne d’autres symptômes graves comme une forte fièvre, consultez un médecin immédiatement.",
+          "time": "2024-11-22T15:53:07"
+        }
       },
-      "question_text": "Quels sont les risques associés à l'utilisation excessive des écrans chez les enfants ?",
-      "time": "2024-11-22T16:15:00",
-      "answer": {}
-    },
-    {
-      "id": 3,
-      "user": {
-        "nom": "Lemrani",
-        "prenom": "Meriem",
-        "profile_picture": "/pfp/img-4"
-      },
-      "question_text": "Peut-on utiliser un téléphone portable pendant le vol si le mode avion est activé ?",
-      "time": "2024-11-22T16:20:45",
-      "answer": {
+      {
+        "id": 2,
         "user": {
-          "nom": "Belkacem",
-          "prenom": "Nabil",
-          "profile_picture": "/pfp/img-5"
+          "nom": "Bouchareb",
+          "prenom": "Sofiane",
+          "profile_picture": "/images/pfp/img-1.png"
         },
-        "answer_text": "Oui, l'utilisation d'un téléphone portable en mode avion est généralement autorisée pendant un vol, car ce mode désactive les signaux qui pourraient interférer avec les instruments de l'avion.",
-        "time": "2024-11-22T16:25:00"
-      }
-    },
-    {
-      "id": 4,
-      "user": {
-        "nom": "Khelil",
-        "prenom": "Yasmine",
-        "profile_picture": "/pfp/img-6"
+        "question_text": "Quels sont les risques associés à l'utilisation excessive des écrans chez les enfants ?",
+        "time": "2024-11-22T16:15:00",
+        "answer": {}
       },
-      "question_text": "Quelle est la meilleure façon d'améliorer ses compétences en programmation en autodidacte ?",
-      "time": "2024-11-22T16:30:00",
-      "answer": {}
-    },
-    {
-      "id": 5,
-      "user": {
-        "nom": "Saadi",
-        "prenom": "Amine",
-        "profile_picture": "/pfp/img-7"
-      },
-      "question_text": "Les aliments biologiques sont-ils vraiment meilleurs pour la santé que les aliments conventionnels ?",
-      "time": "2024-11-22T16:45:15",
-      "answer": {
+      {
+        "id": 3,
         "user": {
-          "nom": "Bouaicha",
-          "prenom": "Lina",
-          "profile_picture": "/pfp/img-8"
+          "nom": "Lemrani",
+          "prenom": "Meriem",
+          "profile_picture": "/images/pfp/img-1.png"
         },
-        "answer_text": "Les aliments biologiques contiennent généralement moins de pesticides et d'additifs chimiques. Cependant, leurs bienfaits nutritionnels comparés aux aliments conventionnels varient selon les études. L'idéal est de privilégier une alimentation équilibrée.",
-        "time": "2024-11-22T16:50:00"
-      }
-    },
-    {
-      "id": 6,
-      "user": {
-        "nom": "Meziane",
-        "prenom": "Rachid",
-        "profile_picture": "/pfp/img-9"
+        "question_text": "Peut-on utiliser un téléphone portable pendant le vol si le mode avion est activé ?",
+        "time": "2024-11-22T16:20:45",
+        "answer": {
+          "user": {
+            "nom": "Belkacem",
+            "prenom": "Nabil",
+            "profile_picture": "/images/pfp/img-1.png"
+          },
+          "answer_text": "Oui, l'utilisation d'un téléphone portable en mode avion est généralement autorisée pendant un vol, car ce mode désactive les signaux qui pourraient interférer avec les instruments de l'avion.",
+          "time": "2024-11-22T16:25:00"
+        }
       },
-      "question_text": "Comment expliquer les aurores boréales à un enfant ?",
-      "time": "2024-11-22T17:00:00",
-      "answer": {}
-    }
-  ]
+      {
+        "id": 4,
+        "user": {
+          "nom": "Khelil",
+          "prenom": "Yasmine",
+          "profile_picture": "/images/pfp/img-1.png"
+        },
+        "question_text": "Quelle est la meilleure façon d'améliorer ses compétences en programmation en autodidacte ?",
+        "time": "2024-11-22T16:30:00",
+        "answer": {}
+      },
+      {
+        "id": 5,
+        "user": {
+          "nom": "Saadi",
+          "prenom": "Amine",
+          "profile_picture": "/images/pfp/img-1.png"
+        },
+        "question_text": "Les aliments biologiques sont-ils vraiment meilleurs pour la santé que les aliments conventionnels ?",
+        "time": "2024-11-22T16:45:15",
+        "answer": {
+          "user": {
+            "nom": "Bouaicha",
+            "prenom": "Lina",
+            "profile_picture": "/images/pfp/img-1.png"
+          },
+          "answer_text": "Les aliments biologiques contiennent généralement moins de pesticides et d'additifs chimiques. Cependant, leurs bienfaits nutritionnels comparés aux aliments conventionnels varient selon les études. L'idéal est de privilégier une alimentation équilibrée.",
+          "time": "2024-11-22T16:50:00"
+        }
+      },
+      {
+        "id": 6,
+        "user": {
+          "nom": "Meziane",
+          "prenom": "Rachid",
+          "profile_picture": "/images/pfp/img-1.png"
+        },
+        "question_text": "Comment expliquer les aurores boréales à un enfant ?",
+        "time": "2024-11-22T17:00:00",
+        "answer": {}
+      }
+    ],
+    "recents": [
+      {
+        "id": 1,
+        "user": {
+          "nom": "Benali",
+          "prenom": "Sarah",
+          "profile_picture": "/images/pfp/img-1.png"
+        },
+        "question_text": "Quels sont les meilleurs moyens de réduire son empreinte carbone au quotidien ?",
+        "time": "2024-11-23T08:00:00",
+        "answer": {
+          "user": {
+            "nom": "Zeroual",
+            "prenom": "Karim",
+            "profile_picture": "/images/pfp/img-1.png"
+          },
+          "answer_text": "Les meilleurs moyens incluent la réduction des déchets, l'utilisation des transports en commun, l'adoption d'une alimentation plus végétarienne et l'achat de produits locaux pour réduire l'impact du transport.",
+          "time": "2024-11-23T08:15:00"
+        }
+      },
+      {
+        "id": 2,
+        "user": {
+          "nom": "Kaci",
+          "prenom": "Mehdi",
+          "profile_picture": "/images/pfp/img-1.png"
+        },
+        "question_text": "Quels sont les avantages et les inconvénients du télétravail ?",
+        "time": "2024-11-23T08:30:00",
+        "answer": {}
+      },
+      {
+        "id": 3,
+        "user": {
+          "nom": "Nour",
+          "prenom": "Leila",
+          "profile_picture": "/images/pfp/img-1.png"
+        },
+        "question_text": "Comment choisir un bon ordinateur portable pour la programmation ?",
+        "time": "2024-11-23T09:00:00",
+        "answer": {
+          "user": {
+            "nom": "Djabali",
+            "prenom": "Adel",
+            "profile_picture": "/images/pfp/img-1.png"
+          },
+          "answer_text": "Choisissez un ordinateur avec au moins 8 Go de RAM, un processeur performant comme Intel i5 ou supérieur, un SSD pour la rapidité, et un écran confortable pour une lecture prolongée.",
+          "time": "2024-11-23T09:15:00"
+        }
+      },
+      {
+        "id": 4,
+        "user": {
+          "nom": "Hamdi",
+          "prenom": "Amina",
+          "profile_picture": "/images/pfp/img-1.png"
+        },
+        "question_text": "Pourquoi les plantes nécessitent-elles de la lumière pour grandir ?",
+        "time": "2024-11-23T09:30:00",
+        "answer": {}
+      }
+    ],
+    "ajouter": []
+  }
 }
