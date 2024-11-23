@@ -1,11 +1,13 @@
+import { Separator } from "./separator";
+
 const SkeletonLoader = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       {/* Skeleton for each question */}
       {[1, 2].map((_, index) => (
         <div
           key={index}
-          className="flex flex-col gap-4 rounded-lg border bg-white p-4 shadow-sm"
+          className="flex flex-col gap-4 rounded-lg bg-white p-4 shadow-md"
         >
           {/* Top part: Question user and content */}
           <div className="flex items-center gap-4">
@@ -18,8 +20,10 @@ const SkeletonLoader = () => {
           {/* Question content */}
           <div className="h-5 w-full animate-pulse rounded bg-gray-300"></div>
           {/* Button area */}
-          <div className="flex justify-end">
-            <div className="h-8 w-24 animate-pulse rounded-lg bg-gray-300"></div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="h-3 w-36 animate-pulse rounded bg-gray-200"></div>
+            <div className="h-10 w-36 animate-pulse rounded-lg bg-gray-300"></div>
           </div>
         </div>
       ))}

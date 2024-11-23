@@ -25,7 +25,7 @@ function LinkButton({ children, to, isDisabled = false, isSublink = false }) {
     >
       <Button
         variant="link"
-        className={`rounded-xl text-sm text-blk-60 hover:bg-slate-100 xl:text-xs 4xl:text-base ${isSublink ? "flex gap-1" : ""}`}
+        className={`rounded-xl text-sm text-blk-60 hover:bg-slate-100 xl:text-sm 4xl:text-base ${isSublink ? "flex gap-1" : ""}`}
       >
         {children}
       </Button>

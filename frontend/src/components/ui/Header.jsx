@@ -40,10 +40,10 @@ function Header() {
 
   return (
     <header className="fixed top-0 z-[999] flex w-full bg-[#F7FCFD80] p-4 drop-shadow-[0px_0px_10px_#ffffff] backdrop-blur-md xl:p-3 4xl:p-4">
-      <div className="flex w-full items-center justify-center gap-32">
+      <div className="flex w-full items-center justify-center gap-32 4xl:gap-56">
         <img src={logo} className="h-6 4xl:h-8" />
         <div className={styles.nav}>
-          <div className="flex w-full justify-center gap-5">
+          <div className="flex w-full justify-center gap-5 4xl:gap-4">
             {navItems.map((item) =>
               item.components ? (
                 <div
@@ -53,7 +53,7 @@ function Header() {
                 >
                   <LinkButton
                     to={item.href}
-                    className={`text-sm text-blk-60 xl:text-xs 4xl:text-base`}
+                    className={`text-sm text-blk-60 xl:text-xs 2xl:text-lg 4xl:text-base`}
                     isDisabled={true}
                     isSublink={true}
                   >

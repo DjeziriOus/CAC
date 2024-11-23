@@ -1,11 +1,5 @@
 import { Suspense, useState } from "react";
-import {
-  defer,
-  Await,
-  useLoaderData,
-  Navigate,
-  useNavigate,
-} from "react-router-dom";
+import { Await, useLoaderData, useNavigate } from "react-router-dom";
 import Question from "../../../components/ui/Question";
 import { getMyQuestions } from "@/services/apiQuestions";
 import SkeletonLoader from "@/components/ui/SkeletonQuestion";
