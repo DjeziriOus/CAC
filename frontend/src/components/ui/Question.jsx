@@ -1,6 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
-import img1 from "@/images/pfp/img-1.png";
-import img2 from "@/images/pfp/img-2.png";
 import { Button } from "./button";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Separator } from "./separator";
@@ -21,7 +19,7 @@ function Question({ question }) {
             <div className="flex items-center gap-1.5">
               <Avatar className="aspect-square h-8 w-auto">
                 <AvatarImage
-                  src={img1}
+                  src={question.user.profile_picture}
                   alt="@shadcn"
                   className="object-cover"
                 />
@@ -47,7 +45,7 @@ function Question({ question }) {
           </div>
           <div
             ref={contentRef}
-            className={`answer-container overflow-hidden transition-all duration-300 ease-in-out ${
+            className={`answer-container overflow-hidden rounded-lg transition-all duration-300 ease-linear ${
               isOpen ? "max-h-[1000px]" : "max-h-0"
             }`}
           >
@@ -61,7 +59,7 @@ function Question({ question }) {
                 <div className="flex items-center gap-1.5">
                   <Avatar className="aspect-square h-8 w-auto">
                     <AvatarImage
-                      src={img2}
+                      src={question.answer.user.profile_picture}
                       alt="@shadcn"
                       className="object-cover"
                     />

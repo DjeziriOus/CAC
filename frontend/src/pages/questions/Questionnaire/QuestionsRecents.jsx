@@ -1,4 +1,4 @@
-import Question from "./Question";
+import Question from "../../../components/ui/Question";
 const questions = [
   {
     id: 1,
@@ -100,7 +100,7 @@ const questions = [
   },
 ];
 
-function Questions() {
+function QuestionsRecents() {
   return (
     <div className="my-10 flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
       {questions.map((q) => (
@@ -110,4 +110,4 @@ function Questions() {
   );
 }
 
-export default Questions;
+export default QuestionsRecents;
