@@ -44,6 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
+    anonymous = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -56,6 +57,45 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.email} ({self.role})"
     
+class Question(models.Model):
+    """Question model."""
+    STATE_CHOICES = {
+        ('pas encore répondu', 'Pas encore répondu'),
+        ('répondu', 'Répondu'),
+    } 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role__in': ['patient', 'student']}  # Limit users to patient or student roles
+    )
+    question = models.CharField(max_length=255, blank=False)
+    state = models.CharField(max_length=255,choices=STATE_CHOICES, default='pas encore répondu')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.question}"
+    
+
+class Answer(models.Model):
+    """Answer model."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role__in': ['doctor', 'admin']}  # Limit users to doctor or admin roles
+    )
+
+    question = models.OneToOneField(
+        Question,
+        on_delete=models.CASCADE,
+        related_name="answer",
+        blank=False
+    )
+    response = models.TextField(blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.response}"
 
 
 
