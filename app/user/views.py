@@ -1,7 +1,11 @@
 """
 Views for user APIs.
 """
-
+from rest_framework import generics, authentication, permissions
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from core.models import User
+from user.serializers import UserSerializer
 from rest_framework import generics, authentication, permissions
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
@@ -21,11 +25,7 @@ class CreateTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
-from rest_framework import generics, authentication, permissions
-from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
-from core.models import User
-from user.serializers import UserSerializer
+
 
 class ManageUserView(generics.GenericAPIView):
     """Manage the authenticated user and allow admins to list all users."""
