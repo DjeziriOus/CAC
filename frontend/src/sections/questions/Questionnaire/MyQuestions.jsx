@@ -26,10 +26,7 @@ function MyQuestions() {
           <SkeletonLoader />
         }
       >
-        <Await
-          resolve={questions}
-          errorElement={<ErrorElement onRetry={handleRetry} />}
-        >
+        <Await resolve={questions} errorElement={<SkeletonLoader />}>
           {(loadedQuestions) =>
             loadedQuestions.map((q) => <Question question={q} key={q.id} />)
           }

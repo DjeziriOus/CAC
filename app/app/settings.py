@@ -167,7 +167,6 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # React.js development server
-    "http://localhost:5174",  # React.js development server
 ]
 
 CORS_ALLOW_CREDENTIALS = True

@@ -14,6 +14,7 @@ import MyQuestions, {
   loader as myQuestionsLoader,
 } from "./sections/questions/Questionnaire/MyQuestions";
 import QuestionsRecents from "./sections/questions/Questionnaire/QuestionsRecents";
+// import { loader as userLoader } from "./sections/user/UserInfo";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+        // loader: userLoader,
       },
       {
         path: "/contact",

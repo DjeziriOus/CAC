@@ -4,6 +4,9 @@ import LinkButton from "./LinkButton";
 import styles from "./Header.module.css";
 import logo from "../../images/CAClogo.svg";
 import { ChevronDown } from "lucide-react";
+import UserInfo from "@/sections/user/UserInfo";
+import { fetchUser, logoutUser } from "@/sections/user/userSlice";
+import { useSelector, useDispatch } from "react-redux";
 
 function Header() {
   const navItems = [
@@ -29,17 +32,28 @@ function Header() {
         { name: "Espace Intenational", href: "/questions/international" },
       ],
     },
-    {
-      name: "Contactez-nous",
-      href: "/contact",
-      secondaryName: "Contactez-nous",
-    },
+    // {
+    //   name: "Contactez-nous",
+    //   href: "",
+    //   secondaryName: "Contactez-nous",
+    // },
   ];
   // let location = useLocation();
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      dispatch(fetchUser());
+    }
+  }, [dispatch]);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
 
   return (
-    <header className="fixed top-0 z-[999] flex w-full bg-[#F7FCFD80] p-4 drop-shadow-[0px_0px_10px_#ffffff] backdrop-blur-md xl:p-3 4xl:p-4">
+    <header className="fixed top-0 z-[2] flex w-full bg-[#F7FCFD80] p-4 drop-shadow-[0px_0px_10px_#ffffff] backdrop-blur-md xl:p-3 4xl:p-4">
       <div className="flex w-full items-center justify-center gap-32 4xl:gap-56">
         <img src={logo} className="h-6 4xl:h-8" />
         <div className={styles.nav}>
@@ -93,6 +107,16 @@ function Header() {
                 </LinkButton>
               ),
             )}
+            <UserInfo />
+            {/* <LinkButton>Connectez-vous</LinkButton> */}
+            {/* {user ? (
+              <div>
+                Welcome, {user.first_name}!
+                <button onClick={handleLogout}>Logout</button>
+              </div>
+            ) : (
+              <LinkButton to="/login">Connectez-vous</LinkButton>
+            )} */}
           </div>
         </div>
       </div>
