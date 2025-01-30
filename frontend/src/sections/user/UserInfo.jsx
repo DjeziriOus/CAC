@@ -23,11 +23,11 @@ function UserInfo() {
   const { user, status } = useSelector((state) => state.user);
 
   // If user info is still loading, render a skeleton
-  if (status === "loading") return <SkeletonUser />;
+  if (status === "loadingUser") return <SkeletonUser />;
 
   // If no user, show the LoginDialog trigger
   if (!user) {
-    console.log("re-rendering");
+    // console.log("re-rendering");
     return <LoginDialog />;
   }
 

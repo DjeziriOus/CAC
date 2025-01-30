@@ -34,21 +34,41 @@ export async function getUser() {
   return data;
 }
 export async function postLoginUser(credentials) {
-  // const response = await fetch(`${API_URL}/auth/login/`, {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(credentials),
-  // });
-  // if (!response.ok) {
-  //   throw new Error("Login failed");
-  // }
-  // const data = await response.json();
-  const res = await fetch(`${API_URL}/user/token/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
-  });
-  if (!res.ok) throw Error("Login failed"); // This will go into the catch block, where the message is set
-  const data = await res.json();
-  return data;
+  try {
+    const res = await fetch(`${API_URL}/user/token/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+    });
+    console.log(res);
+    // Handle specific error codes first
+    if (res.status === 400) {
+      throw new Error(
+        "Échec de la connexion. Veuillez vérifier vos identifiants.",
+      );
+    }
+
+    if (res.status === 500) {
+      throw new Error("Problème serveur (ERREUR 500)");
+    }
+
+    if (res.status === 404) {
+      throw new Error("Ressource non trouvée (ERREUR 404)");
+    }
+
+    if (!res.ok) {
+      throw new Error(`Erreur HTTP: (${res.status}) ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    // Add generic network error handling
+    if (error.message === "Failed to fetch") {
+      throw new Error(
+        "Serveur indisponible - vérifiez votre connexion internet",
+      );
+    }
+    throw error;
+  }
 }
