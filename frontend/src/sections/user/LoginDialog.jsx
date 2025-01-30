@@ -55,29 +55,34 @@ export function LoginDialog() {
 
   // Grab auth state from Redux
   const { error, status, user } = useSelector((state) => state.user);
-  console.log({ error, status, user });
+  // console.log({ error, status, user });
   // If login successful, close dialog
+
   useEffect(() => {
-    console.log("succeeded?", { status, user });
     if (status === "succeeded" && user) {
+      console.log("relly?");
       setOpen(false);
       form.reset();
-      // navigate("/dashboard") // If you want to redirect
     }
-  }, [status, user, form, navigate]);
+  }, [status, user, form]);
 
   async function onSubmit(values) {
-    // setServerError(null);
-    dispatch(
-      loginUser({
-        email: values.email,
-        password: values.password,
-      }),
-    );
+    try {
+      await dispatch(
+        loginUser({
+          email: values.email,
+          password: values.password,
+          // values,
+        }),
+      ).unwrap();
+    } catch (error) {
+      // Error is already handled by Redux
+      console.log(error);
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog>
       {error == "Failed to fetch" ? (
         <span className="flex items-center font-extrabold text-red-500">
           SERVER IS DOWN !

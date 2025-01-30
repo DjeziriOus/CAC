@@ -23,11 +23,11 @@ function Map() {
       <iframe
         src="https://www.google.com/maps/embed?pb=!1m10!1m8!1m3!1d51148.489922814944!2d3.095252079311984!3d36.75183655377344!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sdz!4v1737284400736!5m2!1sen!2sdz"
         width="100%"
-        height="250"
-        allowfullscreen=""
+        height="417.5"
+        // allowfullscreen=""
         loading="lazy"
         // referrerpolicy="no-referrer-when-downgrade"
-        title="location of the seller"
+        // title="location of the seller"
       ></iframe>
     </div>
   );

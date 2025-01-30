@@ -16,17 +16,22 @@ export const fetchUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   "user/loginUser",
-  async (credentials, { rejectWithValue }) => {
+  async (credentials, thisthing) => {
+    console.log(credentials, thisthing);
     try {
-      // First, get the token
+      // 1. Get authentication token
       const { token } = await postLoginUser(credentials);
+
+      // 2. Store token
       localStorage.setItem("token", token);
 
-      // Now fetch the user data with that token
+      // 3. Get user data using the new token
       const userData = await getUser();
+
       return userData;
     } catch (error) {
-      return rejectWithValue(error.message);
+      console.log(error);
+      return thisthing.rejectWithValue(error.message);
     }
   },
 );
@@ -49,7 +54,7 @@ const userSlice = createSlice({
     builder
       // fetchUser
       .addCase(fetchUser.pending, (state) => {
-        state.status = "loading";
+        state.status = "loadingUser";
         state.error = null;
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
@@ -62,17 +67,19 @@ const userSlice = createSlice({
       })
 
       // loginUser
+
+      .addCase(loginUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
       .addCase(loginUser.pending, (state) => {
-        state.status = "loading";
+        console.log("succ seed");
+        state.status = "loadingToken";
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload; // userData from the chain
-      })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
       });
   },
 });
