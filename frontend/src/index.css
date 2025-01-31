@@ -67,7 +67,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/* html {
+  scrollbar-gutter: stable;
+} */
+body {
+  --tw-bg-opacity: 1;
+  background-color: rgb(247 252 253 / var(--tw-bg-opacity, 1)) /* #f7fcfd */;
+}
 :root {
   --color-brand--1: ##12ccf4;
   --color-brand--2: #e5661e;
@@ -80,9 +86,9 @@
 html {
   scroll-behavior: smooth;
 }
-body[data-scroll-locked] {
+/* body[data-scroll-locked] {
   margin-right: 0px !important;
-}
+} */
 @layer components {
   .input {
     @apply rounded-full border border-stone-200 px-4 py-2 text-sm transition-all duration-300 placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-yellow-400 md:px-6 md:py-3;

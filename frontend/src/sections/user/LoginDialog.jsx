@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const formSchema = z.object({
   email: z
@@ -38,7 +40,6 @@ const formSchema = z.object({
 
 export function LoginDialog() {
   const [open, setOpen] = useState(false);
-  // const [serverError, setServerError] = useState(null);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -51,12 +52,9 @@ export function LoginDialog() {
 
   // Redux
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   // Grab auth state from Redux
   const { error, status, user } = useSelector((state) => state.user);
-  // console.log({ error, status, user });
-  // If login successful, close dialog
 
   useEffect(() => {
     if (status === "succeeded" && user) {
@@ -89,7 +87,9 @@ export function LoginDialog() {
         </span>
       ) : (
         <DialogTrigger asChild>
-          <Button variant="outline">Connectez-vous</Button>
+          <Button variant="outline" className="my-2">
+            Connectez-vous
+          </Button>
         </DialogTrigger>
       )}
 
@@ -108,9 +108,15 @@ export function LoginDialog() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className={error ? "text-red-500" : ""}>
+                    Email
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Saisissez votre email..." {...field} />
+                    <Input
+                      placeholder="Saisissez votre email..."
+                      {...field}
+                      className={error ? "border-destructive" : ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,11 +128,14 @@ export function LoginDialog() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mot de passe</FormLabel>
+                  <FormLabel className={error ? "text-red-500" : ""}>
+                    Mot de passe
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="Saisissez votre mot de passe..."
+                      className={error ? "border-destructive" : ""}
                       {...field}
                     />
                   </FormControl>
@@ -159,9 +168,15 @@ export function LoginDialog() {
             </div>
 
             {error && (
-              <div className="text-sm font-medium text-destructive">
-                {error}
-              </div>
+              <>
+                <div className="text-sm font-medium text-destructive"></div>
+
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              </>
             )}
 
             <Button

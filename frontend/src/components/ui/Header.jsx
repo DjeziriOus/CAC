@@ -4,7 +4,7 @@ import LinkButton from "./LinkButton";
 import styles from "./Header.module.css";
 import logo from "../../images/CAClogo.svg";
 import { ChevronDown } from "lucide-react";
-import UserInfo from "@/sections/user/UserInfo";
+import UserInfo from "@/components/ui/UserInfo";
 import { fetchUser, logoutUser } from "@/sections/user/userSlice";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -53,11 +53,11 @@ function Header() {
   };
 
   return (
-    <header className="fixed top-0 z-[2] flex w-full bg-[#F7FCFD80] p-4 drop-shadow-[0px_0px_10px_#ffffff] backdrop-blur-md xl:p-3 4xl:p-4">
+    <header className="fixed top-0 z-[2] flex w-[100dvw] justify-center bg-[#F7FCFD80] p-2 drop-shadow-[0px_0px_10px_#ffffff] backdrop-blur-md">
       <div className="flex w-full items-center justify-center gap-32 4xl:gap-56">
         <img src={logo} className="h-6 4xl:h-8" />
         <div className={styles.nav}>
-          <div className="flex w-full justify-center gap-5 4xl:gap-4">
+          <div className="flex w-full items-center justify-center gap-5 4xl:gap-4">
             {navItems.map((item) =>
               item.components ? (
                 <div
@@ -108,15 +108,6 @@ function Header() {
               ),
             )}
             <UserInfo />
-            {/* <LinkButton>Connectez-vous</LinkButton> */}
-            {/* {user ? (
-              <div>
-                Welcome, {user.first_name}!
-                <button onClick={handleLogout}>Logout</button>
-              </div>
-            ) : (
-              <LinkButton to="/login">Connectez-vous</LinkButton>
-            )} */}
           </div>
         </div>
       </div>

@@ -26,7 +26,7 @@ const content = [
 
 function Stats() {
   return (
-    <div className="flex h-[11rem] items-center justify-center gap-10 bg-blk py-5">
+    <div className="flex h-[11rem] w-full items-center justify-center gap-10 bg-blk py-5">
       {content.map((item, index) => (
         <React.Fragment key={item.id}>
           <div className="flex flex-col text-center">
@@ -38,7 +38,7 @@ function Stats() {
           {index < content.length - 1 && (
             <Separator
               orientation="vertical"
-              className="bg-wht-30 =page?=3/ h-[95%]"
+              className="=page?=3/ h-[95%] bg-wht-30"
             />
           )}
         </React.Fragment>

@@ -63,6 +63,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.status = "failed";
+        console.log(state.status);
         state.error = action.payload;
       })
 
@@ -70,10 +71,10 @@ const userSlice = createSlice({
 
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";
+        console.log(state.status);
         state.error = action.payload;
       })
       .addCase(loginUser.pending, (state) => {
-        console.log("succ seed");
         state.status = "loadingToken";
         state.error = null;
       })

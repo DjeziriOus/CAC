@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { logoutUser } from "@/sections/user/userSlice";
-import { LoginDialog } from "./LoginDialog";
+import { LoginDialog } from "../../sections/user/LoginDialog";
 
 import SkeletonUser from "@/components/ui/SkeletonUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { UnplugIcon } from "lucide-react";
 
 function UserInfo() {
   const dispatch = useDispatch();
@@ -43,7 +44,10 @@ function UserInfo() {
         Here, we're displaying the user avatar and name as the trigger. 
       */}
       <DropdownMenuTrigger asChild>
-        <div className="flex cursor-pointer items-center gap-3">
+        <Button
+          variant="ghost"
+          className="flex cursor-pointer items-center gap-3 py-7"
+        >
           <Avatar className="h-9 w-9">
             <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
             <AvatarFallback>CN</AvatarFallback>
@@ -52,7 +56,7 @@ function UserInfo() {
             <p className="text-sm font-semibold">{user.first_name}</p>
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
-        </div>
+        </Button>
       </DropdownMenuTrigger>
 
       {/* 
@@ -67,8 +71,15 @@ function UserInfo() {
           you can add more <DropdownMenuItem> elements here.
         */}
 
-        <DropdownMenuItem onClick={handleLogout}>
-          <Button variant="ghost">Se déconnecter</Button>
+        <DropdownMenuItem
+          onClick={handleLogout}
+          className="text-red-500 hover:cursor-pointer"
+        >
+          <UnplugIcon />
+          Se Déconnecter
+          {/* <Button variant="ghost" className="p-2">
+           
+          </Button> */}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
