@@ -162,6 +162,9 @@ html {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+  }
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
