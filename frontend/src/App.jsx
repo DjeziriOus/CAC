@@ -6,15 +6,15 @@ import {
 import AppLayout from "./AppLayout";
 import Error from "./components/ui/Error";
 import Home from "./pages/Home";
-import International from "./sections/questions/International";
-import Questions from "./sections/questions/Questionnaire/QuestionsRecents";
-import Patients from "./sections/questions/Patients";
-import Etudiants from "./sections/questions/Etudiants";
+import International from "./features/questions/International";
+import Questions from "./features/questions/Questionnaire/QuestionsRecents";
+import Patients from "./features/questions/Patients";
+import Etudiants from "./features/questions/Etudiants";
 import MyQuestions, {
   loader as myQuestionsLoader,
-} from "./sections/questions/Questionnaire/MyQuestions";
-import QuestionsRecents from "./sections/questions/Questionnaire/QuestionsRecents";
-// import { loader as userLoader } from "./sections/user/UserInfo";
+} from "./features/questions/Questionnaire/MyQuestions";
+import QuestionsRecents from "./features/questions/Questionnaire/QuestionsRecents";
+// import { loader as userLoader } from "./features/user/UserInfo";
 
 const router = createBrowserRouter([
   {

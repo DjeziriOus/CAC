@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { logoutUser } from "@/sections/user/userSlice";
-import { LoginDialog } from "../../sections/user/LoginDialog";
+import { logoutUser } from "@/features/user/userSlice";
+import { LoginDialog } from "../../features/user/Defunct/LoginDialog";
 
 import SkeletonUser from "@/components/ui/SkeletonUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { UnplugIcon } from "lucide-react";
+import AuthDialog from "@/features/user/AuthDialog";
 
 function UserInfo() {
   const dispatch = useDispatch();
@@ -28,8 +29,8 @@ function UserInfo() {
 
   // If no user, show the LoginDialog trigger
   if (!user) {
-    // console.log("re-rendering");
-    return <LoginDialog />;
+    // return <LoginDialog />;
+    return <AuthDialog />;
   }
 
   // Handler for logout
@@ -53,7 +54,9 @@ function UserInfo() {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <div className="flex flex-col items-start">
-            <p className="text-sm font-semibold">{user.first_name}</p>
+            <p className="text-sm font-semibold">
+              {user.nom} {user.prenom}
+            </p>
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
         </Button>

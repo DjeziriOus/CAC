@@ -1,13 +1,17 @@
 // userSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getUser, postLoginUser } from "@/services/apiQuestions";
+import {
+  getUser,
+  postLoginUser,
+  postSignupUser,
+} from "@/services/apiQuestions";
 
 export const fetchUser = createAsyncThunk(
   "user/fetchUser",
   async (_, { rejectWithValue }) => {
     try {
-      const data = await getUser();
-      return data;
+      const { user } = await getUser();
+      return user;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -16,22 +20,33 @@ export const fetchUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   "user/loginUser",
-  async (credentials, thisthing) => {
-    console.log(credentials, thisthing);
+  async (credentials, { rejectWithValue }) => {
     try {
       // 1. Get authentication token
-      const { token } = await postLoginUser(credentials);
+      const { token, user: userData } = await postLoginUser(credentials);
 
       // 2. Store token
       localStorage.setItem("token", token);
 
-      // 3. Get user data using the new token
-      const userData = await getUser();
-
       return userData;
     } catch (error) {
       console.log(error);
-      return thisthing.rejectWithValue(error.message);
+      return rejectWithValue(error.message);
+    }
+  },
+);
+export const signupUser = createAsyncThunk(
+  "user/signupUser",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      console.log(credentials);
+      const { token, user: userData } = await postSignupUser(credentials);
+      console.log({ token, user: userData });
+      localStorage.setItem("token", token);
+      return userData;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.message);
     }
   },
 );
@@ -59,6 +74,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.status = "succeeded";
+        console.log(action.payload);
         state.user = action.payload;
       })
       .addCase(fetchUser.rejected, (state, action) => {
@@ -80,7 +96,21 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
+        console.log(action.payload);
         state.user = action.payload; // userData from the chain
+      })
+      // signupUser
+      .addCase(signupUser.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(signupUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.user = action.payload;
+      })
+      .addCase(signupUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       });
   },
 });

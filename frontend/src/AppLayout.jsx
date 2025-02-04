@@ -7,11 +7,11 @@ function AppLayout() {
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
   return (
-    <div className="relative h-screen">
+    <div className="h-screen">
       {isLoading && <Loader />}
       <Header />
       <div className="mx-auto">
-        <main className="relative">
+        <main className="">
           <Outlet />
         </main>
       </div>

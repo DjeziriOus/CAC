@@ -67,9 +67,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* html {
+html {
   scrollbar-gutter: stable;
-} */
+}
 body {
   --tw-bg-opacity: 1;
   background-color: rgb(247 252 253 / var(--tw-bg-opacity, 1)) /* #f7fcfd */;
