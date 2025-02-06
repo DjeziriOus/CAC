@@ -4,10 +4,13 @@ import Question from "../../../components/ui/Question";
 import { getMyQuestions } from "@/services/apiQuestions";
 import SkeletonLoader from "@/components/ui/SkeletonQuestion";
 import ErrorElement from "@/components/ui/ErrorElement";
+import { useSelector } from "react-redux";
+import { EmptyQuestions } from "@/components/ui/EmptyQuestions";
 
-function MyQuestions() {
+function Questions() {
   let { questions } = useLoaderData();
   const [error, setError] = useState(false);
+  const { user, status } = useSelector((state) => state.user);
 
   const nav = useNavigate();
   const handleRetry = () => {
@@ -27,19 +30,28 @@ function MyQuestions() {
         }
       >
         <Await resolve={questions} errorElement={<SkeletonLoader />}>
-          {(loadedQuestions) =>
-            loadedQuestions.map((q) => <Question question={q} key={q.id} />)
-          }
+          {(loadedQuestions) => {
+            if (loadedQuestions.length == 0) return <EmptyQuestions />;
+            // console.log(loadedQuestions);
+            // const lQuestions = [loadedQuestions.questions];
+            return (
+              <div className="flex flex-col gap-4">
+                {loadedQuestions.map((q) => (
+                  <Question question={q} key={q.id} />
+                ))}
+              </div>
+            );
+          }}
         </Await>
       </Suspense>
     </div>
   );
 }
 
-export async function loader() {
-  return {
-    questions: getMyQuestions(),
-  };
-}
+// export async function loader() {
+//   return {
+//     questions: await getMyQuestions(),
+//   };
+// }
 
-export default MyQuestions;
+export default Questions;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,6 +22,9 @@ import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
 // shadcn radio group
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Zod schema for the signup form:
@@ -58,13 +61,13 @@ const signupSchema = z
  * - has show/hide for password & confirmPassword
  * - includes nom, prenom, role (radio group)
  */
-export default function SignupForm({ error, status, toggleForm }) {
+export default function SignupForm({ toggleForm, to = "#" }) {
   const dispatch = useDispatch();
-
+  const { status, error } = useSelector((state) => state.user);
   // Show/hide states for password + confirmPassword
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
   const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -80,7 +83,7 @@ export default function SignupForm({ error, status, toggleForm }) {
   async function onSubmit(values) {
     try {
       // Dispatch your Redux action
-      dispatch(
+      await dispatch(
         signupUser({
           email: values.email,
           nom: values.nom,
@@ -88,7 +91,9 @@ export default function SignupForm({ error, status, toggleForm }) {
           password: values.password,
           role: values.role,
         }),
-      );
+      ).unwrap();
+      console.log(to);
+      navigate(to);
     } catch (err) {
       console.error(err);
     }
@@ -96,16 +101,18 @@ export default function SignupForm({ error, status, toggleForm }) {
 
   // Toggling each field
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
-  const handleToggleConfirmPassword = () =>
-    setShowConfirmPassword((prev) => !prev);
+  // const handleToggleConfirmPassword = () =>
+  //   setShowConfirmPassword((prev) => !prev);
 
   return (
     <>
-      <div className="mb-2 text-2xl font-bold">Signup</div>
+      {" "}
+      <DialogTitle>
+        <div className="mb-2 text-2xl font-bold">Signup</div>
+      </DialogTitle>
       <div className="mb-4 text-muted-foreground">
         Créez un compte pour accéder à plus de fonctionnalités.
       </div>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Email */}
@@ -216,23 +223,21 @@ export default function SignupForm({ error, status, toggleForm }) {
                 <FormControl>
                   <div className="relative">
                     <Input
-                      type={showConfirmPassword ? "text" : "password"}
+                      type={showPassword ? "text" : "password"}
                       placeholder="Confirmez votre mot de passe..."
-                      className={error ? "border-destructive" : ""}
+                      className={
+                        (error ? "border-destructive" : "") + "h-auto p-3"
+                      }
                       {...field}
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-2"
-                      onClick={handleToggleConfirmPassword}
+                      className="absolute right-0 top-0 h-full px-4 text-primary"
+                      onClick={handleTogglePassword}
                     >
-                      {showConfirmPassword ? (
-                        <EyeOff size={18} />
-                      ) : (
-                        <Eye size={18} />
-                      )}
+                      {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
                     </Button>
                   </div>
                 </FormControl>
@@ -254,22 +259,27 @@ export default function SignupForm({ error, status, toggleForm }) {
                     value={field.value}
                     onValueChange={field.onChange}
                     className="space-y-2"
+                    defaultValue="patient"
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value="patient"
-                        className=""
+                        // className="border-[#16A7B7] text-[#16A7B7]"
                         id="patient"
                       />
-                      <label htmlFor="patient" className="text-blue-2">
+                      <Label htmlFor="patient" className="text-blue-2">
                         Patient
-                      </label>
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="etudiant" id="etudiant" />
-                      <label htmlFor="etudiant" className="text-blue-2">
+                      <RadioGroupItem
+                        value="etudiant"
+                        id="etudiant"
+                        // className="border-[#16A7B7] text-[#16A7B7]"
+                      />
+                      <Label htmlFor="etudiant" className="text-blue-2">
                         Étudiant
-                      </label>
+                      </Label>
                     </div>
                   </RadioGroup>
                 </FormControl>
@@ -299,7 +309,6 @@ export default function SignupForm({ error, status, toggleForm }) {
           </Button>
         </form>
       </Form>
-
       <div className="mt-4 text-center text-sm text-muted-foreground">
         Vous avez déjà un compte ?{" "}
         <Button

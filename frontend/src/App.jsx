@@ -7,13 +7,13 @@ import AppLayout from "./AppLayout";
 import Error from "./components/ui/Error";
 import Home from "./pages/Home";
 import International from "./features/questions/International";
-import Questions from "./features/questions/Questionnaire/QuestionsRecents";
-import Patients from "./features/questions/Patients";
+import Patients, {
+  myQuestionsLoader,
+  recentQuestionsLoader,
+} from "./features/questions/Patients";
 import Etudiants from "./features/questions/Etudiants";
-import MyQuestions, {
-  loader as myQuestionsLoader,
-} from "./features/questions/Questionnaire/MyQuestions";
-import QuestionsRecents from "./features/questions/Questionnaire/QuestionsRecents";
+import Questions from "./features/questions/Questionnaire/Questions";
+import AjouterQuestion from "./features/questions/Questionnaire/AjouterQuestion";
 // import { loader as userLoader } from "./features/user/UserInfo";
 
 const router = createBrowserRouter([
@@ -43,20 +43,21 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true, // Matches /patients directly
-                element: <Navigate to="my" replace />, // Redirects to /patients/my
+                element: <Navigate to="recents" replace />, // Redirects to /patients/my
               },
               {
                 path: "my",
-                element: <MyQuestions />,
+                element: <Questions />,
                 loader: myQuestionsLoader,
               },
               {
                 path: "recents",
-                element: <QuestionsRecents />,
+                element: <Questions />,
+                loader: recentQuestionsLoader,
               },
               {
                 path: "ajouter",
-                element: <Questions />,
+                element: <AjouterQuestion />,
               },
             ],
           },

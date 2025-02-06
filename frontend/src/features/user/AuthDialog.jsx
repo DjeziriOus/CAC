@@ -1,17 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import SkeletonUser from "@/components/ui/SkeletonUser";
 import AlertElement from "@/components/ui/AlertElement";
 
@@ -25,7 +19,7 @@ import SignupForm from "./SignupForm";
  * - Toggling between Login & Signup with a height transition
  * - Handling "failed to fetch" case
  */
-export default function AuthDialog() {
+export default function AuthDialog({ children, to = "#" }) {
   const { error, status } = useSelector((state) => state.user);
 
   const [open, setOpen] = useState(false);
@@ -86,11 +80,7 @@ export default function AuthDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="my-2">
-          Connectez-vous
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px]">
         {/* Animate container height from old->new */}
@@ -110,12 +100,14 @@ export default function AuthDialog() {
             >
               {isLogin ? (
                 <LoginForm
+                  to={to}
                   error={error}
                   status={status}
                   toggleForm={toggleForm}
                 />
               ) : (
                 <SignupForm
+                  to={to}
                   error={error}
                   status={status}
                   toggleForm={toggleForm}

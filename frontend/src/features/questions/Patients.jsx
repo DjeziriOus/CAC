@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/Loader";
 import { Separator } from "@/components/ui/separator";
 import TabSwitcher from "@/components/ui/TabSwitcher";
+import { getMyQuestions, getRecentQuestions } from "@/services/apiQuestions";
 // import Questionaire from "@/components/ui/Questionaire";
 import { ArrowDown } from "lucide-react";
 import { useRef } from "react";
@@ -60,6 +61,17 @@ function Patients() {
       </div>
     </div>
   );
+}
+
+export async function myQuestionsLoader() {
+  return {
+    questions: getMyQuestions(),
+  };
+}
+export async function recentQuestionsLoader() {
+  return {
+    questions: getRecentQuestions(),
+  };
 }
 
 export default Patients;

@@ -24,13 +24,11 @@ export const loginUser = createAsyncThunk(
     try {
       // 1. Get authentication token
       const { token, user: userData } = await postLoginUser(credentials);
-
       // 2. Store token
       localStorage.setItem("token", token);
-
       return userData;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return rejectWithValue(error.message);
     }
   },
@@ -39,9 +37,7 @@ export const signupUser = createAsyncThunk(
   "user/signupUser",
   async (credentials, { rejectWithValue }) => {
     try {
-      console.log(credentials);
       const { token, user: userData } = await postSignupUser(credentials);
-      console.log({ token, user: userData });
       localStorage.setItem("token", token);
       return userData;
     } catch (error) {
@@ -84,10 +80,8 @@ const userSlice = createSlice({
       })
 
       // loginUser
-
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";
-        console.log(state.status);
         state.error = action.payload;
       })
       .addCase(loginUser.pending, (state) => {
@@ -96,7 +90,6 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload);
         state.user = action.payload; // userData from the chain
       })
       // signupUser
