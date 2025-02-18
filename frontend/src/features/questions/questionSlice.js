@@ -23,6 +23,11 @@ const initialState = {
   questions: [],
   status: "idle",
   error: null,
+  tabs: [
+    { name: "Mes Questions", link: "my" },
+    { name: "Questions les plus récentes", link: "recents" },
+    { name: "Ajouter une question", link: "ajouter" },
+  ],
 };
 
 const questionSlice = createSlice({

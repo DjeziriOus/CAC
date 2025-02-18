@@ -28,6 +28,8 @@ function UserInfo() {
   // If user info is still loading, render a skeleton
   if (status === "loadingUser") return <SkeletonUser />;
 
+  // If user info failed to load, show an error
+  // if (status === "failed") return <p></p>;
   // If no user, show the LoginDialog trigger
   if (!user) {
     // return <LoginDialog />;

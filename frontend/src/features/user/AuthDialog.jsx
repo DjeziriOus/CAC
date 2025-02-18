@@ -12,6 +12,7 @@ import AlertElement from "@/components/ui/AlertElement";
 // Import the two forms
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
+import { toast } from "@/hooks/use-toast";
 
 /**
  * AuthDialog manages:
@@ -70,12 +71,18 @@ export default function AuthDialog({ children, to = "#" }) {
    * If "Failed to fetch," replicate your snippet’s server-error pattern
    */
   if (error === "Failed to fetch") {
-    return (
-      <>
-        <SkeletonUser />
-        <AlertElement errorMessage="(500) Serveur est en panne. Veuillez essayer plus tard." />
-      </>
-    );
+    toast({
+      title: "(500) Serveur est en panne. Veuillez essayer plus tard.",
+      variant: "destructive",
+    });
+    return <SkeletonUser />;
+    // return <Toaster />;
+    // return (
+    //   <>
+    //     {/* */}
+    //     <AlertElement errorMessage="(500) Serveur est en panne. Veuillez essayer plus tard." />
+    //   </>
+    // );
   }
 
   return (
