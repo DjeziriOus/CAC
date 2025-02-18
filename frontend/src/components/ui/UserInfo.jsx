@@ -19,23 +19,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { UnplugIcon } from "lucide-react";
 import AuthDialog from "@/features/user/AuthDialog";
+import { useNavigate } from "react-router-dom";
 
 function UserInfo() {
   const dispatch = useDispatch();
   const { user, status } = useSelector((state) => state.user);
-
+  const navigate = useNavigate();
   // If user info is still loading, render a skeleton
   if (status === "loadingUser") return <SkeletonUser />;
 
+  // If user info failed to load, show an error
+  // if (status === "failed") return <p></p>;
   // If no user, show the LoginDialog trigger
   if (!user) {
     // return <LoginDialog />;
-    return <AuthDialog />;
+    return (
+      <AuthDialog>
+        <Button variant="outline" className="my-2">
+          Connectez-vous
+        </Button>
+      </AuthDialog>
+    );
   }
 
   // Handler for logout
   const handleLogout = () => {
     dispatch(logoutUser());
+    navigate("/");
   };
 
   return (
@@ -50,14 +60,16 @@ function UserInfo() {
           className="flex cursor-pointer items-center gap-3 py-7"
         >
           <Avatar className="h-9 w-9">
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage alt="@shadcn" />
+            <AvatarFallback>{user.prenom[0] + user.nom[0]}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col items-start">
             <p className="text-sm font-semibold">
               {user.nom} {user.prenom}
             </p>
-            <p className="text-xs text-muted-foreground">{user.email}</p>
+            <p className="text-xs capitalize text-muted-foreground">
+              {user.role}
+            </p>
           </div>
         </Button>
       </DropdownMenuTrigger>

@@ -1,7 +1,5 @@
-"use client";
-
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -23,6 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
+import { DialogTitle } from "@/components/ui/dialog";
+import { Router, useNavigate } from "react-router-dom";
 
 /**
  * Zod schema for the login form
@@ -44,12 +44,12 @@ const loginSchema = z.object({
  * - shows server errors
  * - includes show/hide password
  */
-export default function LoginForm({ error, status, toggleForm }) {
+export default function LoginForm({ toggleForm, to = "#" }) {
   const dispatch = useDispatch();
-
+  const { status, error } = useSelector((state) => state.user);
   // Show/hide password local state
   const [showPassword, setShowPassword] = useState(false);
-
+  const navigate = useNavigate();
   // RHF
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -62,12 +62,14 @@ export default function LoginForm({ error, status, toggleForm }) {
 
   const onSubmit = async (values) => {
     try {
-      dispatch(
+      await dispatch(
         loginUser({
           email: values.email,
           password: values.password,
         }),
-      );
+      ).unwrap();
+      console.log(to);
+      navigate(to);
     } catch (err) {
       console.error(err);
     }
@@ -78,7 +80,9 @@ export default function LoginForm({ error, status, toggleForm }) {
 
   return (
     <>
-      <div className="mb-2 text-2xl font-bold">Login</div>
+      <DialogTitle>
+        <div className="mb-2 text-2xl font-bold">Login</div>
+      </DialogTitle>
       <div className="mb-4 text-muted-foreground">
         Connectez-vous pour plus d&apos;options et poser vos questions en Q&A.
       </div>

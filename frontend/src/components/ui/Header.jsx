@@ -48,10 +48,6 @@ function Header() {
     }
   }, [dispatch]);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
-
   return (
     <header className="fixed top-0 z-[2] flex w-[100dvw] justify-center bg-[#F7FCFD80] p-2 drop-shadow-[0px_0px_10px_#ffffff] backdrop-blur-md">
       <div className="flex w-full items-center justify-center gap-32 4xl:gap-56">
