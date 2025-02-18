@@ -13,8 +13,8 @@ import {
   useNavigation,
 } from "react-router-dom";
 const tabs = [
-  { name: "Mes Questions", link: "my" },
-  { name: "Questions les plus récentes", link: "recents" },
+  { name: "Mes Questions", link: "my?page=1" },
+  { name: "Questions les plus récentes", link: "recents?page=1" },
   { name: "Ajouter une question", link: "ajouter" },
 ];
 

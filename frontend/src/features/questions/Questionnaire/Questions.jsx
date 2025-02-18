@@ -1,5 +1,11 @@
 import { Suspense, useState } from "react";
-import { Await, useLoaderData, useNavigate } from "react-router-dom";
+// import {  } from "react-router";
+import {
+  Await,
+  useLoaderData,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import Question from "../../../components/ui/Question";
 import { getMyQuestions } from "@/services/apiQuestions";
 import SkeletonLoader from "@/components/ui/SkeletonQuestion";
@@ -18,17 +24,52 @@ import {
 } from "@/components/ui/pagination";
 
 function Questions() {
-  const data = useLoaderData();
-  console.log(data);
-  const questions = data.questions;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { questions, totalPages } = useLoaderData();
+  // console.log(data);
+  // const questions = data.questions;
   const [error, setError] = useState(false);
   const { user, status } = useSelector((state) => state.user);
 
-  const nav = useNavigate();
-  const handleRetry = () => {
-    nav("/questions/my");
+  // const handleRetry = () => {
+  //   nav("/questions/my");
+  // };
+  const navigate = useNavigate();
+
+  const currentPage = searchParams.get("page") || 1;
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      navigate(`?page=${newPage}`);
+    }
   };
 
+  const renderPagination = () => {
+    let pages = [];
+
+    if (totalPages <= 5) {
+      // Show all pages if totalPages is 5 or less
+      pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+    } else {
+      // Show 1, 2, ..., totalPages-1, totalPages
+      pages = [1, 2, "...", totalPages - 1, totalPages];
+    }
+
+    return pages.map((page, index) => (
+      <PaginationItem key={index}>
+        {page === "..." ? (
+          <span className="px-3 py-1">...</span>
+        ) : (
+          <PaginationLink
+            active={page === currentPage}
+            // onClick={() => handlePageChange(page)}
+            to={`?page=${page}`}
+          >
+            {page}
+          </PaginationLink>
+        )}
+      </PaginationItem>
+    ));
+  };
   // if (error) {
   //   return <ErrorElement errorMessage={error} onRetry={handleRetry} />;
   // }
@@ -42,7 +83,7 @@ function Questions() {
         }
       >
         <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
-          <Await resolve={data.questions} errorElement={<SkeletonLoader />}>
+          <Await resolve={questions} errorElement={<SkeletonLoader />}>
             {(loadedData) => {
               if (loadedData.questions.length == 0) return <EmptyQuestions />;
               console.log(loadedData);
@@ -63,12 +104,13 @@ function Questions() {
           <PaginationItem>
             <PaginationPrevious href="?page=1" />
           </PaginationItem>
-          <PaginationItem>
+          {/* <PaginationItem>
             <PaginationLink href="#">1</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
+          </PaginationItem> */}
+          {renderPagination()}
+          {/* <PaginationItem>
             <PaginationEllipsis />
-          </PaginationItem>
+          </PaginationItem> */}
           <PaginationItem>
             <PaginationNext href="#" />
           </PaginationItem>

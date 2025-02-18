@@ -162,7 +162,7 @@ export async function getRecentQuestions() {
   // ];
   // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  return { questions: data.questions };
+  return { questions: data.questions, totalPages: 5 };
   // return data.questions;
 }
 export async function getUser() {
