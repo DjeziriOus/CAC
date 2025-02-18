@@ -31,6 +31,7 @@ export default {
         acc: "#CF7D4E",
         "blue-2": "#0F97B5",
         "blue-20": "#24BEE033",
+        "blue-input-bg": "#026aa21a",
         blk: "#062126",
         "lgt-1": "#F7FCFD",
         "lgt-2": "#12CCF41A",
