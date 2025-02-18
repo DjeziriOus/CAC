@@ -10,7 +10,6 @@ import {
 
 function Toaster() {
   const { toasts } = useToast();
-  console.log("nice");
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {

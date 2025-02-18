@@ -6,9 +6,21 @@ import SkeletonLoader from "@/components/ui/SkeletonQuestion";
 import ErrorElement from "@/components/ui/ErrorElement";
 import { useSelector } from "react-redux";
 import { EmptyQuestions } from "@/components/ui/EmptyQuestions";
+import { toast } from "@/hooks/use-toast";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 function Questions() {
-  let { questions } = useLoaderData();
+  const data = useLoaderData();
+  console.log(data);
+  const questions = data.questions;
   const [error, setError] = useState(false);
   const { user, status } = useSelector((state) => state.user);
 
@@ -22,28 +34,46 @@ function Questions() {
   // }
 
   return (
-    <div className="my-10 flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
+    <div className="my-10 w-full space-y-10">
       <Suspense
         fallback={
           // <div>
           <SkeletonLoader />
         }
       >
-        <Await resolve={questions} errorElement={<SkeletonLoader />}>
-          {(loadedQuestions) => {
-            if (loadedQuestions.length == 0) return <EmptyQuestions />;
-            // console.log(loadedQuestions);
-            // const lQuestions = [loadedQuestions.questions];
-            return (
-              <div className="flex flex-col gap-4">
-                {loadedQuestions.map((q) => (
-                  <Question question={q} key={q.id} />
-                ))}
-              </div>
-            );
-          }}
-        </Await>
+        <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
+          <Await resolve={data.questions} errorElement={<SkeletonLoader />}>
+            {(loadedData) => {
+              if (loadedData.questions.length == 0) return <EmptyQuestions />;
+              console.log(loadedData);
+              // const lQuestions = [loadedData.questions];
+              return (
+                <div className="flex flex-col gap-4">
+                  {loadedData.questions.map((q) => (
+                    <Question question={q} key={q.id} />
+                  ))}
+                </div>
+              );
+            }}
+          </Await>
+        </div>
       </Suspense>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious href="?page=1" />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="#">1</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="#" />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }
