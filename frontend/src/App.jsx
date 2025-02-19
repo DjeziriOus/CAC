@@ -43,7 +43,7 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true, // Matches /patients directly
-                element: <Navigate to="recents?page=1" replace />, // Redirects to /patients/my
+                element: <Navigate to="recents" replace />, // Redirects to /patients/my
               },
               {
                 path: "my",

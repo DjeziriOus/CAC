@@ -14,8 +14,8 @@ import {
   useSearchParams,
 } from "react-router-dom";
 const tabs = [
-  { name: "Mes Questions", link: "my?page=1" },
-  { name: "Questions les plus récentes", link: "recents?page=1" },
+  { name: "Mes Questions", link: "my" },
+  { name: "Questions les plus récentes", link: "recents" },
   { name: "Ajouter une question", link: "ajouter" },
 ];
 
@@ -64,9 +64,14 @@ function Patients() {
   );
 }
 
-export async function myQuestionsLoader() {
+export async function myQuestionsLoader({ request }) {
+  const url = new URL(request.url);
+  const page = url.searchParams.get("page") || 1;
+  const dataPromise = getMyQuestions(page);
+  console.log("calling myQuestionsLoader");
   return {
-    questions: getMyQuestions(),
+    questions: dataPromise.then((data) => data.questions),
+    totalPagesPromise: dataPromise.then((data) => data.totalPages),
   };
 }
 export async function recentQuestionsLoader({ request }) {

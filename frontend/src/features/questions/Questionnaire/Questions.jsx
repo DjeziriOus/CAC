@@ -37,21 +37,24 @@ function Questions() {
   const { questions, totalPagesPromise } = useLoaderData();
   const dispatch = useDispatch();
   const { currentPage, totalPages } = useSelector((state) => state.questions);
-  console.log(totalPagesPromise, totalPages);
   // Set totalPages once
   useEffect(() => {
     if (totalPages == 1) {
       totalPagesPromise.then((value) => dispatch(setTotalPages(value)));
     }
   }, [totalPagesPromise, totalPages, dispatch]);
-
+  // setSearchParams({ page: 1 }, true);
   // Update current page from URL
   useEffect(() => {
-    const page = Number(searchParams.get("page")) || 1;
+    let page = Number(searchParams.get("page"));
+    if (!page) {
+      setSearchParams({ page: 1 }, true); // Reset to default
+      page = Number(searchParams.get("page"));
+    }
     if (page !== currentPage) {
       dispatch(setCurrentPage(page));
     }
-  }, [searchParams, currentPage, dispatch]);
+  }, [searchParams, setSearchParams, currentPage, dispatch]);
 
   const renderPagination = () => {
     if (!totalPages || totalPages < 2) return null; // No need for pagination if only one page
@@ -111,9 +114,7 @@ function Questions() {
           <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
             <Await resolve={questions} errorElement={<SkeletonLoader />}>
               {(loadedData) => {
-                if (loadedData.length == 0)
-                  return <Navigate to={`?page=${totalPages}`} />;
-                // const lQuestions = [loadedData];
+                if (loadedData.length == 0) return <EmptyMyQuestions />;
                 return (
                   <div className="flex flex-col gap-4">
                     {loadedData.map((q) => (

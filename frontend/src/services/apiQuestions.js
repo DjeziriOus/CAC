@@ -1,12 +1,13 @@
+import { toast } from "@/hooks/use-toast";
+
 const API_URL = "http://localhost:3000";
-const QUESTIONS_PER_PAGE = 10;
-export async function getMyQuestions() {
+const QUESTIONS_PER_PAGE = 2;
+export async function getMyQuestions(page) {
   // const res = await fetch(`${API_URL}/questions/my`);
 
   // // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
-  console.log(localStorage.getItem("token"));
   try {
-    const res = await fetch(`${API_URL}/FAQ/getMyQuestions`, {
+    const res = await fetch(`${API_URL}/FAQ/getMyQuestions?page=${page}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -14,19 +15,31 @@ export async function getMyQuestions() {
       },
     });
 
+    await new Promise((resolve) => setTimeout(resolve, 500));
     if (!res.ok) {
       if (res.status === 400 || res.status === 500) {
-        return [];
+        return {
+          questions: [],
+          totalPages: 0,
+        };
       } else {
         throw Error("Failed getting my questions");
       }
     }
     const data = await res.json();
-    // console.log(data);
+    // console.log(data, res);
     if (!data) return [];
-    return data.questions;
+    return {
+      questions: data.questions,
+      totalPages: Math.ceil(data.total / QUESTIONS_PER_PAGE),
+    };
   } catch (error) {
     console.error(error);
+    toast({
+      title: "Erreur",
+      message: "Erreur lors de la récupération de vos questions",
+      type: "error",
+    });
   }
 }
 
@@ -175,6 +188,8 @@ export async function getUser() {
       Authorization: localStorage.getItem("token"),
     },
   });
+  console.log(res);
+  console.log(localStorage.getItem("token"));
 
   if (!res.ok) throw Error("Failed getting user");
   const data = await res.json();
