@@ -10,7 +10,6 @@ import "./Question.css"; // Ensure the animations are defined here
 function Question({ question }) {
   const [isOpen, setIsOpen] = useState(false);
   const contentRef = useRef(null);
-  console.log(question);
   return (
     <div>
       {question.closed ? (

@@ -1,5 +1,5 @@
 const API_URL = "http://localhost:3000";
-
+const QUESTIONS_PER_PAGE = 10;
 export async function getMyQuestions() {
   // const res = await fetch(`${API_URL}/questions/my`);
 
@@ -48,14 +48,14 @@ export async function addQuestion(question) {
   console.log(data);
   return data;
 }
-export async function getRecentQuestions() {
-  const res = await fetch(`${API_URL}/FAQ/getQuestions?page=1`, {
+export async function getRecentQuestions(pageNumber) {
+  const res = await fetch(`${API_URL}/FAQ/getQuestions?page=${pageNumber}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
   });
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) throw Error("Failed getting recent questions");
   const data = await res.json();
@@ -162,7 +162,10 @@ export async function getRecentQuestions() {
   // ];
   // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  return { questions: data.questions, totalPages: 5 };
+  return {
+    questions: data.questions,
+    totalPages: 10,
+  };
   // return data.questions;
 }
 export async function getUser() {

@@ -9,6 +9,7 @@ function AppLayout() {
   return (
     <div className="h-screen">
       {isLoading && <Loader />}
+
       <Header />
       <div className="mx-auto">
         <main className="">

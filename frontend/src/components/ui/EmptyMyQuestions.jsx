@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircleQuestion, PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export function EmptyQuestions() {
+export function EmptyMyQuestions() {
   const navigate = useNavigate();
   return (
     <Card className="w-full border-dashed">
@@ -14,7 +14,7 @@ export function EmptyQuestions() {
         <div className="space-y-2">
           <h3 className="font-semibold tracking-tight">Aucune question</h3>
           <p className="text-sm text-muted-foreground">
-            Aucune question n&apos;est encore disponible. Commencez par en poser
+            Vous n&apos;avez pas encore posé de question. Commencez par en poser
             une !
           </p>
         </div>

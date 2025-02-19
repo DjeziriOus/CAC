@@ -2,7 +2,7 @@ import { Separator } from "./separator";
 
 const SkeletonLoader = () => {
   return (
-    <div className="space-y-10">
+    <div className="w-full space-y-10">
       {/* Skeleton for each question */}
       {[1, 2].map((_, index) => (
         <div

@@ -11,6 +11,7 @@ import {
   ScrollRestoration,
   useLoaderData,
   useNavigation,
+  useSearchParams,
 } from "react-router-dom";
 const tabs = [
   { name: "Mes Questions", link: "my?page=1" },
@@ -68,10 +69,14 @@ export async function myQuestionsLoader() {
     questions: getMyQuestions(),
   };
 }
-export async function recentQuestionsLoader() {
+export async function recentQuestionsLoader({ request }) {
+  const url = new URL(request.url);
+  const page = url.searchParams.get("page") || 1;
+  const dataPromise = getRecentQuestions(page); // This returns a promise
+
   return {
-    questions: getRecentQuestions(),
+    questions: dataPromise.then((data) => data.questions),
+    totalPages: dataPromise.then((data) => data.totalPages),
   };
 }
-
 export default Patients;
