@@ -23,7 +23,7 @@ const initialState = {
   questions: [],
   status: "idle",
   error: null,
-  totalPages: 1,
+  totalPages: null,
   currentPage: 1,
   tabs: [
     { name: "Mes Questions", link: "my" },
@@ -39,6 +39,7 @@ const questionSlice = createSlice({
     // You can add additional synchronous reducers here if needed
     setCurrentPage: (state, action) => {
       state.currentPage = action.payload;
+      console.log(state.currentPage);
     },
     setTotalPages: (state, action) => {
       state.totalPages = action.payload; // Update totalPages only when fetched

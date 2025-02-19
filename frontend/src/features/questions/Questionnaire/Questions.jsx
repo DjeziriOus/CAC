@@ -31,6 +31,7 @@ import {
   setTotalPages,
 } from "@/features/questions/questionSlice";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 function Questions() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,22 +40,31 @@ function Questions() {
   const { currentPage, totalPages } = useSelector((state) => state.questions);
   // Set totalPages once
   useEffect(() => {
-    if (totalPages == 1) {
+    if (totalPages == null) {
       totalPagesPromise.then((value) => dispatch(setTotalPages(value)));
     }
-  }, [totalPagesPromise, totalPages, dispatch]);
-  // setSearchParams({ page: 1 }, true);
-  // Update current page from URL
+    console.log(totalPages !== null);
+    if (currentPage < 1 || (currentPage > totalPages && totalPages !== null)) {
+      setSearchParams({ page: totalPages }, true);
+      console.log("Page Invalide, Redirection en cours ...");
+      toast({
+        title: "Page Invalide, Redirection en cours ...",
+        description: `Vous serez redirigé vers la dernière page`,
+        variant: "destructive",
+      });
+      //   dispatch(setCurrentPage(totalPages));
+    }
+  }, [totalPagesPromise, totalPages, dispatch, currentPage, setSearchParams]);
   useEffect(() => {
     let page = Number(searchParams.get("page"));
     if (!page) {
       setSearchParams({ page: 1 }, true); // Reset to default
       page = Number(searchParams.get("page"));
     }
-    if (page !== currentPage) {
+    if (page !== currentPage && totalPages !== null) {
       dispatch(setCurrentPage(page));
     }
-  }, [searchParams, setSearchParams, currentPage, dispatch]);
+  }, [searchParams, setSearchParams, currentPage, dispatch, totalPages]);
 
   const renderPagination = () => {
     if (!totalPages || totalPages < 2) return null; // No need for pagination if only one page
@@ -79,11 +89,11 @@ function Questions() {
     if (totalPages > 1) {
       pages.push(totalPages);
     }
-    console.log("Current Page:", currentPage, "Pages:", pages);
+
     return (
       <div className="flex w-80 items-center justify-center gap-2">
         {pages.map((page, index) => (
-          <PaginationItem key={index}>
+          <div key={index}>
             {page === "..." ? (
               <PaginationEllipsis />
             ) : (
@@ -93,14 +103,12 @@ function Questions() {
                 </Button>
               </NavLink>
             )}
-          </PaginationItem>
+          </div>
         ))}
       </div>
     );
   };
-  // if (error) {
-  //   return <ErrorElement errorMessage={error} onRetry={handleRetry} />;
-  // }
+
   return (
     <div className="my-14 flex w-full flex-col items-center">
       <div className="mb-10 w-full">
@@ -131,37 +139,36 @@ function Questions() {
         <Pagination>
           <PaginationContent>
             {/* Previous Button */}
-            <PaginationItem>
-              <NavLink
-                to={currentPage > 1 ? `?page=${currentPage - 1}` : "#"}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                }
-                aria-disabled={currentPage === 1}
-                replace
-              >
-                <PaginationPrevious />
-              </NavLink>
-            </PaginationItem>
-
-            {/* Render Page Numbers */}
+            <NavLink
+              to={currentPage > 1 ? `?page=${currentPage - 1}` : "#"}
+              className={
+                currentPage === 1 ? "pointer-events-none opacity-50" : ""
+              }
+              aria-disabled={currentPage === 1}
+              replace
+            >
+              <Button variant="ghost">
+                <ChevronLeft className="h-5 w-5" />
+                <span>Previous</span>
+              </Button>
+            </NavLink>
             {renderPagination()}
-
-            {/* Next Button */}
-            <PaginationItem>
-              <NavLink
-                to={currentPage < totalPages ? `?page=${currentPage + 1}` : "#"}
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-                aria-disabled={currentPage === totalPages}
-                replace
-              >
-                <PaginationNext />
-              </NavLink>
-            </PaginationItem>
+            {/* next Button */}
+            <NavLink
+              to={currentPage < totalPages ? `?page=${currentPage + 1}` : "#"}
+              className={`${
+                currentPage === totalPages
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }`}
+              aria-disabled={currentPage === totalPages}
+              replace
+            >
+              <Button variant="ghost">
+                <span>Next</span>
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </NavLink>
           </PaginationContent>
         </Pagination>
       )}
