@@ -43,10 +43,10 @@ function Questions() {
     if (totalPages == null) {
       totalPagesPromise.then((value) => dispatch(setTotalPages(value)));
     }
-    console.log(totalPages !== null);
-    if (currentPage < 1 || (currentPage > totalPages && totalPages !== null)) {
+    console.log("useEffect - totalPages :", totalPages);
+    if ((currentPage < 1 || currentPage > totalPages) && totalPages !== null) {
       setSearchParams({ page: totalPages }, true);
-      console.log("Page Invalide, Redirection en cours ...");
+      console.log("useEffect - Page Invalide, Redirection en cours ...");
       toast({
         title: "Page Invalide, Redirection en cours ...",
         description: `Vous serez redirigé vers la dernière page`,
@@ -54,8 +54,9 @@ function Questions() {
       });
       //   dispatch(setCurrentPage(totalPages));
     }
-  }, [totalPagesPromise, totalPages, dispatch, currentPage, setSearchParams]);
+  }, [totalPagesPromise, dispatch, currentPage, setSearchParams, totalPages]);
   useEffect(() => {
+    console.log("useEffect - currentPage :", currentPage);
     let page = Number(searchParams.get("page"));
     if (!page) {
       setSearchParams({ page: 1 }, true); // Reset to default

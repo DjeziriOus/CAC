@@ -70,11 +70,11 @@ export async function getRecentQuestions(pageNumber) {
   });
   // await new Promise((resolve) => setTimeout(resolve, 3000));
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
+  console.log("calling getRecentQuestions");
   if (!res.ok) throw Error("Failed getting recent questions");
   const data = await res.json();
 
   await new Promise((resolve) => setTimeout(resolve, 5000));
-  console.log(data);
   return {
     questions: data.questions,
     totalPages: Math.ceil(data.total / QUESTIONS_PER_PAGE),
