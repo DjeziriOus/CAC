@@ -23,7 +23,7 @@ const initialState = {
   questions: [],
   status: "idle",
   error: null,
-  totalPages: null,
+  totalPages: 1,
   currentPage: 1,
   tabs: [
     { name: "Mes Questions", link: "my" },

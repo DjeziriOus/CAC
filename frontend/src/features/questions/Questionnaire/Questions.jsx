@@ -33,13 +33,13 @@ import { Button } from "@/components/ui/button";
 
 function Questions() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { questions, totalPages: totalPagesPromise } = useLoaderData();
+  const { questions, totalPagesPromise } = useLoaderData();
   const dispatch = useDispatch();
   const { currentPage, totalPages } = useSelector((state) => state.questions);
-
+  console.log(totalPagesPromise, totalPages);
   // Set totalPages once
   useEffect(() => {
-    if (totalPages === 1) {
+    if (totalPages == 1) {
       totalPagesPromise.then((value) => dispatch(setTotalPages(value)));
     }
   }, [totalPagesPromise, totalPages, dispatch]);
@@ -54,37 +54,28 @@ function Questions() {
 
   const renderPagination = () => {
     if (!totalPages || totalPages < 2) return null; // No need for pagination if only one page
-
     let pages = [];
-
     // Always include first page
     pages.push(1);
-
     // Add `...` if currentPage is greater than 3
     if (currentPage > 3) {
       pages.push("...");
     }
-
     // Generate sliding window around currentPage
     const start = Math.max(2, currentPage - 1);
     const end = Math.min(totalPages - 1, currentPage + 1);
-
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
-
     // Add `...` if currentPage is not near the end
     if (currentPage < totalPages - 2) {
       pages.push("...");
     }
-
     // Always include last page
     if (totalPages > 1) {
       pages.push(totalPages);
     }
-
     console.log("Current Page:", currentPage, "Pages:", pages);
-
     return (
       <div className="flex w-80 items-center justify-center gap-2">
         {pages.map((page, index) => (
@@ -103,11 +94,9 @@ function Questions() {
       </div>
     );
   };
-
   // if (error) {
   //   return <ErrorElement errorMessage={error} onRetry={handleRetry} />;
   // }
-
   return (
     <div className="my-14 flex w-full flex-col items-center">
       <div className="mb-10 w-full">

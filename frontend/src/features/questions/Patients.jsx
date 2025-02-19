@@ -76,7 +76,7 @@ export async function recentQuestionsLoader({ request }) {
 
   return {
     questions: dataPromise.then((data) => data.questions),
-    totalPages: dataPromise.then((data) => data.totalPages),
+    totalPagesPromise: dataPromise.then((data) => data.totalPages),
   };
 }
 export default Patients;
