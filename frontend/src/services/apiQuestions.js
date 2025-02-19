@@ -164,7 +164,7 @@ export async function getRecentQuestions(pageNumber) {
   await new Promise((resolve) => setTimeout(resolve, 500));
   return {
     questions: data.questions,
-    totalPages: 10,
+    totalPages: Math.ceil(data.total / QUESTIONS_PER_PAGE),
   };
   // return data.questions;
 }

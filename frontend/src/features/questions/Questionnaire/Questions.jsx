@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useState } from "react";
 import {
   Await,
+  Navigate,
   NavLink,
   useLoaderData,
   useNavigate,
@@ -110,7 +111,8 @@ function Questions() {
           <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
             <Await resolve={questions} errorElement={<SkeletonLoader />}>
               {(loadedData) => {
-                if (loadedData.length == 0) return <EmptyQuestions />;
+                if (loadedData.length == 0)
+                  return <Navigate to={`?page=${totalPages}`} />;
                 // const lQuestions = [loadedData];
                 return (
                   <div className="flex flex-col gap-4">
