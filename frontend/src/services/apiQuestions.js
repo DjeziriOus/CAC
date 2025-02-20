@@ -76,7 +76,7 @@ export async function getRecentQuestions(pageNumber) {
   if (!res.ok) throw Error("Failed getting recent questions");
   const data = await res.json();
 
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  await new Promise((resolve) => setTimeout(resolve, 500));
   return {
     questions: data.questions,
     totalPages: Math.ceil(data.total / QUESTIONS_PER_PAGE),
