@@ -4,6 +4,7 @@ import {
   Navigate,
   NavLink,
   useLoaderData,
+  useLocation,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
@@ -32,40 +33,30 @@ import {
 } from "@/features/questions/questionSlice";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { use } from "react";
 
 function Questions() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { questions, totalPagesPromise } = useLoaderData();
   const dispatch = useDispatch();
   const { currentPage, totalPages } = useSelector((state) => state.questions);
-  // Set totalPages once
+  const { user, status } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  const location = useLocation();
+
+  // Check if "my" is in the current URL path
+  const containsMy = location.pathname.includes("my");
   useEffect(() => {
-    if (totalPages == null) {
-      totalPagesPromise.then((value) => dispatch(setTotalPages(value)));
-    }
-    console.log("useEffect - totalPages :", totalPages);
-    if ((currentPage < 1 || currentPage > totalPages) && totalPages !== null) {
-      setSearchParams({ page: totalPages }, true);
-      console.log("useEffect - Page Invalide, Redirection en cours ...");
-      toast({
-        title: "Page Invalide, Redirection en cours ...",
-        description: `Vous serez redirigé vers la dernière page`,
-        variant: "destructive",
-      });
-      //   dispatch(setCurrentPage(totalPages));
-    }
-  }, [totalPagesPromise, dispatch, currentPage, setSearchParams, totalPages]);
-  useEffect(() => {
-    console.log("useEffect - currentPage :", currentPage);
-    let page = Number(searchParams.get("page"));
+    const page = searchParams.get("page");
     if (!page) {
-      setSearchParams({ page: 1 }, true); // Reset to default
-      page = Number(searchParams.get("page"));
+      navigate(`?page=1`);
     }
-    if (page !== currentPage && totalPages !== null) {
-      dispatch(setCurrentPage(page));
-    }
-  }, [searchParams, setSearchParams, currentPage, dispatch, totalPages]);
+    dispatch(setCurrentPage(Number(page)));
+    totalPagesPromise.then((totalPages) => {
+      dispatch(setTotalPages(totalPages));
+    });
+  }, [dispatch, totalPages, totalPagesPromise, searchParams, navigate]);
 
   const renderPagination = () => {
     if (!totalPages || totalPages < 2) return null; // No need for pagination if only one page
@@ -109,7 +100,9 @@ function Questions() {
       </div>
     );
   };
-
+  if (containsMy && !user) {
+    return <Navigate to={"/"} />;
+  }
   return (
     <div className="my-14 flex w-full flex-col items-center">
       <div className="mb-10 w-full">

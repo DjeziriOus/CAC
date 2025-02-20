@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -29,9 +29,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 // import { loginUser } from "@/features/user/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addQuestion } from "@/features/questions/questionSlice";
-
 // Form validation schema
 const formSchema = z.object({
   object: z.string().min(5, {
@@ -43,6 +42,8 @@ const formSchema = z.object({
 });
 
 export default function AjouterQuestion() {
+  const { user, status } = useSelector((state) => state.user);
+
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -55,7 +56,9 @@ export default function AjouterQuestion() {
       content: "",
     },
   });
-
+  if (!user) {
+    return <Navigate to={"/"} />;
+  }
   // Handle form submission
   async function onSubmit(values) {
     try {

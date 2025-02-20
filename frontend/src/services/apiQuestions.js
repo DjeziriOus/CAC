@@ -15,7 +15,9 @@ export async function getMyQuestions(page) {
       },
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
+    const data = await res.json();
+    console.log(data);
     if (!res.ok) {
       if (res.status === 400 || res.status === 500) {
         return {
@@ -26,7 +28,7 @@ export async function getMyQuestions(page) {
         throw Error("Failed getting my questions");
       }
     }
-    const data = await res.json();
+    // const data = await res.json();
     // console.log(data, res);
     if (!data) return [];
     return {

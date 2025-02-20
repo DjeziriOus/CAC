@@ -1,7 +1,10 @@
 // File: features/question/questionSlice.js
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { addQuestion as apiAddQuestion } from "@/services/apiQuestions";
+import {
+  addQuestion as apiAddQuestion,
+  getRecentQuestions,
+} from "@/services/apiQuestions";
 
 // Thunk for adding a question
 export const addQuestion = createAsyncThunk(
@@ -12,6 +15,19 @@ export const addQuestion = createAsyncThunk(
       console.log(object, content);
       const data = await apiAddQuestion({ object, content });
       return data;
+    } catch (error) {
+      console.error(error);
+      return rejectWithValue(error.message);
+    }
+  },
+);
+export const getTotalPages = createAsyncThunk(
+  "question/getTotalPages",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Call the API function to add a question
+      const { totalPages } = await getRecentQuestions(1);
+      return totalPages;
     } catch (error) {
       console.error(error);
       return rejectWithValue(error.message);

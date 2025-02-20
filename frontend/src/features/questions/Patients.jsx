@@ -6,7 +6,9 @@ import { getMyQuestions, getRecentQuestions } from "@/services/apiQuestions";
 // import Questionaire from "@/components/ui/Questionaire";
 import { ArrowDown } from "lucide-react";
 import { useRef } from "react";
+import { useSelector } from "react-redux";
 import {
+  Navigate,
   Outlet,
   ScrollRestoration,
   useLoaderData,
@@ -25,6 +27,7 @@ function Patients() {
     targetRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   const navigation = useNavigation();
+  const { user, status } = useSelector((state) => state.user);
 
   const isLoading = navigation.state === "loading";
   return (
@@ -83,5 +86,9 @@ export async function recentQuestionsLoader({ request }) {
     questions: dataPromise.then((data) => data.questions),
     totalPagesPromise: dataPromise.then((data) => data.totalPages),
   };
+  // return {
+  //   questions: dataPromise.then((data) => data.questions),
+  //   totalPagesPromise: dataPromise.then((data) => data.totalPages),
+  // };
 }
 export default Patients;
