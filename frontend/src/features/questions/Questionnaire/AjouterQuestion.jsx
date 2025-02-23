@@ -31,7 +31,7 @@ import {
 // import { loginUser } from "@/features/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { addQuestion } from "@/features/questions/questionSlice";
-import { register } from "module";
+// import { register } from "module";
 // Form validation schema
 const formSchema = z.object({
   object: z.string().min(5, {
@@ -150,12 +150,7 @@ export default function AjouterQuestion() {
               name="type"
               render={({ field }) => {
                 console.log(questionType);
-                return (
-                  <input
-                    {...register("hidden", { value: questionType })}
-                    type="hidden"
-                  />
-                );
+                return <input value={questionType} type="hidden" />;
               }}
             />
             <div className="flex justify-end gap-4">

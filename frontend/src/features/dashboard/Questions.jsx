@@ -223,21 +223,21 @@ export default function QuestionsDashboard() {
                 ? Array.from({ length: 5 }).map((_, idx) => (
                     <TableRow key={idx}>
                       <TableCell>
-                        <div className="h-5 w-full animate-pulse rounded bg-gray-300" />
+                        <div className="h-5 w-full animate-pulse rounded-lg bg-gray-300" />
                       </TableCell>
                       <TableCell>
-                        <div className="h-8 w-[15vw] animate-pulse rounded bg-gray-300" />
+                        <div className="h-8 w-[15vw] animate-pulse rounded-lg bg-gray-300" />
                       </TableCell>
                       <TableCell>
-                        <div className="h-10 w-[20vw] animate-pulse rounded bg-gray-300" />
+                        <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
                       </TableCell>
                       <TableCell>
-                        <div className="h-10 w-[20vw] animate-pulse rounded bg-gray-300" />
+                        <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
                       </TableCell>
                       <TableCell className="flex h-16 items-center justify-center gap-2">
-                        <div className="h-10 w-10 animate-pulse rounded bg-gray-300" />
-                        <div className="h-10 w-10 animate-pulse rounded bg-gray-300" />
-                        <div className="h-10 w-10 animate-pulse rounded bg-gray-300" />
+                        <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                        <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                        <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
                       </TableCell>
                     </TableRow>
                   ))
