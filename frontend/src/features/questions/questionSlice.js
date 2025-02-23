@@ -9,11 +9,11 @@ import {
 // Thunk for adding a question
 export const addQuestion = createAsyncThunk(
   "question/addQuestion",
-  async ({ object, content }, { rejectWithValue }) => {
+  async ({ object, content, type }, { rejectWithValue }) => {
     try {
       // Call the API function to add a question
-      console.log(object, content);
-      const data = await apiAddQuestion({ object, content });
+      console.log(object, content, type);
+      const data = await apiAddQuestion({ object, content, type });
       return data;
     } catch (error) {
       console.error(error);

@@ -1,0 +1,22 @@
+/* SidebarMenuButton.module.css */
+
+.button {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  color: gray;
+  transition: background-color 0.3s ease;
+  height: 3rem;
+}
+
+.button:hover {
+  background-color: #f4f4f5; /* Light gray background */
+  color: #0f97b5;
+}
+
+/* Apply styles when NavLink is active */
+.button:global(.active) {
+  color: #0f97b5; /* Blue text */
+  /* border: #0f97b5 1px solid; Blue border */
+  background-color: #ededed; /* Light gray background */
+}

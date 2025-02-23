@@ -31,8 +31,8 @@ const loginSchema = z.object({
   email: z
     .string()
     .email({ message: "Veuillez entrer une adresse email valide." }),
-  password: z.string().min(6, {
-    message: "Le mot de passe doit contenir au moins 6 caractères.",
+  password: z.string().min(3, {
+    message: "Le mot de passe doit contenir au moins 3 caractères.",
   }),
   rememberMe: z.boolean().default(false),
 });
@@ -127,7 +127,7 @@ export default function LoginForm({ toggleForm, to = "#" }) {
                       className={
                         error
                           ? "border-destructive"
-                          : "bg-blue-input-bg h-auto py-3 text-blue-2 placeholder:text-blue-2"
+                          : "h-auto bg-blue-input-bg py-3 text-blue-2 placeholder:text-blue-2"
                       }
                       {...field}
                     />

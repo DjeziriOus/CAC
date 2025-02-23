@@ -17,9 +17,9 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { UnplugIcon } from "lucide-react";
+import { LayoutDashboard, LayoutDashboardIcon, UnplugIcon } from "lucide-react";
 import AuthDialog from "@/features/user/AuthDialog";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 function UserInfo() {
   const dispatch = useDispatch();
@@ -32,7 +32,6 @@ function UserInfo() {
   // if (status === "failed") return <p></p>;
   // If no user, show the LoginDialog trigger
   if (!user) {
-    // return <LoginDialog />;
     return (
       <AuthDialog>
         <Button variant="outline" className="my-2">
@@ -57,7 +56,7 @@ function UserInfo() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex cursor-pointer items-center gap-3 py-7"
+          className="flex cursor-pointer items-center justify-start gap-3 py-7"
         >
           <Avatar className="h-9 w-9">
             <AvatarImage alt="@shadcn" />
@@ -80,21 +79,18 @@ function UserInfo() {
       <DropdownMenuContent className="w-48">
         <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
         <DropdownMenuSeparator />
-
-        {/* 
-          If you want more items, e.g. "Profile", "Settings", etc., 
-          you can add more <DropdownMenuItem> elements here.
-        */}
-
+        <DropdownMenuItem className="hover:cursor-pointer">
+          <NavLink to={"/dashboard"} className="flex items-center gap-2">
+            <LayoutDashboardIcon className="h-4 w-4" />
+            Dashboard
+          </NavLink>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={handleLogout}
           className="text-red-500 hover:cursor-pointer"
         >
           <UnplugIcon />
           Se Déconnecter
-          {/* <Button variant="ghost" className="p-2">
-           
-          </Button> */}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,5 +1,5 @@
 import { Separator } from "@radix-ui/react-separator";
-import logo from "../../images/CAClogo.svg";
+import logo from "@/images/CAClogo.svg";
 import { FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { RiInstagramFill } from "react-icons/ri";
@@ -76,7 +76,7 @@ function Footer() {
           className="h-[1px] w-[1050px] bg-[#0621261A]"
         />
       </div>
-      <div className="text-blk-40 mx-auto flex w-[1050px] justify-between text-xs">
+      <div className="mx-auto flex w-[1050px] justify-between text-xs text-blk-40">
         <span>© 2024 Centre anti cancer Batna - Tous droits réservés</span>
         <div className="flex gap-4">
           <span>Politique de confidentialité</span>

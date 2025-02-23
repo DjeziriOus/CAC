@@ -1,25 +1,61 @@
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const API_URL = "http://localhost:3000";
 const QUESTIONS_PER_PAGE = 2;
-export async function getMyQuestions(page) {
+export async function getUsers() {
+  const res = await fetch(`${API_URL}/user/getUsers`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+  });
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  if (!res.ok) throw Error("Failed getting users");
+  const data = await res.json();
+  return data;
+}
+export async function addDoctorAPI(doctor) {
+  const response = await fetch(`${API_URL}/user/addDoctor`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+    body: JSON.stringify(doctor),
+  });
+  if (!response.ok) {
+    toast.error("Erreur", {
+      description: "Erreur lors de l'ajout du médecin, email déjà utilisé",
+    });
+    throw new Error("Failed to add doctor");
+  }
+  const data = await response.json();
+  console.log(data);
+  return data;
+}
+export async function getMyQuestions(page, type) {
   // const res = await fetch(`${API_URL}/questions/my`);
 
   // // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   try {
-    const res = await fetch(`${API_URL}/FAQ/getMyQuestions?page=${page}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: localStorage.getItem("token"),
+    const res = await fetch(
+      // `${API_URL}/FAQ/getMyQuestions?page=${page}`,
+      `${API_URL}/FAQ/getMyQuestions?page=${page}&type=${type}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        },
       },
-    });
+    );
 
-    // await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     const data = await res.json();
     console.log(data);
     if (!res.ok) {
-      if (res.status === 400 || res.status === 500) {
+      if (res.status === 400) {
         return {
           questions: [],
           totalPages: 0,
@@ -63,13 +99,17 @@ export async function addQuestion(question) {
   console.log(data);
   return data;
 }
-export async function getRecentQuestions(pageNumber) {
-  const res = await fetch(`${API_URL}/FAQ/getQuestions?page=${pageNumber}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+export async function getRecentQuestions(page, type) {
+  const res = await fetch(
+    // `${API_URL}/FAQ/getQuestions?page=${page}`,
+    `${API_URL}/FAQ/getQuestions?page=${page}&type=${type}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
   // await new Promise((resolve) => setTimeout(resolve, 3000));
   // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   console.log("calling getRecentQuestions");
@@ -77,11 +117,110 @@ export async function getRecentQuestions(pageNumber) {
   const data = await res.json();
 
   await new Promise((resolve) => setTimeout(resolve, 500));
+  console.log(data.questions, type);
   return {
     questions: data.questions,
     totalPages: Math.ceil(data.total / QUESTIONS_PER_PAGE),
   };
 }
+export async function answerQuestionAPI(id, response) {
+  const res = await fetch(`${API_URL}/FAQ/respond/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+    body: JSON.stringify({ id, response }),
+  });
+  if (!res.ok) {
+    toast.error("Erreur", {
+      description: "Erreur lors de l'ajout de la reponse.",
+    });
+    throw new Error("Failed to add doctor");
+  }
+  const data = await res.json();
+  return data;
+}
+export async function deleteQuestionAPI(id) {
+  const res = await fetch(`${API_URL}/FAQ/deleteQuestion`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+    body: JSON.stringify({ id: id }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    console.log(data);
+    toast.error("Erreur", {
+      description: "Erreur lors de la suppression de la question.",
+    });
+    throw new Error("Erreur lors de la suppression de la question.");
+  }
+  const data = await res.json();
+  return data;
+}
+export async function updateResponseAPI(id, response) {
+  const res = await fetch(`${API_URL}/FAQ/updateResponse`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+    body: JSON.stringify({ id, response }),
+  });
+  if (!res.ok) {
+    toast.error("Erreur", {
+      description: "Erreur lors de la mise à jour de la reponse.",
+    });
+    throw new Error("Erreur lors de la mise à jour de la reponse.");
+  }
+  toast.success("Reponse mise à jour", {
+    description: "La reponse a bien été mise à jour.",
+  });
+
+  const data = await res.json();
+  return data;
+}
+export async function deleteResponseAPI(id) {
+  const res = await fetch(`${API_URL}/FAQ/deleteResponse/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+  });
+  if (!res.ok) {
+    toast.error("Erreur", {
+      description: "Erreur lors de la suppression de la reponse.",
+    });
+    throw new Error("Erreur lors de la suppression de la reponse.");
+  }
+  const data = await res.json();
+  return data;
+}
+export async function getQuestionsAPI(type = "patient") {
+  const res = await fetch(`${API_URL}/FAQ/getQuestions?type=${type}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    console.log(data);
+    toast.error("Erreur", {
+      description: "Erreur lors de la récupération des questions.",
+    });
+    throw new Error("Erreur lors de la récupération des questions.");
+  }
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const data = await res.json();
+  console.log(data);
+  return data;
+}
+
 export async function getUser() {
   const res = await fetch(`${API_URL}/user/getUser`, {
     headers: {

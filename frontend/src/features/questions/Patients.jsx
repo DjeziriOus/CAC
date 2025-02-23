@@ -70,7 +70,8 @@ function Patients() {
 export async function myQuestionsLoader({ request }) {
   const url = new URL(request.url);
   const page = url.searchParams.get("page") || 1;
-  const dataPromise = getMyQuestions(page);
+  const type = url.pathname.includes("patients") ? "patient" : "etudiant";
+  const dataPromise = getMyQuestions(page, type);
   console.log("calling myQuestionsLoader");
   return {
     questions: dataPromise.then((data) => data.questions),
@@ -80,15 +81,11 @@ export async function myQuestionsLoader({ request }) {
 export async function recentQuestionsLoader({ request }) {
   const url = new URL(request.url);
   const page = url.searchParams.get("page") || 1;
-  const dataPromise = getRecentQuestions(page); // This returns a promise
-
+  const type = url.pathname.includes("patients") ? "patient" : "etudiant";
+  const dataPromise = getRecentQuestions(page, type); // This returns a promise
   return {
     questions: dataPromise.then((data) => data.questions),
     totalPagesPromise: dataPromise.then((data) => data.totalPages),
   };
-  // return {
-  //   questions: dataPromise.then((data) => data.questions),
-  //   totalPagesPromise: dataPromise.then((data) => data.totalPages),
-  // };
 }
 export default Patients;

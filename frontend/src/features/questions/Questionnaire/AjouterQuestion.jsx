@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -31,6 +31,7 @@ import {
 // import { loginUser } from "@/features/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { addQuestion } from "@/features/questions/questionSlice";
+import { register } from "module";
 // Form validation schema
 const formSchema = z.object({
   object: z.string().min(5, {
@@ -48,12 +49,17 @@ export default function AjouterQuestion() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const questionType = location.pathname.includes("/patients/")
+    ? "patient"
+    : "etudiant";
   // Initialize form with react-hook-form
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       object: "",
       content: "",
+      type: questionType,
     },
   });
   if (!user) {
@@ -63,9 +69,6 @@ export default function AjouterQuestion() {
   async function onSubmit(values) {
     try {
       setIsLoading(true);
-      // dispatch();
-      // TODO: Replace with your actual API call
-      // await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
       console.log(values);
       await dispatch(addQuestion(values)).unwrap();
 
@@ -76,7 +79,7 @@ export default function AjouterQuestion() {
       });
 
       // Redirect to questions list
-      navigate("/questions/patients/my");
+      navigate(`/questions/${questionType}s/my`);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -141,6 +144,19 @@ export default function AjouterQuestion() {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => {
+                console.log(questionType);
+                return (
+                  <input
+                    {...register("hidden", { value: questionType })}
+                    type="hidden"
+                  />
+                );
+              }}
             />
             <div className="flex justify-end gap-4">
               <Button

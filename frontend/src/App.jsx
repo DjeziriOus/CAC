@@ -14,17 +14,23 @@ import Patients, {
 import Etudiants from "./features/questions/Etudiants";
 import Questions from "./features/questions/Questionnaire/Questions";
 import AjouterQuestion from "./features/questions/Questionnaire/AjouterQuestion";
+import Services from "./features/services/services";
+import Dashboard from "./pages/Dashboard";
+// import Page from "./app/dashboard/page";
+import Utilisateurs from "./features/dashboard/Utilisateurs";
+import Evenements from "./features/dashboard/Evenements";
+import QuestionsDashboard from "./features/dashboard/Questions";
 // import { loader as userLoader } from "./features/user/UserInfo";
 
 const router = createBrowserRouter([
   {
+    path: "/",
     element: <AppLayout />,
     errorElement: <Error />,
     children: [
       {
-        path: "/",
+        index: true,
         element: <Home />,
-        // loader: userLoader,
       },
       {
         path: "/contact",
@@ -64,6 +70,26 @@ const router = createBrowserRouter([
           {
             path: "etudiants",
             element: <Etudiants />,
+            children: [
+              {
+                index: true, // Matches /patients directly
+                element: <Navigate to="recents" replace />, // Redirects to /patients/my
+              },
+              {
+                path: "my",
+                element: <Questions />,
+                loader: myQuestionsLoader,
+              },
+              {
+                path: "recents",
+                element: <Questions />,
+                loader: recentQuestionsLoader,
+              },
+              {
+                path: "ajouter",
+                element: <AjouterQuestion />,
+              },
+            ],
           },
           {
             path: "international",
@@ -71,20 +97,47 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: "/services",
+        element: <Services />,
+      },
       // {
       //   path: "*",
       //   element: <Navigate to="/" />,
       // },
     ],
   },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+    errorElement: <Error />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to={"/dashboard/utilisateurs"} replace />,
+      },
+      {
+        path: "utilisateurs",
+        element: <Utilisateurs />,
+      },
+      {
+        path: "services",
+        element: <Services />,
+      },
+      {
+        path: "questions",
+        element: <QuestionsDashboard />,
+      },
+      {
+        path: "evenements",
+        element: <Evenements />,
+      },
+    ],
+  },
 ]);
 
 function App() {
-  return (
-    <>
-      <RouterProvider router={router}></RouterProvider>
-    </>
-  );
+  return <RouterProvider router={router}></RouterProvider>;
 }
 
 export default App;
