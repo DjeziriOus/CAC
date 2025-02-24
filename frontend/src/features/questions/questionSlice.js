@@ -12,7 +12,6 @@ export const addQuestion = createAsyncThunk(
   async ({ object, content, type }, { rejectWithValue }) => {
     try {
       // Call the API function to add a question
-      console.log(object, content, type);
       const data = await apiAddQuestion({ object, content, type });
       return data;
     } catch (error) {
@@ -40,7 +39,7 @@ const initialState = {
   status: "idle",
   error: null,
   totalPages: null,
-  currentPage: 1,
+  currentPage: null,
   tabs: [
     { name: "Mes Questions", link: "my" },
     { name: "Questions les plus récentes", link: "recents" },
@@ -55,7 +54,6 @@ const questionSlice = createSlice({
     // You can add additional synchronous reducers here if needed
     setCurrentPage: (state, action) => {
       state.currentPage = action.payload;
-      console.log("setCurrentPage - state.currentPage: ", state.currentPage);
     },
     setTotalPages: (state, action) => {
       state.totalPages = action.payload; // Update totalPages only when fetched

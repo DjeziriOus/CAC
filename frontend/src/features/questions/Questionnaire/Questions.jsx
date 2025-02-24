@@ -32,21 +32,30 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { use } from "react";
 import Paginator from "@/components/paginator";
+import { fetchUser } from "@/features/user/userSlice";
 
 function Questions() {
   const { questions } = useLoaderData();
 
-  const { currentPage, totalPages } = useSelector((state) => state.question);
   const { user, status } = useSelector((state) => state.user);
 
   const location = useLocation();
-
+  const questionType = location.pathname.includes("/patients/")
+    ? "patient"
+    : "etudiant";
   // Check if "my" is in the current URL path
   const containsMy = location.pathname.includes("my");
-
-  if (containsMy && !user) {
-    return <Navigate to={"/"} />;
-  }
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) {
+      dispatch(fetchUser()).then((e) => {
+        if (containsMy && (!e.payload.id || e.payload.role !== questionType)) {
+          navigate("/");
+        }
+      });
+    }
+  }, [questionType, dispatch, navigate, user, containsMy]);
   return (
     <div className="my-14 flex w-full flex-col items-center">
       <div className="mb-10 w-full">
@@ -73,7 +82,7 @@ function Questions() {
           </div>
         </Suspense>
       </div>
-      <Paginator totalPages={totalPages} currentPage={currentPage} />
+      <Paginator />
     </div>
   );
 }

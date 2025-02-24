@@ -26,7 +26,12 @@ function UserInfo() {
   const { user, status } = useSelector((state) => state.user);
   const navigate = useNavigate();
   // If user info is still loading, render a skeleton
-  if (status === "loadingUser") return <SkeletonUser />;
+  if (status === "loadingUser")
+    return (
+      <div className="py-0">
+        <SkeletonUser />
+      </div>
+    );
 
   // If user info failed to load, show an error
   // if (status === "failed") return <p></p>;

@@ -10,9 +10,9 @@ import {
 // Thunk to fetch questions
 export const fetchQuestions = createAsyncThunk(
   "questions/fetchQuestions",
-  async (type, { rejectWithValue }) => {
+  async ({ type, page }, { rejectWithValue }) => {
     try {
-      const { questions } = await getQuestionsAPI(type);
+      const { questions } = await getQuestionsAPI(type, page);
       return questions;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -25,9 +25,8 @@ export const answerQuestion = createAsyncThunk(
   "questions/answerQuestion",
   async ({ id, response }, { rejectWithValue }) => {
     try {
-      console.log(id, response);
-      const result = await answerQuestionAPI(id, response);
-      return result.data;
+      await answerQuestionAPI(id, response);
+      return id;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -40,7 +39,7 @@ export const updateResponse = createAsyncThunk(
   async ({ id, response }, { rejectWithValue }) => {
     try {
       const result = await updateResponseAPI(id, response);
-      console.log(result.question[0]);
+      console.log(result);
       return result.question[0];
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

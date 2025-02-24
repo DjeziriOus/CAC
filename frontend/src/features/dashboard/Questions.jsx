@@ -11,7 +11,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,6 +52,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Paginator from "@/components/paginator";
+import { useLoaderData, useSearchParams } from "react-router-dom";
+import { current } from "@reduxjs/toolkit";
 
 export default function QuestionsDashboard() {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
@@ -60,17 +63,28 @@ export default function QuestionsDashboard() {
   const [sorting, setSorting] = useState([]);
 
   const dispatch = useDispatch();
+  // const {} = useLoaderData();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get("page");
   const { questions, status } = useSelector((state) => state.questions);
   const { user } = useSelector((state) => state.user); // Assuming user info is in auth slice
   const [questionType, setQuestionType] = useState("patient");
+
   useEffect(() => {
-    dispatch(fetchQuestions(questionType));
-  }, [dispatch, questionType]);
+    dispatch(fetchQuestions({ type: questionType, page: Number(page) }));
+  }, [dispatch, questionType, page]);
 
   const answerForm = useForm({
     defaultValues: {
       response: "",
     },
+    resolver: zodResolver(
+      z.object({
+        response: z
+          .string()
+          .min(3, "La réponse doit contenir au moins 3 caractères"),
+      }),
+    ),
   });
 
   const onEdit = (question) => {
@@ -143,7 +157,7 @@ export default function QuestionsDashboard() {
               Supprimer
             </Button>
             {!row.original.response &&
-              (user.role === "medecin" || user.role === "admin") && (
+              (user?.role === "medecin" || user?.role === "admin") && (
                 <Button
                   variant="outline"
                   size="icon"
@@ -188,109 +202,142 @@ export default function QuestionsDashboard() {
           isEditing || isAnswering ? "pr-[400px]" : ""
         }`}
       >
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Questions</h2>
-          <Tabs
-            defaultValue="patient"
-            value={questionType}
-            onValueChange={setQuestionType}
-            className="w-[400px]"
-          >
-            <TabsList className="grid h-12 w-full grid-cols-2">
-              <TabsTrigger value="patient" className="h-10">
-                Questions Patients
-              </TabsTrigger>
-              <TabsTrigger value="etudiant" className="h-10">
-                Questions Étudiants
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+        <div className="flex h-full flex-col gap-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold tracking-tight">Questions</h2>
+            <Tabs
+              defaultValue="patient"
+              value={questionType}
+              onValueChange={(e) => {
+                setQuestionType(e);
+                setSearchParams({ type: e, page: 1 });
+              }}
+              className="w-[400px]"
+            >
+              <TabsList className="grid h-12 w-full grid-cols-2">
+                <TabsTrigger value="patient" className="h-10">
+                  Questions Patients
+                </TabsTrigger>
+                <TabsTrigger value="etudiant" className="h-10">
+                  Questions Étudiants
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
 
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Objet</TableHead>
-                <TableHead>Contenu</TableHead>
-                <TableHead>Réponse</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {status === "loading"
-                ? Array.from({ length: 5 }).map((_, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>
-                        <div className="h-5 w-full animate-pulse rounded-lg bg-gray-300" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-8 w-[15vw] animate-pulse rounded-lg bg-gray-300" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
-                      </TableCell>
-                      <TableCell className="flex h-16 items-center justify-center gap-2">
-                        <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
-                        <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
-                        <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                : questions.map((question) => (
-                    <TableRow key={question.id}>
-                      <TableCell>{question.id}</TableCell>
-                      <TableCell>{question.object}</TableCell>
-                      <TableCell>{question.content}</TableCell>
-                      <TableCell>
-                        {question.response || "Aucune réponse"}
-                      </TableCell>
-                      <TableCell className="flex h-full items-center justify-center gap-2">
-                        {question.response ? (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => onEdit(question)}
-                          >
-                            <Edit2Icon className="h-4 w-4" />
-                          </Button>
-                        ) : (
-                          !question.response &&
-                          (user.role === "medecin" ||
-                            user.role === "admin") && (
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => onEdit(question)}
-                            >
-                              <MessageSquareReply className="h-4 w-4" />
-                            </Button>
-                          )
-                        )}
+          <div className="flex-1 overflow-auto">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Objet</TableHead>
+                    <TableHead className="max-w-[2rem]">Contenu</TableHead>
+                    <TableHead className="max-w-md">Réponse</TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      Médecin à avoir répondu
+                    </TableHead>
+                    <TableHead className="text-center">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {status === "loading"
+                    ? Array.from({ length: 5 }).map((_, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell>
+                            <div className="h-5 w-full animate-pulse rounded-lg bg-gray-300" />
+                          </TableCell>
+                          <TableCell>
+                            <div className="h-8 w-[15vw] animate-pulse rounded-lg bg-gray-300" />
+                          </TableCell>
+                          <TableCell>
+                            <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
+                          </TableCell>
+                          <TableCell>
+                            <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
+                          </TableCell>
+                          <TableCell className="flex h-16 items-center justify-center gap-2">
+                            <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                            <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                            <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    : questions.map((question) => {
+                        return (
+                          <TableRow key={question.id}>
+                            <TableCell>{question.id}</TableCell>
+                            <TableCell className="max-w-[14rem]">
+                              {question.object}
+                            </TableCell>
+                            <TableCell className="max-w-[28rem]">
+                              {question.content}
+                            </TableCell>
 
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => onDeleteQuestion(question.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => onDeleteResponse(question.id)}
-                        >
-                          <DeleteIcon className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-            </TableBody>
-          </Table>
+                            <TableCell className="max-w-[28rem]">
+                              {question.response || "Aucune réponse"}
+                            </TableCell>
+                            <TableCell>
+                              {(question?.receiver &&
+                                question?.receiver?.nom +
+                                  " " +
+                                  question?.receiver?.prenom) ||
+                                "Aucun médecin"}
+                            </TableCell>
+
+                            <TableCell className="flex h-full items-center justify-center gap-2">
+                              {question.response ? (
+                                <>
+                                  {user?.email === question.receiver.email && (
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => onEdit(question)}
+                                    >
+                                      <Edit2Icon className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={() =>
+                                      onDeleteResponse(question.id)
+                                    }
+                                  >
+                                    <DeleteIcon className="h-4 w-4" />
+                                  </Button>
+                                </>
+                              ) : (
+                                !question.response &&
+                                (user?.role === "medecin" ||
+                                  user?.role === "admin") && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => onEdit(question)}
+                                  >
+                                    <MessageSquareReply className="h-4 w-4" />
+                                  </Button>
+                                )
+                              )}
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => onDeleteQuestion(question.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+          <div className="mt-auto">
+            <Paginator variant={questionType} />
+          </div>
         </div>
       </div>
 

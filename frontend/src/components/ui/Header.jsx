@@ -31,16 +31,18 @@ function Header() {
         { name: "Espace des étudiants", href: "/questions/etudiants" },
       ],
     },
-    {
-      name: "Dashboard",
-      href: "/dashboard",
-      secondaryName: "Dashboard",
-    },
   ];
   // let location = useLocation();
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-
+  const { user, status } = useSelector((state) => state.user);
+  // if (user?.role === "admin" || user?.role === "medecin") {
+  //   navItems.push({
+  //     name: "Dashboard",
+  //     href: "/dashboard",
+  //     secondaryName: "Dashboard",
+  //   });
+  // }
   return (
     <header className="fixed top-0 z-[2] flex w-[100dvw] justify-center bg-[#F7FCFD80] p-2 drop-shadow-[0px_0px_10px_#ffffff] backdrop-blur-md">
       <div className="flex w-full items-center justify-center gap-32 4xl:gap-56">

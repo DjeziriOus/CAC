@@ -1,7 +1,8 @@
 import { toast } from "sonner";
 
 const API_URL = "http://localhost:3000";
-const QUESTIONS_PER_PAGE = 2;
+const QUESTIONS_PER_PAGE = 1;
+
 export async function getUsers() {
   const res = await fetch(`${API_URL}/user/getUsers`, {
     method: "GET",
@@ -138,7 +139,11 @@ export async function answerQuestionAPI(id, response) {
     });
     throw new Error("Failed to add doctor");
   }
+  toast.success("Réponse ajoutée", {
+    description: "La reponse a bien été ajoutée.",
+  });
   const data = await res.json();
+  console.log(data);
   return data;
 }
 export async function deleteQuestionAPI(id) {
@@ -158,6 +163,9 @@ export async function deleteQuestionAPI(id) {
     });
     throw new Error("Erreur lors de la suppression de la question.");
   }
+  toast.success("Question supprimée", {
+    description: "La question a bien été supprimée.",
+  });
   const data = await res.json();
   return data;
 }
@@ -176,7 +184,7 @@ export async function updateResponseAPI(id, response) {
     });
     throw new Error("Erreur lors de la mise à jour de la reponse.");
   }
-  toast.success("Reponse mise à jour", {
+  toast.success("Réponse mise à jour", {
     description: "La reponse a bien été mise à jour.",
   });
 
@@ -184,12 +192,13 @@ export async function updateResponseAPI(id, response) {
   return data;
 }
 export async function deleteResponseAPI(id) {
-  const res = await fetch(`${API_URL}/FAQ/deleteResponse/${id}`, {
+  const res = await fetch(`${API_URL}/FAQ/deleteResponse/`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       Authorization: localStorage.getItem("token"),
     },
+    body: JSON.stringify({ id: id }),
   });
   if (!res.ok) {
     toast.error("Erreur", {
@@ -197,16 +206,23 @@ export async function deleteResponseAPI(id) {
     });
     throw new Error("Erreur lors de la suppression de la reponse.");
   }
+  toast.success("Réponse supprimée", {
+    description: "La réponse a bien été supprimée.",
+  });
   const data = await res.json();
+  console.log(data);
   return data;
 }
-export async function getQuestionsAPI(type = "patient") {
-  const res = await fetch(`${API_URL}/FAQ/getQuestions?type=${type}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+export async function getQuestionsAPI(type = "patient", page = 1) {
+  const res = await fetch(
+    `${API_URL}/FAQ/getQuestions?type=${type}&page=${page}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     },
-  });
+  );
   if (!res.ok) {
     const data = await res.json();
     console.log(data);
@@ -217,7 +233,6 @@ export async function getQuestionsAPI(type = "patient") {
   }
   await new Promise((resolve) => setTimeout(resolve, 500));
   const data = await res.json();
-  console.log(data);
   return data;
 }
 
@@ -228,7 +243,7 @@ export async function getUser() {
       Authorization: localStorage.getItem("token"),
     },
   });
-
+  await new Promise((resolve) => setTimeout(resolve, 500));
   if (!res.ok) throw Error("Failed getting user");
   const data = await res.json();
   return data;

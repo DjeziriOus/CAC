@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -19,7 +17,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-// import { useToast } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import {
   Card,
@@ -28,11 +25,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-// import { loginUser } from "@/features/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { addQuestion } from "@/features/questions/questionSlice";
-// import { register } from "module";
-// Form validation schema
+import { fetchUser } from "@/features/user/userSlice";
+
 const formSchema = z.object({
   object: z.string().min(5, {
     message: "L'objet doit contenir au moins 5 caractères.",
@@ -40,11 +36,11 @@ const formSchema = z.object({
   content: z.string().min(20, {
     message: "Le contenu doit contenir au moins 20 caractères.",
   }),
+  type: z.string(), // Ensure schema accepts type as a string
 });
 
 export default function AjouterQuestion() {
   const { user, status } = useSelector((state) => state.user);
-
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -53,32 +49,39 @@ export default function AjouterQuestion() {
   const questionType = location.pathname.includes("/patients/")
     ? "patient"
     : "etudiant";
-  // Initialize form with react-hook-form
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       object: "",
       content: "",
-      type: questionType,
+      type: questionType, // default value
     },
   });
-  if (!user) {
-    return <Navigate to={"/"} />;
-  }
-  // Handle form submission
+
+  // Update the "type" field if questionType changes
+  useEffect(() => {
+    form.setValue("type", questionType);
+    if (!user) {
+      dispatch(fetchUser()).then((e) => {
+        if (!e.payload.id || e.payload.role !== questionType) {
+          navigate("/");
+        }
+      });
+    }
+  }, [questionType, form, dispatch, navigate, user]);
+
   async function onSubmit(values) {
     try {
       setIsLoading(true);
       console.log(values);
       await dispatch(addQuestion(values)).unwrap();
 
-      // Show success message
       toast({
         title: "Question soumise",
         description: "Votre question a été soumise avec succès.",
       });
 
-      // Redirect to questions list
       navigate(`/questions/${questionType}s/my`);
     } catch (error) {
       toast({
@@ -145,14 +148,13 @@ export default function AjouterQuestion() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => {
-                console.log(questionType);
-                return <input value={questionType} type="hidden" />;
-              }}
+            {/* You can include this hidden input if you prefer explicit registration */}
+            <input
+              type="hidden"
+              {...form.register("type")}
+              value={questionType}
             />
+
             <div className="flex justify-end gap-4">
               <Button
                 type="button"

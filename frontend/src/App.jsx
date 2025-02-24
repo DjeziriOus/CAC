@@ -69,7 +69,7 @@ const router = createBrowserRouter([
           },
           {
             path: "etudiants",
-            element: <Etudiants />,
+            element: <Patients />,
             children: [
               {
                 index: true, // Matches /patients directly
@@ -127,6 +127,7 @@ const router = createBrowserRouter([
       {
         path: "questions",
         element: <QuestionsDashboard />,
+        loader: recentQuestionsLoader,
       },
       {
         path: "evenements",

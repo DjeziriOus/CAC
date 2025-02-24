@@ -6,33 +6,40 @@ import {
   PaginationEllipsis,
 } from "./ui/pagination";
 import {
+  Await,
   NavLink,
   useLoaderData,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { Suspense, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentPage,
   setTotalPages,
 } from "@/features/questions/questionSlice";
+import PaginatorSkeleton from "./ui/PaginatorSkeleton";
 
-function Paginator({ totalPages, currentPage }) {
+function Paginator({ variant = null }) {
+  const { currentPage, totalPages } = useSelector((state) => state.question);
   const [searchParams, setSearchParams] = useSearchParams();
   const { totalPagesPromise } = useLoaderData();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // const [currentPage, setCurrentPage] = useState(null);
   useEffect(() => {
     const page = searchParams.get("page");
+    const type = searchParams.get("type");
     if (!page) {
-      navigate(`?page=1`);
+      setSearchParams({ page: 1, type: type });
     }
     dispatch(setCurrentPage(Number(page)));
     totalPagesPromise.then((totalPages) => {
+      console.log(totalPages);
       dispatch(setTotalPages(totalPages));
     });
-  }, [dispatch, totalPages, totalPagesPromise, searchParams, navigate]);
+  }, [totalPagesPromise, dispatch, searchParams, setSearchParams]);
+
   const renderPagination = () => {
     if (!totalPages || totalPages < 2) return null; // No need for pagination if only one page
     let pages = [];
@@ -77,7 +84,49 @@ function Paginator({ totalPages, currentPage }) {
   };
   return (
     <div>
-      {totalPages > 1 && (
+      {!totalPages ? (
+        <Suspense fallback={<PaginatorSkeleton />}>
+          <Await resolve={totalPagesPromise}>
+            <Pagination>
+              <PaginationContent>
+                {/* Previous Button */}
+                <NavLink
+                  to={currentPage > 1 ? `?page=${currentPage - 1}` : "#"}
+                  className={
+                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                  }
+                  aria-disabled={currentPage === 1}
+                  replace
+                >
+                  <Button variant="ghost">
+                    <ChevronLeft className="h-5 w-5" />
+                    <span>Previous</span>
+                  </Button>
+                </NavLink>
+                {renderPagination()}
+                {/* next Button */}
+                <NavLink
+                  to={
+                    currentPage < totalPages ? `?page=${currentPage + 1}` : "#"
+                  }
+                  className={`${
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }`}
+                  aria-disabled={currentPage === totalPages}
+                  replace
+                >
+                  <Button variant="ghost">
+                    <span>Next</span>
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </NavLink>
+              </PaginationContent>
+            </Pagination>
+          </Await>
+        </Suspense>
+      ) : (
         <Pagination>
           <PaginationContent>
             {/* Previous Button */}
