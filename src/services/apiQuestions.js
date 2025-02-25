@@ -13,8 +13,8 @@ export async function getUsers() {
   });
   await new Promise((resolve) => setTimeout(resolve, 500));
   if (!res.ok) throw Error("Failed getting users");
-  const data = await res.json();
-  return data;
+  const { users } = await res.json();
+  return users;
 }
 export async function addDoctorAPI(doctor) {
   const response = await fetch(`${API_URL}/user/addDoctor`, {
@@ -25,16 +25,35 @@ export async function addDoctorAPI(doctor) {
     },
     body: JSON.stringify(doctor),
   });
+
   if (!response.ok) {
-    toast.error("Erreur", {
-      description: "Erreur lors de l'ajout du médecin, email déjà utilisé",
-    });
-    throw new Error("Failed to add doctor");
+    const data = await response.json();
+    throw new Error(data.message);
   }
   const data = await response.json();
   console.log(data);
   return data;
 }
+
+export async function deleteAccountAPI(id) {
+  const res = await fetch(`${API_URL}/user/deleteAccount`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+    body: JSON.stringify({ id: id }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    console.log(data);
+    throw new Error(data.message);
+  }
+  const data = await res.json();
+  console.log(data);
+  return data;
+}
+
 export async function getMyQuestions(page, type) {
   // const res = await fetch(`${API_URL}/questions/my`);
 

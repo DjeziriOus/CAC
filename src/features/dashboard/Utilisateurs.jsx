@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { Edit2Icon, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -27,31 +21,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { addDoctor, fetchUsers } from "@/features/dashboard/usersSlice";
+
+// import { addDoctor, fetchUsers } from "@/features/dashboard/usersSlice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { addDoctorAPI, getUsers } from "@/services/apiQuestions";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+import UsersTable from "@/components/ui/UsersTable";
+import { useAddDoctor } from "./useAddDoctor";
+import { useDeleteAccount } from "./useDeleteAccount";
 
 export default function Utilisateurs() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [isAddingDoctor, setIsAddingDoctor] = useState(false);
-  const [sorting, setSorting] = useState([]);
-
-  const dispatch = useDispatch();
-  const { users, status } = useSelector((state) => state.users);
-
-  useEffect(() => {
-    dispatch(fetchUsers());
-  }, [dispatch]);
+  const [isAddingDoctorState, setIsAddingDoctorState] = useState(false);
+  const { isAddingDoctor, addDoctor } = useAddDoctor();
+  const { isDeletingAccount, deleteAccount } = useDeleteAccount();
+  const dispatch = useDispatch(); // const { status } = useSelector((state) => state.users);
 
   const editForm = useForm({
     defaultValues: {
@@ -83,29 +72,18 @@ export default function Utilisateurs() {
     ),
   });
 
-  const onEdit = (user) => {
-    setSelectedUser(user);
-    editForm.reset({
-      nom: user.nom,
-      prenom: user.prenom,
-      role: user.role,
-    });
-    setIsEditing(true);
-    setIsAddingDoctor(false);
-  };
-
   const onEditSubmit = (data) => {
     console.log("Updated user:", { ...selectedUser, ...data });
-    dispatch(fetchUsers());
+    // TODO: using react-query dispatch(fetchUsers());
     setIsEditing(false);
   };
 
   const onAddDoctorSubmit = async (data) => {
     try {
-      await dispatch(addDoctor(data)).unwrap();
-      dispatch(fetchUsers()); // Refresh the list after adding
+      addDoctor(data);
+
       addDoctorForm.reset();
-      setIsAddingDoctor(false);
+      setIsAddingDoctorState(false);
     } catch (error) {
       console.error("Failed to add doctor:", error);
       addDoctorForm.setError("email", {
@@ -114,66 +92,31 @@ export default function Utilisateurs() {
       });
     }
   };
-
-  const table = useReactTable({
-    data: users,
-    columns: [
-      {
-        accessorKey: "avatar",
-        header: "",
-        cell: ({ row }) => (
-          <Avatar className="h-10 w-10">
-            <AvatarImage alt="@shadcn" />
-            <AvatarFallback className="bg-gray-200">
-              {row.original.prenom[0] + row.original.nom[0]}
-            </AvatarFallback>
-          </Avatar>
-        ),
-      },
-      {
-        accessorKey: "nom",
-        header: "Prénom",
-      },
-      {
-        accessorKey: "prenom",
-        header: "Nom",
-      },
-      {
-        accessorKey: "role",
-        header: "Rôle",
-        cell: ({ row }) => {
-          const roleLabels = {
-            admin: "Administrateur",
-            medecin: "Médecin",
-            etudiant: "Etudiant",
-            patient: "Patient",
-          };
-          return roleLabels[row.original.role] || row.original.role;
-        },
-      },
-    ],
-    getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
-  });
-
+  const handleEdit = (user) => {
+    setSelectedUser(user);
+    editForm.reset({
+      nom: user.nom,
+      prenom: user.prenom,
+      role: user.role,
+    });
+    setIsEditing(true);
+    setIsAddingDoctorState(false);
+  };
   return (
     <div className="flex h-full">
       <div
         className={`flex-1 space-y-4 p-8 pt-6 transition-all duration-300 ${
-          isEditing || isAddingDoctor ? "pr-[400px]" : ""
+          isEditing || isAddingDoctorState ? "pr-[400px]" : ""
         }`}
       >
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Utilisateurs</h2>
           <Button
             onClick={() => {
-              setIsAddingDoctor(true);
+              setIsAddingDoctorState(true);
               setIsEditing(false);
             }}
+            disabled={isAddingDoctor}
           >
             <Plus className="mr-2 h-4 w-4" />
             Ajouter un médecin
@@ -181,77 +124,7 @@ export default function Utilisateurs() {
         </div>
 
         <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Avatar</TableHead>
-                <TableHead>Prénom</TableHead>
-                <TableHead>Nom</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Rôle</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {status === "loading"
-                ? Array.from({ length: 5 }).map((_, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>
-                        <div className="h-10 w-10 animate-pulse rounded-full bg-gray-300" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-4 w-12 animate-pulse rounded bg-gray-300" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-4 w-16 animate-pulse rounded bg-gray-300" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-4 w-28 animate-pulse rounded bg-gray-300" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-4 w-20 animate-pulse rounded bg-gray-300" />
-                      </TableCell>
-                      <TableCell>
-                        <div className="h-4 w-6 animate-pulse rounded bg-gray-300" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                : users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage alt="@shadcn" />
-                          <AvatarFallback className="bg-gray-200">
-                            {user.prenom[0] + user.nom[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                      </TableCell>
-                      <TableCell>{user.nom}</TableCell>
-                      <TableCell>{user.prenom}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        {
-                          {
-                            admin: "Administrateur",
-                            medecin: "Médecin",
-                            etudiant: "Etudiant",
-                            patient: "Patient",
-                          }[user.role]
-                        }
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => onEdit(user)}
-                        >
-                          <Edit2Icon className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-            </TableBody>
-          </Table>
+          <UsersTable onEdit={handleEdit} onDelete={deleteAccount} />
         </div>
       </div>
 
@@ -339,7 +212,7 @@ export default function Utilisateurs() {
       {/* Add Doctor Panel */}
       <div
         className={`fixed right-0 top-0 h-full w-[400px] border-l bg-background p-6 shadow-lg transition-transform duration-300 ${
-          isAddingDoctor ? "translate-x-0" : "translate-x-full"
+          isAddingDoctorState ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex h-full flex-col">
@@ -425,7 +298,7 @@ export default function Utilisateurs() {
               <div className="flex justify-end gap-4 pt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setIsAddingDoctor(false)}
+                  onClick={() => setIsAddingDoctorState(false)}
                   type="button"
                 >
                   Annuler
