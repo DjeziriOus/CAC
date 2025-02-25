@@ -41,6 +41,7 @@ import { useUser } from "../user/useUser";
 import { useDeleteQuestion } from "./useDeleteQuestion";
 import { useDeleteAnswer } from "./useDeleteAnswer";
 import { useUpdateResponse } from "./useUpdateResponse";
+import { useAnswerQuestion } from "./useAnswerQuestion";
 
 export default function QuestionsDashboard() {
   const {
@@ -61,7 +62,7 @@ export default function QuestionsDashboard() {
   const { isDeletingQuestion, deleteQuestion } = useDeleteQuestion();
   const { isDeletingAnswer, deleteAnswer } = useDeleteAnswer();
   const { isUpdatingResponse, updateResponse } = useUpdateResponse();
-  const { isAnsweringQuestion, answerQuestion } = useUpdateResponse();
+  const { isAnsweringQuestion, answerQuestion } = useAnswerQuestion();
 
   useEffect(() => {
     searchParams.get("page") || searchParams.set("page", 1);
@@ -323,8 +324,10 @@ export default function QuestionsDashboard() {
                 <Button
                   type="submit"
                   disabled={
-                    selectedQuestion?.response ===
-                    answerForm.getValues("response")
+                    selectedQuestion?.response
+                      ? selectedQuestion?.response ===
+                        answerForm.getValues("response")
+                      : answerForm.getValues("response") === ""
                   }
                 >
                   Enregistrer
