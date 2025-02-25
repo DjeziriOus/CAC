@@ -123,9 +123,7 @@ export default function Utilisateurs() {
           </Button>
         </div>
 
-        <div className="rounded-md border">
-          <UsersTable onEdit={handleEdit} onDelete={deleteAccount} />
-        </div>
+        <UsersTable onEdit={handleEdit} />
       </div>
 
       {/* Edit User Panel */}

@@ -20,13 +20,22 @@ import { Button } from "@/components/ui/button";
 import { LayoutDashboard, LayoutDashboardIcon, UnplugIcon } from "lucide-react";
 import AuthDialog from "@/features/user/AuthDialog";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useUser } from "@/features/user/useUser";
+import { toast } from "sonner";
 
 function UserInfo() {
   const dispatch = useDispatch();
-  const { user, status } = useSelector((state) => state.user);
+  const { user, isPending, error } = useUser();
   const navigate = useNavigate();
   // If user info is still loading, render a skeleton
-  if (status === "loadingUser")
+
+  if (error) {
+    toast.error("Serveur indisponible", {
+      description: ` Serveur indisponible - vérifiez votre connexion internet.`,
+    });
+    return <SkeletonUser />;
+  }
+  if (isPending)
     return (
       <div className="py-0">
         <SkeletonUser />
@@ -48,16 +57,11 @@ function UserInfo() {
 
   // Handler for logout
   const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate("/");
+    localStorage.removeItem("token");
   };
 
   return (
     <DropdownMenu className="z-[999999]">
-      {/* 
-        The "trigger" is the clickable area that toggles the dropdown.
-        Here, we're displaying the user avatar and name as the trigger. 
-      */}
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -78,9 +82,6 @@ function UserInfo() {
         </Button>
       </DropdownMenuTrigger>
 
-      {/* 
-        The dropdown menu content that appears when the trigger is clicked. 
-      */}
       <DropdownMenuContent className="w-48">
         <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
         <DropdownMenuSeparator />

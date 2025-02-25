@@ -18,28 +18,13 @@ import {
   setTotalPages,
 } from "@/features/questions/questionSlice";
 import PaginatorSkeleton from "./ui/PaginatorSkeleton";
+import { useTotalPages } from "@/features/dashboard/useTotalPages";
+import { isPending } from "@reduxjs/toolkit";
 
-function Paginator({ variant = null }) {
-  console.log(variant);
-  const { currentPage, totalPages } = useSelector((state) => state.question);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { totalPagesPromise } = useLoaderData();
-  const dispatch = useDispatch();
-  // const navigate = useNavigate();
-  // const [currentPage, setCurrentPage] = useState(null);
-  useEffect(() => {
-    const page = searchParams.get("page");
-    const type = searchParams.get("type");
-    if (!page) {
-      setSearchParams({ page: 1, type: type });
-    }
-    dispatch(setCurrentPage(Number(page)));
-    totalPagesPromise.then((totalPages) => {
-      console.log(totalPages);
-      dispatch(setTotalPages(totalPages));
-    });
-  }, [totalPagesPromise, dispatch, searchParams, setSearchParams]);
-
+function Paginator() {
+  const { totalPages, isPending } = useTotalPages();
+  const [searchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get("page")) || 1;
   const renderPagination = () => {
     if (!totalPages || totalPages < 2) return null; // No need for pagination if only one page
     let pages = [];
@@ -83,50 +68,9 @@ function Paginator({ variant = null }) {
     );
   };
   return (
-    <div>
-      {!totalPages ? (
-        <Suspense fallback={<PaginatorSkeleton />}>
-          <Await resolve={totalPagesPromise}>
-            <Pagination>
-              <PaginationContent>
-                {/* Previous Button */}
-                <NavLink
-                  to={currentPage > 1 ? `?page=${currentPage - 1}` : "#"}
-                  className={
-                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                  }
-                  aria-disabled={currentPage === 1}
-                  replace
-                >
-                  <Button variant="ghost">
-                    <ChevronLeft className="h-5 w-5" />
-                    <span>Previous</span>
-                  </Button>
-                </NavLink>
-                {renderPagination()}
-                {/* next Button */}
-                <NavLink
-                  to={
-                    currentPage < totalPages ? `?page=${currentPage + 1}` : "#"
-                  }
-                  className={`${
-                    currentPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                  }`}
-                  aria-disabled={currentPage === totalPages}
-                  replace
-                >
-                  <Button variant="ghost">
-                    <span>Next</span>
-                    <ChevronRight className="h-5 w-5" />
-                  </Button>
-                </NavLink>
-              </PaginationContent>
-            </Pagination>
-          </Await>
-        </Suspense>
-      ) : (
+    <>
+      {isPending && <PaginatorSkeleton />}
+      {totalPages > 1 && (
         <Pagination>
           <PaginationContent>
             {/* Previous Button */}
@@ -163,7 +107,7 @@ function Paginator({ variant = null }) {
           </PaginationContent>
         </Pagination>
       )}
-    </div>
+    </>
   );
 }
 

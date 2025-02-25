@@ -23,6 +23,7 @@ import QuestionsDashboard from "./features/dashboard/Questions";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // import { loader as userLoader } from "./features/user/UserInfo";
+import { Toaster } from "sonner";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -135,7 +136,6 @@ const router = createBrowserRouter([
       {
         path: "questions",
         element: <QuestionsDashboard />,
-        loader: recentQuestionsLoader,
       },
       {
         path: "evenements",
@@ -150,6 +150,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />
       <RouterProvider router={router} />
+      <Toaster richColors />
     </QueryClientProvider>
   );
 }

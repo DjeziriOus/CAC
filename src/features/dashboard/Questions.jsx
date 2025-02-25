@@ -41,23 +41,33 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Paginator from "@/components/paginator";
 import { useSearchParams } from "react-router-dom";
+import { getQuestionsAPI } from "@/services/apiQuestions";
+import { useQuery } from "@tanstack/react-query";
+import { useQuestions } from "./useQuestions";
+import { use } from "react";
+import PaginatorSkeleton from "@/components/ui/PaginatorSkeleton";
 
 export default function QuestionsDashboard() {
+  const {
+    questions,
+    totalPages,
+    isPending,
+    error,
+    page: currentPage,
+  } = useQuestions();
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
-
   const dispatch = useDispatch();
-  // const {} = useLoaderData();
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = searchParams.get("page");
-  const { questions, status } = useSelector((state) => state.questions);
+  const { status } = useSelector((state) => state.questions);
   const { user } = useSelector((state) => state.user); // Assuming user info is in auth slice
-  const [questionType, setQuestionType] = useState("patient");
 
   useEffect(() => {
-    dispatch(fetchQuestions({ type: questionType, page: Number(page) }));
-  }, [dispatch, questionType, page]);
+    searchParams.get("page") || searchParams.set("page", 1);
+    searchParams.get("type") || searchParams.set("type", "patient");
+    setSearchParams(searchParams);
+  }, [searchParams, setSearchParams]);
 
   const answerForm = useForm({
     defaultValues: {
@@ -92,7 +102,7 @@ export default function QuestionsDashboard() {
           answerQuestion({ id: selectedQuestion.id, response: data.response }),
         ).unwrap();
       }
-      dispatch(fetchQuestions(questionType));
+      // dispatch(fetchQuestions(questionType));
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to submit response:", error);
@@ -117,51 +127,6 @@ export default function QuestionsDashboard() {
     }
   };
 
-  // const table = useReactTable({
-  //   data: questions,
-  //   columns: [
-  //     { accessorKey: "question", header: "Question" },
-  //     { accessorKey: "response", header: "Réponse" },
-  //     {
-  //       accessorKey: "actions",
-  //       header: "Actions",
-  //       cell: ({ row }) => (
-  //         <div className="flex space-x-2">
-  //           <Button
-  //             variant="ghost"
-  //             size="icon"
-  //             onClick={() => onEdit(row.original)}
-  //           >
-  //             <Edit2Icon className="h-4 w-4" />
-  //           </Button>
-  //           <Button
-  //             variant="ghost"
-  //             size="icon"
-  //             onClick={() => onDeleteResponse(row.original.id)}
-  //           >
-  //             Supprimer
-  //           </Button>
-  //           {!row.original.response &&
-  //             (user?.role === "medecin" || user?.role === "admin") && (
-  //               <Button
-  //                 variant="outline"
-  //                 size="icon"
-  //                 onClick={() => onEdit(row.original)}
-  //               >
-  //                 <Plus className="h-4 w-4" /> Répondre
-  //               </Button>
-  //             )}
-  //         </div>
-  //       ),
-  //     },
-  //   ],
-  //   getCoreRowModel: getCoreRowModel(),
-  //   onSortingChange: setSorting,
-  //   getSortedRowModel: getSortedRowModel(),
-  //   state: {
-  //     sorting,
-  //   },
-  // });
   const panelRef = useRef();
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -191,11 +156,11 @@ export default function QuestionsDashboard() {
           <div className="flex items-center justify-between">
             <h2 className="text-3xl font-bold tracking-tight">Questions</h2>
             <Tabs
-              defaultValue="patient"
-              value={questionType}
+              defaultValue={searchParams.get("type") || "patient"}
               onValueChange={(e) => {
-                setQuestionType(e);
-                setSearchParams({ type: e, page: 1 });
+                searchParams.set("type", e);
+                searchParams.set("page", 1);
+                setSearchParams(searchParams);
               }}
               className="w-[400px]"
             >
@@ -226,7 +191,7 @@ export default function QuestionsDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {status === "loading"
+                  {isPending
                     ? Array.from({ length: 5 }).map((_, idx) => (
                         <TableRow key={idx}>
                           <TableCell>
@@ -321,7 +286,8 @@ export default function QuestionsDashboard() {
             </div>
           </div>
           <div className="mt-auto">
-            <Paginator variant={questionType} />
+            {/* <Paginator variant={questionType} /> */}
+            {<Paginator />}
           </div>
         </div>
       </div>
@@ -374,3 +340,48 @@ export default function QuestionsDashboard() {
     </div>
   );
 }
+// const table = useReactTable({
+//   data: questions,
+//   columns: [
+//     { accessorKey: "question", header: "Question" },
+//     { accessorKey: "response", header: "Réponse" },
+//     {
+//       accessorKey: "actions",
+//       header: "Actions",
+//       cell: ({ row }) => (
+//         <div className="flex space-x-2">
+//           <Button
+//             variant="ghost"
+//             size="icon"
+//             onClick={() => onEdit(row.original)}
+//           >
+//             <Edit2Icon className="h-4 w-4" />
+//           </Button>
+//           <Button
+//             variant="ghost"
+//             size="icon"
+//             onClick={() => onDeleteResponse(row.original.id)}
+//           >
+//             Supprimer
+//           </Button>
+//           {!row.original.response &&
+//             (user?.role === "medecin" || user?.role === "admin") && (
+//               <Button
+//                 variant="outline"
+//                 size="icon"
+//                 onClick={() => onEdit(row.original)}
+//               >
+//                 <Plus className="h-4 w-4" /> Répondre
+//               </Button>
+//             )}
+//         </div>
+//       ),
+//     },
+//   ],
+//   getCoreRowModel: getCoreRowModel(),
+//   onSortingChange: setSorting,
+//   getSortedRowModel: getSortedRowModel(),
+//   state: {
+//     sorting,
+//   },
+// });

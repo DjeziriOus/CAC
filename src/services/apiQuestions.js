@@ -137,7 +137,7 @@ export async function getRecentQuestions(page, type) {
   const data = await res.json();
 
   await new Promise((resolve) => setTimeout(resolve, 500));
-  console.log(data.questions, type);
+
   return {
     questions: data.questions,
     totalPages: Math.ceil(data.total / QUESTIONS_PER_PAGE),
@@ -244,26 +244,31 @@ export async function getQuestionsAPI(type = "patient", page = 1) {
   );
   if (!res.ok) {
     const data = await res.json();
-    console.log(data);
+    console.log(data, type, page);
     toast.error("Erreur", {
       description: "Erreur lors de la récupération des questions.",
     });
     throw new Error("Erreur lors de la récupération des questions.");
   }
   await new Promise((resolve) => setTimeout(resolve, 500));
-  const data = await res.json();
-  return data;
+  const { total, questions } = await res.json();
+  return { total, questions };
 }
 
 export async function getUser() {
-  const res = await fetch(`${API_URL}/user/getUser`, {
+  const res = await fetch(`${API_URL}/userr/getUser`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: localStorage.getItem("token"),
     },
   });
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  if (!res.ok) throw Error("Failed getting user");
+  // await new Promise((resolve) => setTimeout(resolve, 500));
+
+  if (!res.ok) {
+    const data = await res.json();
+    console.log(data);
+    throw new Error("Failed getting user");
+  }
   const data = await res.json();
   return data;
 }
