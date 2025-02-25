@@ -256,7 +256,7 @@ export async function getQuestionsAPI(type = "patient", page = 1) {
 }
 
 export async function getUser() {
-  const res = await fetch(`${API_URL}/userr/getUser`, {
+  const res = await fetch(`${API_URL}/user/getUser`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: localStorage.getItem("token"),

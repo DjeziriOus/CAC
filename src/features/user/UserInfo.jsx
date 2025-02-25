@@ -22,30 +22,16 @@ import AuthDialog from "@/features/user/AuthDialog";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "@/features/user/useUser";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 function UserInfo() {
   const dispatch = useDispatch();
   const { user, isPending, error } = useUser();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   // If user info is still loading, render a skeleton
 
-  if (error) {
-    toast.error("Serveur indisponible", {
-      description: ` Serveur indisponible - vérifiez votre connexion internet.`,
-    });
-    return <SkeletonUser />;
-  }
-  if (isPending)
-    return (
-      <div className="py-0">
-        <SkeletonUser />
-      </div>
-    );
-
-  // If user info failed to load, show an error
-  // if (status === "failed") return <p></p>;
-  // If no user, show the LoginDialog trigger
-  if (!user) {
+  if (!localStorage.getItem("token")) {
     return (
       <AuthDialog>
         <Button variant="outline" className="my-2">
@@ -53,11 +39,29 @@ function UserInfo() {
         </Button>
       </AuthDialog>
     );
+  } else if (isPending)
+    return (
+      <div className="py-0">
+        <SkeletonUser />
+      </div>
+    );
+  if (error) {
+    toast.error("Serveur indisponible", {
+      description: ` Serveur indisponible - vérifiez votre connexion internet.`,
+    });
+    return <SkeletonUser />;
   }
+
+  // If user info failed to load, show an error
+  // if (status === "failed") return <p></p>;
+  // If no user, show the LoginDialog trigger
 
   // Handler for logout
   const handleLogout = () => {
     localStorage.removeItem("token");
+    queryClient.invalidateQueries({
+      queryKey: ["user"],
+    });
   };
 
   return (

@@ -9,7 +9,10 @@ export function useUser() {
     error,
   } = useQuery({
     queryKey: ["user"],
-    queryFn: getUser,
+    queryFn: () => {
+      if (!localStorage.getItem("token")) return {};
+      return getUser();
+    },
   });
   console.log(error);
   return { user, error, isPending };

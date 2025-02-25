@@ -5,7 +5,7 @@ import styles from "./Header.module.css";
 import logo from "@/images/CAClogo.svg";
 // import { ReactComponent as logo } from "./CAClogo.svg";
 import { ChevronDown } from "lucide-react";
-import UserInfo from "@/components/ui/UserInfo";
+import UserInfo from "@/features/user/UserInfo";
 import { fetchUser, logoutUser } from "@/features/user/userSlice";
 import { useSelector, useDispatch } from "react-redux";
 

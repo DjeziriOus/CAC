@@ -23,6 +23,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { DialogTitle } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
+import { useLogin } from "./useLogin";
 
 /**
  * Zod schema for the login form
@@ -45,8 +46,7 @@ const loginSchema = z.object({
  * - includes show/hide password
  */
 export default function LoginForm({ toggleForm, to = "#" }) {
-  const dispatch = useDispatch();
-  const { status, error } = useSelector((state) => state.user);
+  const { isConnecting, error, loginUser } = useLogin();
   // Show/hide password local state
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -60,19 +60,10 @@ export default function LoginForm({ toggleForm, to = "#" }) {
     },
   });
 
-  const onSubmit = async (values) => {
-    try {
-      await dispatch(
-        loginUser({
-          email: values.email,
-          password: values.password,
-        }),
-      ).unwrap();
-      console.log(to);
-      navigate(to);
-    } catch (err) {
-      console.error(err);
-    }
+  const onSubmit = (values) => {
+    console.log(values);
+    loginUser({ email: values.email, password: values.password });
+    navigate(to);
   };
 
   // Toggles password field type
@@ -187,9 +178,9 @@ export default function LoginForm({ toggleForm, to = "#" }) {
           <Button
             type="submit"
             className="w-full"
-            disabled={status === "loading" || form.formState.isSubmitting}
+            disabled={isConnecting || form.formState.isSubmitting}
           >
-            {status === "loading" || form.formState.isSubmitting
+            {isConnecting || form.formState.isSubmitting
               ? "Connexion..."
               : "Login"}
           </Button>
