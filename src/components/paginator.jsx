@@ -9,10 +9,9 @@ import {
   Await,
   NavLink,
   useLoaderData,
-  useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentPage,
@@ -21,11 +20,12 @@ import {
 import PaginatorSkeleton from "./ui/PaginatorSkeleton";
 
 function Paginator({ variant = null }) {
+  console.log(variant);
   const { currentPage, totalPages } = useSelector((state) => state.question);
   const [searchParams, setSearchParams] = useSearchParams();
   const { totalPagesPromise } = useLoaderData();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   // const [currentPage, setCurrentPage] = useState(null);
   useEffect(() => {
     const page = searchParams.get("page");

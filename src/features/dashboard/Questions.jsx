@@ -1,20 +1,14 @@
 "use client";
-import {
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+
 import {
   DeleteIcon,
   Edit2Icon,
   MessageSquareReply,
-  Plus,
   Trash2,
 } from "lucide-react";
-import { useRef, useEffect, useState, Suspense } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,14 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Table,
   TableBody,
@@ -53,14 +40,12 @@ import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Paginator from "@/components/paginator";
-import { useLoaderData, useSearchParams } from "react-router-dom";
-import { current } from "@reduxjs/toolkit";
+import { useSearchParams } from "react-router-dom";
 
 export default function QuestionsDashboard() {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
-  const [sorting, setSorting] = useState([]);
 
   const dispatch = useDispatch();
   // const {} = useLoaderData();
@@ -132,51 +117,51 @@ export default function QuestionsDashboard() {
     }
   };
 
-  const table = useReactTable({
-    data: questions,
-    columns: [
-      { accessorKey: "question", header: "Question" },
-      { accessorKey: "response", header: "Réponse" },
-      {
-        accessorKey: "actions",
-        header: "Actions",
-        cell: ({ row }) => (
-          <div className="flex space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(row.original)}
-            >
-              <Edit2Icon className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onDeleteResponse(row.original.id)}
-            >
-              Supprimer
-            </Button>
-            {!row.original.response &&
-              (user?.role === "medecin" || user?.role === "admin") && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onEdit(row.original)}
-                >
-                  <Plus className="h-4 w-4" /> Répondre
-                </Button>
-              )}
-          </div>
-        ),
-      },
-    ],
-    getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
-  });
+  // const table = useReactTable({
+  //   data: questions,
+  //   columns: [
+  //     { accessorKey: "question", header: "Question" },
+  //     { accessorKey: "response", header: "Réponse" },
+  //     {
+  //       accessorKey: "actions",
+  //       header: "Actions",
+  //       cell: ({ row }) => (
+  //         <div className="flex space-x-2">
+  //           <Button
+  //             variant="ghost"
+  //             size="icon"
+  //             onClick={() => onEdit(row.original)}
+  //           >
+  //             <Edit2Icon className="h-4 w-4" />
+  //           </Button>
+  //           <Button
+  //             variant="ghost"
+  //             size="icon"
+  //             onClick={() => onDeleteResponse(row.original.id)}
+  //           >
+  //             Supprimer
+  //           </Button>
+  //           {!row.original.response &&
+  //             (user?.role === "medecin" || user?.role === "admin") && (
+  //               <Button
+  //                 variant="outline"
+  //                 size="icon"
+  //                 onClick={() => onEdit(row.original)}
+  //               >
+  //                 <Plus className="h-4 w-4" /> Répondre
+  //               </Button>
+  //             )}
+  //         </div>
+  //       ),
+  //     },
+  //   ],
+  //   getCoreRowModel: getCoreRowModel(),
+  //   onSortingChange: setSorting,
+  //   getSortedRowModel: getSortedRowModel(),
+  //   state: {
+  //     sorting,
+  //   },
+  // });
   const panelRef = useRef();
   useEffect(() => {
     const handleClickOutside = (event) => {

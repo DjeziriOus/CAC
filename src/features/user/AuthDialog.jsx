@@ -4,10 +4,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import SkeletonUser from "@/components/ui/SkeletonUser";
-import AlertElement from "@/components/ui/AlertElement";
 
 // Import the two forms
 import LoginForm from "./LoginForm";

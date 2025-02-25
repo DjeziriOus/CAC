@@ -6,7 +6,9 @@ import "leaflet/dist/leaflet.css";
 import { Provider } from "react-redux";
 import store from "./store";
 createRoot(document.getElementById("root")).render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
+  <StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </StrictMode>,
 );

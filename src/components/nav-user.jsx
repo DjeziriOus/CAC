@@ -1,19 +1,11 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { ChevronsUpDown, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -23,20 +15,19 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { useDispatch, useSelector } from "react-redux";
 import SkeletonUser from "./ui/SkeletonUser";
-import { useEffect } from "react";
-import { fetchUser, logoutUser } from "@/features/user/userSlice";
-import { Navigate, useNavigate } from "react-router-dom";
-const myUser = {
-  id: 1,
-  nom: "Kazi",
-  prenom: "Kamil",
-  email: "sk.kaziaoual@esi-sba.dz",
-  role: "admin",
-};
+
+import { logoutUser } from "@/features/user/userSlice";
+import { useNavigate } from "react-router-dom";
+// const myUser = {
+//   id: 1,
+//   nom: "Kazi",
+//   prenom: "Kamil",
+//   email: "sk.kaziaoual@esi-sba.dz",
+//   role: "admin",
+// };
 export function NavUser() {
   const dispatch = useDispatch();
   const navigate = useNavigate();

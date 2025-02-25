@@ -1,15 +1,9 @@
-import {
-  Outlet,
-  ScrollRestoration,
-  useLoaderData,
-  useLocation,
-  useNavigation,
-} from "react-router-dom";
+import { Outlet, useNavigation } from "react-router-dom";
 import Header from "./components/ui/Header";
 import Footer from "./components/ui/Footer";
 import Loader from "./components/ui/Loader";
 import Toaster from "@/components/ui/toaster";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { fetchUser } from "./features/user/userSlice";
 function AppLayout() {
@@ -22,6 +16,7 @@ function AppLayout() {
 
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
+  // TODO: do this in dashboard of Questions to wait for the totalPagesPromise to fullfill or not
   return (
     <div className="h-screen">
       {isLoading && <Loader />}

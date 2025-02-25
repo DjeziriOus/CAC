@@ -1,19 +1,4 @@
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  CalendarDays,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Hospital,
-  MailQuestion,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  Users,
-} from "lucide-react";
+import { CalendarDays, Hospital, MailQuestion, Users } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 // import { NavProjects } from "@/components/nav-projects";
@@ -22,7 +7,6 @@ import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";

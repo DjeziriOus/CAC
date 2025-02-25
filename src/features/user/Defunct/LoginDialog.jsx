@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "@/features/user/userSlice";
 
@@ -27,8 +25,6 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import Error from "@/components/ui/Error";
-import ErrorElement from "@/components/ui/ErrorElement";
 import AlertElement from "@/components/ui/AlertElement";
 import SkeletonUser from "@/components/ui/SkeletonUser";
 
@@ -43,8 +39,6 @@ const formSchema = z.object({
 });
 
 export function LoginDialog() {
-  const [open, setOpen] = useState(false);
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -58,7 +52,7 @@ export function LoginDialog() {
   const dispatch = useDispatch();
 
   // Grab auth state from Redux
-  const { error, status, user } = useSelector((state) => state.user);
+  const { error, status } = useSelector((state) => state.user);
 
   async function onSubmit(values) {
     try {
