@@ -27,8 +27,14 @@ function Header() {
       href: "/questions",
       secondaryName: "Q&A",
       components: [
-        { name: "Espace des patients", href: "/questions/patients" },
-        { name: "Espace des étudiants", href: "/questions/etudiants" },
+        {
+          name: "Espace des patients",
+          href: "/questions/recents?page=1&type=patient",
+        },
+        {
+          name: "Espace des étudiants",
+          href: "/questions/recents?page=1&type=etudiant",
+        },
       ],
     },
   ];

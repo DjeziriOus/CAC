@@ -266,7 +266,9 @@ export async function getUser() {
 
   if (!res.ok) {
     const data = await res.json();
-    console.log(data);
+    toast.error("Erreur", {
+      description: `${data.message}, Erreur lors de la récupération de l'utilisateur.`,
+    });
     throw new Error("Failed getting user");
   }
   const data = await res.json();
@@ -282,6 +284,10 @@ export async function postLoginUser(credentials) {
 
     // Handle specific error codes first
     if (res.status === 400) {
+      toast.error("Échec de la connexion", {
+        description:
+          "Échec de la connexion. Veuillez vérifier vos identifiants.",
+      });
       throw new Error(
         "Échec de la connexion. Veuillez vérifier vos identifiants.",
       );
@@ -305,6 +311,7 @@ export async function postLoginUser(credentials) {
   } catch (error) {
     // Add generic network error handling
     if (error.message === "Failed to fetch") {
+      toast.error("Serveur indisponible");
       throw new Error(
         "Serveur indisponible - vérifiez votre connexion internet",
       );

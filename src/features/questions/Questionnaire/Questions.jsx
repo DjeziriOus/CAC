@@ -33,9 +33,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { use } from "react";
 import Paginator from "@/components/paginator";
 import { fetchUser } from "@/features/user/userSlice";
+import { useQuestions } from "@/features/dashboard/useQuestions";
 
 function Questions() {
-  const { questions } = useLoaderData();
+  // const { questions } = useLoaderData();
+  const { questions, isPending, error, page } = useQuestions();
 
   const { user, status } = useSelector((state) => state.user);
 
@@ -56,6 +58,22 @@ function Questions() {
       });
     }
   }, [questionType, dispatch, navigate, user, containsMy]);
+  if (isPending) {
+    return (
+      <div className="my-14 flex w-full flex-col items-center">
+        <div className="mb-10 w-full">
+          <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
+            {isPending ? (
+              <SkeletonLoader />
+            ) : (
+              (questions.length == 0 && <EmptyMyQuestions />) ||
+              questions.map((q) => <Question question={q} key={q.id} />)
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="my-14 flex w-full flex-col items-center">
       <div className="mb-10 w-full">

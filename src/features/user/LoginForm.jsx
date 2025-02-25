@@ -63,7 +63,7 @@ export default function LoginForm({ toggleForm, to = "#" }) {
   const onSubmit = (values) => {
     console.log(values);
     loginUser({ email: values.email, password: values.password });
-    navigate(to);
+    navigate("/");
   };
 
   // Toggles password field type

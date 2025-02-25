@@ -1,9 +1,3 @@
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-
-import { logoutUser } from "@/features/user/userSlice";
-import { LoginDialog } from "../../features/user/Defunct/LoginDialog";
-
 import SkeletonUser from "@/components/ui/SkeletonUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -17,17 +11,16 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, LayoutDashboardIcon, UnplugIcon } from "lucide-react";
+import { LayoutDashboardIcon, UnplugIcon } from "lucide-react";
 import AuthDialog from "@/features/user/AuthDialog";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useUser } from "@/features/user/useUser";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
 function UserInfo() {
-  const dispatch = useDispatch();
   const { user, isPending, error } = useUser();
-  const navigate = useNavigate();
+
   const queryClient = useQueryClient();
   // If user info is still loading, render a skeleton
 
