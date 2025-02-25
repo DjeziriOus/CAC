@@ -180,6 +180,7 @@ export async function deleteQuestionAPI(id) {
   return data;
 }
 export async function updateResponseAPI(id, response) {
+  console.log(id, response);
   const res = await fetch(`${API_URL}/FAQ/updateResponse`, {
     method: "PATCH",
     headers: {
@@ -189,14 +190,8 @@ export async function updateResponseAPI(id, response) {
     body: JSON.stringify({ id, response }),
   });
   if (!res.ok) {
-    toast.error("Erreur", {
-      description: "Erreur lors de la mise à jour de la reponse.",
-    });
     throw new Error("Erreur lors de la mise à jour de la reponse.");
   }
-  toast.success("Réponse mise à jour", {
-    description: "La reponse a bien été mise à jour.",
-  });
 
   const data = await res.json();
   return data;

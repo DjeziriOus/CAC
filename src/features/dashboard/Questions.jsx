@@ -7,7 +7,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,13 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  fetchQuestions,
-  answerQuestion,
-  updateResponse,
-  deleteResponse,
-  deleteQuestion,
-} from "./questionsSlice";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -41,14 +35,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Paginator from "@/components/paginator";
 import { useSearchParams } from "react-router-dom";
-import { getQuestionsAPI } from "@/services/apiQuestions";
-import { useQuery } from "@tanstack/react-query";
+
 import { useQuestions } from "./useQuestions";
-import { use } from "react";
-import PaginatorSkeleton from "@/components/ui/PaginatorSkeleton";
 import { useUser } from "../user/useUser";
 import { useDeleteQuestion } from "./useDeleteQuestion";
 import { useDeleteAnswer } from "./useDeleteAnswer";
+import { useUpdateResponse } from "./useUpdateResponse";
 
 export default function QuestionsDashboard() {
   const {
@@ -67,6 +59,9 @@ export default function QuestionsDashboard() {
   // const { user } = useSelector((state) => state.user); // Assuming user info is in auth slice
   const { user } = useUser();
   const { isDeletingQuestion, deleteQuestion } = useDeleteQuestion();
+  const { isDeletingAnswer, deleteAnswer } = useDeleteAnswer();
+  const { isUpdatingResponse, updateResponse } = useUpdateResponse();
+  const { isAnsweringQuestion, answerQuestion } = useUpdateResponse();
 
   useEffect(() => {
     searchParams.get("page") || searchParams.set("page", 1);
@@ -96,27 +91,16 @@ export default function QuestionsDashboard() {
     setIsAnswering(false);
   };
 
-  const onSubmit = async (data) => {
-    try {
-      if (selectedQuestion.response) {
-        await dispatch(
-          updateResponse({ id: selectedQuestion.id, response: data.response }),
-        ).unwrap();
-      } else {
-        await dispatch(
-          answerQuestion({ id: selectedQuestion.id, response: data.response }),
-        ).unwrap();
-      }
-      // dispatch(fetchQuestions(questionType));
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Failed to submit response:", error);
+  const onSubmit = (data) => {
+    if (selectedQuestion.response) {
+      updateResponse({ id: selectedQuestion.id, response: data.response });
+    } else {
+      answerQuestion({ id: selectedQuestion.id, response: data.response });
     }
+    setIsEditing(false);
   };
-  const { isDeletingAnswer, deleteAnswer } = useDeleteAnswer();
-  const onDeleteResponse = async (id) => {
+  const onDeleteResponse = (id) => {
     deleteAnswer(id);
-    console.log("Deleting response with id:", id);
   };
 
   const handleDeleteQuestion = (id) => {
@@ -336,7 +320,15 @@ export default function QuestionsDashboard() {
                 >
                   Annuler
                 </Button>
-                <Button type="submit">Enregistrer</Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    selectedQuestion?.response ===
+                    answerForm.getValues("response")
+                  }
+                >
+                  Enregistrer
+                </Button>
               </div>
             </form>
           </Form>
