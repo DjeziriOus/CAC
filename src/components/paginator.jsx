@@ -25,6 +25,7 @@ function Paginator() {
   const { totalPages, isPending } = useTotalPages();
   const [searchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
+  const currentType = searchParams.get("type") || "patient";
   const renderPagination = () => {
     if (!totalPages || totalPages < 2) return null; // No need for pagination if only one page
     let pages = [];
@@ -56,7 +57,7 @@ function Paginator() {
             {page === "..." ? (
               <PaginationEllipsis />
             ) : (
-              <NavLink to={`?page=${page}`}>
+              <NavLink to={`?page=${page}&type=${currentType}`}>
                 <Button variant={page == currentPage ? "default" : "outline"}>
                   {page}
                 </Button>
@@ -75,7 +76,11 @@ function Paginator() {
           <PaginationContent>
             {/* Previous Button */}
             <NavLink
-              to={currentPage > 1 ? `?page=${currentPage - 1}` : "#"}
+              to={
+                currentPage > 1
+                  ? `?page=${currentPage - 1}&type=${currentType}`
+                  : "#"
+              }
               className={
                 currentPage === 1 ? "pointer-events-none opacity-50" : ""
               }
@@ -90,7 +95,11 @@ function Paginator() {
             {renderPagination()}
             {/* next Button */}
             <NavLink
-              to={currentPage < totalPages ? `?page=${currentPage + 1}` : "#"}
+              to={
+                currentPage < totalPages
+                  ? `?page=${currentPage + 1}&type=${currentType}`
+                  : "#"
+              }
               className={`${
                 currentPage === totalPages
                   ? "pointer-events-none opacity-50"

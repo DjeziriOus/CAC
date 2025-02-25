@@ -18,7 +18,6 @@ function UserRow({ user, onEdit }) {
   const { id, nom, prenom, email, role } = user;
   const { isDeletingAccount, deleteAccount } = useDeleteAccount();
   const handleDelete = (id) => {
-    console.log("Deleting user with id:", id);
     deleteAccount(id);
   };
   return (

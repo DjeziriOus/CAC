@@ -68,7 +68,7 @@ export default function Dashboard() {
           <Outlet />
         </div>
       </SidebarInset>
-      <Toaster richColors />
+      {/* <Toaster richColors /> */}
     </SidebarProvider>
   );
 }

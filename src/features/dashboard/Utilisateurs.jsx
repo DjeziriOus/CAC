@@ -32,14 +32,12 @@ import { toast } from "sonner";
 
 import UsersTable from "@/components/ui/UsersTable";
 import { useAddDoctor } from "./useAddDoctor";
-import { useDeleteAccount } from "./useDeleteAccount";
 
 export default function Utilisateurs() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingDoctorState, setIsAddingDoctorState] = useState(false);
   const { isAddingDoctor, addDoctor } = useAddDoctor();
-  const { isDeletingAccount, deleteAccount } = useDeleteAccount();
   const dispatch = useDispatch(); // const { status } = useSelector((state) => state.users);
 
   const editForm = useForm({

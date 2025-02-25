@@ -46,6 +46,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useQuestions } from "./useQuestions";
 import { use } from "react";
 import PaginatorSkeleton from "@/components/ui/PaginatorSkeleton";
+import { useUser } from "../user/useUser";
+import { useDeleteQuestion } from "./useDeleteQuestion";
+import { useDeleteAnswer } from "./useDeleteAnswer";
 
 export default function QuestionsDashboard() {
   const {
@@ -60,8 +63,10 @@ export default function QuestionsDashboard() {
   const [isAnswering, setIsAnswering] = useState(false);
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { status } = useSelector((state) => state.questions);
-  const { user } = useSelector((state) => state.user); // Assuming user info is in auth slice
+
+  // const { user } = useSelector((state) => state.user); // Assuming user info is in auth slice
+  const { user } = useUser();
+  const { isDeletingQuestion, deleteQuestion } = useDeleteQuestion();
 
   useEffect(() => {
     searchParams.get("page") || searchParams.set("page", 1);
@@ -108,23 +113,14 @@ export default function QuestionsDashboard() {
       console.error("Failed to submit response:", error);
     }
   };
-
+  const { isDeletingAnswer, deleteAnswer } = useDeleteAnswer();
   const onDeleteResponse = async (id) => {
-    try {
-      await dispatch(deleteResponse(id)).unwrap();
-      dispatch(fetchQuestions());
-    } catch (error) {
-      console.error("Failed to delete response:", error);
-    }
+    deleteAnswer(id);
+    console.log("Deleting response with id:", id);
   };
 
-  const onDeleteQuestion = async (id) => {
-    try {
-      await dispatch(deleteQuestion(id)).unwrap();
-      dispatch(fetchQuestions());
-    } catch (error) {
-      console.error("Failed to delete question:", error);
-    }
+  const handleDeleteQuestion = (id) => {
+    deleteQuestion(id);
   };
 
   const panelRef = useRef();
@@ -145,6 +141,7 @@ export default function QuestionsDashboard() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isEditing]);
+
   return (
     <div className="flex h-full">
       <div
@@ -239,23 +236,26 @@ export default function QuestionsDashboard() {
                               {question.response ? (
                                 <>
                                   {user?.email === question.receiver.email && (
-                                    <Button
-                                      variant="outline"
-                                      size="icon"
-                                      onClick={() => onEdit(question)}
-                                    >
-                                      <Edit2Icon className="h-4 w-4" />
-                                    </Button>
+                                    <>
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => onEdit(question)}
+                                      >
+                                        <Edit2Icon className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() =>
+                                          onDeleteResponse(question.id)
+                                        }
+                                        disabled={isDeletingAnswer}
+                                      >
+                                        <DeleteIcon className="h-4 w-4" />
+                                      </Button>
+                                    </>
                                   )}
-                                  <Button
-                                    variant="destructive"
-                                    size="icon"
-                                    onClick={() =>
-                                      onDeleteResponse(question.id)
-                                    }
-                                  >
-                                    <DeleteIcon className="h-4 w-4" />
-                                  </Button>
                                 </>
                               ) : (
                                 !question.response &&
@@ -270,13 +270,18 @@ export default function QuestionsDashboard() {
                                   </Button>
                                 )
                               )}
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => onDeleteQuestion(question.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              {!question?.receiver?.email && (
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  onClick={() =>
+                                    handleDeleteQuestion(question.id)
+                                  }
+                                  disabled={isDeletingQuestion}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
                             </TableCell>
                           </TableRow>
                         );

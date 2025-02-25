@@ -61,7 +61,7 @@ export async function getMyQuestions(page, type) {
   try {
     const res = await fetch(
       // `${API_URL}/FAQ/getMyQuestions?page=${page}`,
-      `${API_URL}/FAQ/getMyQuestions?page=${page}&type=${type}`,
+      `${API_URL}/FAQ/getMyQuestions?page=${page}`,
       {
         method: "GET",
         headers: {
@@ -70,10 +70,8 @@ export async function getMyQuestions(page, type) {
         },
       },
     );
-
     await new Promise((resolve) => setTimeout(resolve, 500));
     const data = await res.json();
-    console.log(data);
     if (!res.ok) {
       if (res.status === 400) {
         return {
@@ -93,10 +91,9 @@ export async function getMyQuestions(page, type) {
     };
   } catch (error) {
     console.error(error);
-    toast({
-      title: "Erreur",
-      message: "Erreur lors de la récupération de vos questions",
-      type: "error",
+    toast.error("Une erreur est survenue", {
+      description:
+        error.message + ", Erreur lors de la récupération des questions.",
     });
   }
 }
@@ -177,14 +174,8 @@ export async function deleteQuestionAPI(id) {
   if (!res.ok) {
     const data = await res.json();
     console.log(data);
-    toast.error("Erreur", {
-      description: "Erreur lors de la suppression de la question.",
-    });
-    throw new Error("Erreur lors de la suppression de la question.");
+    throw new Error(data.message);
   }
-  toast.success("Question supprimée", {
-    description: "La question a bien été supprimée.",
-  });
   const data = await res.json();
   return data;
 }

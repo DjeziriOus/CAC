@@ -32,84 +32,82 @@ const queryClient = new QueryClient({
     },
   },
 });
-const router = createBrowserRouter(
-  [
-    {
-      path: "/",
-      element: <AppLayout />,
-      errorElement: <Error />,
-      children: [
-        {
-          index: true,
-          element: <Home />,
-        },
-        {
-          path: "/contact",
-          element: <Home />,
-        },
-        {
-          path: "/questions",
-          element: <QuestionsForum />,
-          children: [
-            {
-              index: true, // Matches /questions directly
-              element: <Navigate to="recents" replace />,
-            },
-            {
-              path: "my",
-              element: <Questions />,
-              loader: myQuestionsLoader,
-            },
-            {
-              path: "recents",
-              element: <Questions />,
-              loader: recentQuestionsLoader,
-            },
-            {
-              path: "ajouter",
-              element: <AjouterQuestion />,
-            },
-          ],
-        },
-        {
-          path: "etudiants",
-          element: <Patients />,
-          children: [
-            {
-              index: true, // Matches /patients directly
-              element: <Navigate to="recents" replace />, // Redirects to /patients/my
-            },
-            {
-              path: "my",
-              element: <Questions />,
-              loader: myQuestionsLoader,
-            },
-            {
-              path: "recents",
-              element: <Questions />,
-              loader: recentQuestionsLoader,
-            },
-            {
-              path: "ajouter",
-              element: <AjouterQuestion />,
-            },
-          ],
-        },
-        {
-          path: "international",
-          element: <International />,
-        },
-      ],
-    },
-    {
-      path: "/services",
-      element: <Services />,
-    },
-    // {
-    //   path: "*",
-    //   element: <Navigate to="/" />,
-    // },
-  ],
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <AppLayout />,
+    errorElement: <Error />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: "/contact",
+        element: <Home />,
+      },
+      {
+        path: "/questions",
+        element: <QuestionsForum />,
+        children: [
+          {
+            index: true, // Matches /questions directly
+            element: <Navigate to="recents" replace />,
+          },
+          {
+            path: "my",
+            element: <Questions />,
+            loader: myQuestionsLoader,
+          },
+          {
+            path: "recents",
+            element: <Questions />,
+            loader: recentQuestionsLoader,
+          },
+          {
+            path: "ajouter",
+            element: <AjouterQuestion />,
+          },
+        ],
+      },
+      {
+        path: "etudiants",
+        element: <Patients />,
+        children: [
+          {
+            index: true, // Matches /patients directly
+            element: <Navigate to="recents" replace />, // Redirects to /patients/my
+          },
+          {
+            path: "my",
+            element: <Questions />,
+            loader: myQuestionsLoader,
+          },
+          {
+            path: "recents",
+            element: <Questions />,
+            loader: recentQuestionsLoader,
+          },
+          {
+            path: "ajouter",
+            element: <AjouterQuestion />,
+          },
+        ],
+      },
+      {
+        path: "international",
+        element: <International />,
+      },
+    ],
+  },
+  {
+    path: "/services",
+    element: <Services />,
+  },
+  // {
+  //   path: "*",
+  //   element: <Navigate to="/" />,
+  // },
   {
     path: "/dashboard",
     element: <Dashboard />,
@@ -137,7 +135,7 @@ const router = createBrowserRouter(
       },
     ],
   },
-);
+]);
 
 function App() {
   return (

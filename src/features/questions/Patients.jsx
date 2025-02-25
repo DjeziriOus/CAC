@@ -82,7 +82,7 @@ function Patients() {
 export async function myQuestionsLoader({ request }) {
   const url = new URL(request.url);
   const page = url.searchParams.get("page") || 1;
-  const type = url.pathname.includes("patients") ? "patient" : "etudiant";
+  const type = url.searchParams.get("type") || "patient";
   const dataPromise = getMyQuestions(page, type);
   return {
     questions: dataPromise.then((data) => data.questions),
