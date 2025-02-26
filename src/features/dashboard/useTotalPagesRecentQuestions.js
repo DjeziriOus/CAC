@@ -3,10 +3,13 @@ import { PAGE_SIZE } from "@/utils/constants";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
-export function useTotalPages() {
-  const queryClient = useQueryClient();
+export function useTotalPagesRecentQuestions() {
+  // const containsMy = location.pathname.includes("my");
+  // const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const questionsType = searchParams.get("type") || "patient";
+  const questionsType = location.pathname.includes("patient")
+    ? "patient"
+    : "etudiant";
   const page = Number(searchParams.get("page")) || 1;
 
   const {
@@ -19,16 +22,5 @@ export function useTotalPages() {
   });
 
   const totalPages = Math.ceil(totalQuestions / PAGE_SIZE);
-  // if (page < totalPages)
-  //   queryClient.prefetchQuery({
-  //     queryKey: ["questions", questionsType, page + 1],
-  //     queryFn: () => getQuestionsAPI({ questionsType, page: page + 1 }),
-  //   });
-
-  // if (page > 1)
-  //   queryClient.prefetchQuery({
-  //     queryKey: ["questions", questionsType, page - 1],
-  //     queryFn: () => getQuestionsAPI({ questionsType, page: page - 1 }),
-  //   });
   return { totalPages, isPending, error, page };
 }

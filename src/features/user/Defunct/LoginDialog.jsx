@@ -1,9 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useDispatch, useSelector } from "react-redux";
-
-import { loginUser } from "@/features/user/userSlice";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +24,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import AlertElement from "@/components/ui/AlertElement";
 import SkeletonUser from "@/components/ui/SkeletonUser";
+import { useLogin } from "../useLogin";
 
 const formSchema = z.object({
   email: z
@@ -47,31 +45,18 @@ export function LoginDialog() {
       rememberMe: false,
     },
   });
-
-  // Redux
-  const dispatch = useDispatch();
-
-  // Grab auth state from Redux
-  const { error, status } = useSelector((state) => state.user);
-
-  async function onSubmit(values) {
-    try {
-      dispatch(
-        loginUser({
-          email: values.email,
-          password: values.password,
-          // values,
-        }),
-      );
-    } catch (error) {
-      // Error is already handled by Redux
-      console.log(error);
-    }
+  const { loginUser, error, isConnecting, other } = useLogin();
+  function onSubmit(values) {
+    loginUser({
+      email: values.email,
+      password: values.password,
+    });
   }
+  console.log(other, error);
 
   return (
     <Dialog>
-      {error == "Failed to fetch" ? (
+      {error ? (
         <>
           <SkeletonUser />
           <AlertElement errorMessage="(500) Serveur est en panne. Veuillez essayer plus tard." />
@@ -173,9 +158,9 @@ export function LoginDialog() {
             <Button
               type="submit"
               className="w-full"
-              disabled={status === "loading" || form.formState.isSubmitting}
+              disabled={isConnecting || form.formState.isSubmitting}
             >
-              {status === "loading" || form.formState.isSubmitting
+              {isConnecting || form.formState.isSubmitting
                 ? "Connexion..."
                 : "Login"}
             </Button>

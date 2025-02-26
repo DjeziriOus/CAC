@@ -12,7 +12,7 @@ import Patients, {
   recentQuestionsLoader,
 } from "./features/questions/Patients";
 // import Etudiants from "./features/questions/Etudiants";
-import Questions from "./features/questions/Questionnaire/Questions";
+import Questions from "./features/questions/Questionnaire/RecentQuestions";
 import AjouterQuestion from "./features/questions/Questionnaire/AjouterQuestion";
 import Services from "./features/services/services";
 import Dashboard from "./pages/Dashboard";
@@ -25,6 +25,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // import { loader as userLoader } from "./features/user/UserInfo";
 import { Toaster } from "sonner";
 import QuestionsForum from "./features/questions/QuestionsForum";
+import MyQuestions from "./features/questions/Questionnaire/myQuestions";
+import Etudiants from "./features/questions/Etudiants";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -51,22 +53,52 @@ const router = createBrowserRouter([
         element: <QuestionsForum />,
         children: [
           {
-            index: true, // Matches /questions directly
-            element: <Navigate to="recents" replace />,
+            index: true,
+            element: <Navigate to="patient/recents" />,
           },
           {
-            path: "my",
-            element: <Questions />,
-            loader: myQuestionsLoader,
+            path: "patient",
+            element: <Patients />,
+            children: [
+              {
+                index: true, // Matches /questions directly
+                element: <Navigate to="recents" replace />,
+              },
+              {
+                path: "my",
+                element: <MyQuestions />,
+              },
+              {
+                path: "recents",
+                element: <Questions />,
+              },
+              {
+                path: "ajouter",
+                element: <AjouterQuestion />,
+              },
+            ],
           },
           {
-            path: "recents",
-            element: <Questions />,
-            loader: recentQuestionsLoader,
-          },
-          {
-            path: "ajouter",
-            element: <AjouterQuestion />,
+            path: "etudiant",
+            element: <Patients />,
+            children: [
+              {
+                index: true, // Matches /questions directly
+                element: <Navigate to="recents" replace />,
+              },
+              {
+                path: "my",
+                element: <MyQuestions />,
+              },
+              {
+                path: "recents",
+                element: <Questions />,
+              },
+              {
+                path: "ajouter",
+                element: <AjouterQuestion />,
+              },
+            ],
           },
         ],
       },

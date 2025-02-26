@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 
 const API_URL = "http://localhost:3000";
-const QUESTIONS_PER_PAGE = 1;
+const QUESTIONS_PER_PAGE = 5;
 
 export async function getUsers() {
   const res = await fetch(`${API_URL}/user/getUsers`, {
@@ -54,7 +54,7 @@ export async function deleteAccountAPI(id) {
   return data;
 }
 
-export async function getMyQuestions(page, type) {
+export async function getMyQuestions(page) {
   // const res = await fetch(`${API_URL}/questions/my`);
 
   // // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
@@ -72,14 +72,12 @@ export async function getMyQuestions(page, type) {
     );
     await new Promise((resolve) => setTimeout(resolve, 500));
     const data = await res.json();
+    console.log(data);
     if (!res.ok) {
       if (res.status === 400) {
-        return {
-          questions: [],
-          totalPages: 0,
-        };
+        throw new Error(data.message);
       } else {
-        throw Error("Failed getting my questions");
+        // throw Error("Failed getting my questions");
       }
     }
     // const data = await res.json();
@@ -90,15 +88,19 @@ export async function getMyQuestions(page, type) {
       totalPages: Math.ceil(data.total / QUESTIONS_PER_PAGE),
     };
   } catch (error) {
-    console.error(error);
-    toast.error("Une erreur est survenue", {
-      description:
-        error.message + ", Erreur lors de la récupération des questions.",
-    });
+    if (error.message !== "not found")
+      toast.error("Une erreur est survenue", {
+        description:
+          error.message + ", Erreur lors de la récupération des questions.",
+      });
+    return {
+      questions: [],
+      total: 0,
+    };
   }
 }
 
-export async function addQuestion(question) {
+export async function addQuestionAPI(question) {
   const response = await fetch(`${API_URL}/FAQ/sendQuestion`, {
     method: "POST",
     headers: {
@@ -238,17 +240,25 @@ export async function getQuestionsAPI(type = "patient", page = 1) {
   }
   await new Promise((resolve) => setTimeout(resolve, 500));
   const { total, questions } = await res.json();
+  console.log(questions);
   return { total, questions };
 }
 
 export async function getUser() {
+  if (!localStorage.getItem("token")) {
+    console.log("no token");
+    // toast.info("Veuillez vous connecter", {
+    //   description:
+    //     "Veuillez vous connecter pour avoir accès a toutes les fonctionnalités.",
+    // });
+    return {};
+  }
   const res = await fetch(`${API_URL}/user/getUser`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: localStorage.getItem("token"),
     },
   });
-  // await new Promise((resolve) => setTimeout(resolve, 500));
 
   if (!res.ok) {
     const data = await res.json();
@@ -313,10 +323,11 @@ export async function postSignupUser(credentials) {
       body: JSON.stringify(credentials),
     });
 
-    console.log(res);
-
+    console.log(credentials);
+    const data = await res.json();
+    console.log(data);
     if (res.status === 400) {
-      throw new Error("Échec de l'inscription. Mail déja utilisé.");
+      throw new Error("Mail déja utilisé.");
     }
 
     if (res.status === 500) {
@@ -327,7 +338,6 @@ export async function postSignupUser(credentials) {
       throw new Error(`Erreur HTTP: (${res.status}) ${res.statusText}`);
     }
 
-    const data = await res.json();
     return data;
   } catch (error) {
     if (error.message === "Failed to fetch") {

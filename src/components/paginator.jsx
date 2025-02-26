@@ -11,21 +11,15 @@ import {
   useLoaderData,
   useSearchParams,
 } from "react-router-dom";
-import { Suspense, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  setCurrentPage,
-  setTotalPages,
-} from "@/features/questions/questionSlice";
-import PaginatorSkeleton from "./ui/PaginatorSkeleton";
-import { useTotalPages } from "@/features/dashboard/useTotalPages";
-import { isPending } from "@reduxjs/toolkit";
 
-function Paginator() {
-  const { totalPages, isPending } = useTotalPages();
+import PaginatorSkeleton from "./ui/PaginatorSkeleton";
+
+function Paginator({ totalPages, isPending }) {
   const [searchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
-  const currentType = searchParams.get("type") || "patient";
+  const currentType = location.pathname.includes("patient")
+    ? "patient"
+    : "etudiant";
   const renderPagination = () => {
     if (!totalPages || totalPages < 2) return null; // No need for pagination if only one page
     let pages = [];
@@ -57,7 +51,7 @@ function Paginator() {
             {page === "..." ? (
               <PaginationEllipsis />
             ) : (
-              <NavLink to={`?page=${page}&type=${currentType}`}>
+              <NavLink to={`?page=${page}`}>
                 <Button variant={page == currentPage ? "default" : "outline"}>
                   {page}
                 </Button>
@@ -76,11 +70,7 @@ function Paginator() {
           <PaginationContent>
             {/* Previous Button */}
             <NavLink
-              to={
-                currentPage > 1
-                  ? `?page=${currentPage - 1}&type=${currentType}`
-                  : "#"
-              }
+              to={currentPage > 1 ? `?page=${currentPage - 1}` : "#"}
               className={
                 currentPage === 1 ? "pointer-events-none opacity-50" : ""
               }
@@ -95,11 +85,7 @@ function Paginator() {
             {renderPagination()}
             {/* next Button */}
             <NavLink
-              to={
-                currentPage < totalPages
-                  ? `?page=${currentPage + 1}&type=${currentType}`
-                  : "#"
-              }
+              to={currentPage < totalPages ? `?page=${currentPage + 1}` : "#"}
               className={`${
                 currentPage === totalPages
                   ? "pointer-events-none opacity-50"

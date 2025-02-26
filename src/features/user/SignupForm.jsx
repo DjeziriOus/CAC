@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { signupUser } from "@/features/user/userSlice";
 import {
   Form,
   FormField,
@@ -25,6 +24,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "./useUser";
+import { useSignup } from "./useSignup";
+import FormInput from "./FormInput";
+import PasswordInput from "./PasswordInput";
 
 /**
  * Zod schema for the signup form:
@@ -40,10 +43,10 @@ const signupSchema = z
     prenom: z.string().min(1, { message: "Veuillez saisir votre prénom." }),
     password: z
       .string()
-      .min(6, "Le mot de passe doit contenir au moins 6 caractères."),
+      .min(3, "Le mot de passe doit contenir au moins 3 caractères."),
     confirmPassword: z
       .string()
-      .min(6, "Le mot de passe doit contenir au moins 6 caractères."),
+      .min(3, "Le mot de passe doit contenir au moins 3 caractères."),
     // role radio group
     role: z.enum(["patient", "etudiant"], {
       errorMap: () => ({ message: "Veuillez sélectionner un rôle." }),
@@ -62,11 +65,10 @@ const signupSchema = z
  * - includes nom, prenom, role (radio group)
  */
 export default function SignupForm({ toggleForm, to = "#" }) {
-  const dispatch = useDispatch();
-  const { status, error } = useSelector((state) => state.user);
+  // const { user, isPending, error } = useUser();
   // Show/hide states for password + confirmPassword
   const [showPassword, setShowPassword] = useState(false);
-  // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { signup, error, isSuccess, isSigningUp, isError } = useSignup();
   const navigate = useNavigate();
   const form = useForm({
     resolver: zodResolver(signupSchema),
@@ -79,34 +81,22 @@ export default function SignupForm({ toggleForm, to = "#" }) {
       role: "patient", // default selection
     },
   });
-
-  async function onSubmit(values) {
-    try {
-      // Dispatch your Redux action
-      await dispatch(
-        signupUser({
-          email: values.email,
-          nom: values.nom,
-          prenom: values.prenom,
-          password: values.password,
-          role: values.role,
-        }),
-      ).unwrap();
-      console.log(to);
-      navigate(to);
-    } catch (err) {
-      console.error(err);
-    }
+  function onSubmit(values) {
+    signup({
+      email: values.email,
+      nom: values.nom,
+      prenom: values.prenom,
+      password: values.password,
+      role: values.role,
+    });
+    navigate("/");
   }
 
   // Toggling each field
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
-  // const handleToggleConfirmPassword = () =>
-  //   setShowConfirmPassword((prev) => !prev);
 
   return (
     <>
-      {" "}
       <DialogTitle>
         <div className="mb-2 text-2xl font-bold">Signup</div>
       </DialogTitle>
@@ -121,14 +111,14 @@ export default function SignupForm({ toggleForm, to = "#" }) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={error ? "text-red-500" : ""}>
+                <FormLabel className={error ? "text-red-500" : "text-primary"}>
                   Email
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  <FormInput
                     placeholder="Saisissez votre email..."
-                    {...field}
-                    className={error ? "border-destructive" : ""}
+                    field={field}
+                    error={error || form.formState.errors?.email}
                   />
                 </FormControl>
                 <FormMessage />
@@ -142,14 +132,14 @@ export default function SignupForm({ toggleForm, to = "#" }) {
             name="nom"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={error ? "text-red-500" : ""}>
+                <FormLabel className={error ? "text-red-500" : "text-primary"}>
                   Nom
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  <FormInput
                     placeholder="Saisissez votre nom..."
-                    {...field}
-                    className={error ? "border-destructive" : ""}
+                    field={field}
+                    error={error || form.formState.errors?.nom}
                   />
                 </FormControl>
                 <FormMessage />
@@ -163,14 +153,14 @@ export default function SignupForm({ toggleForm, to = "#" }) {
             name="prenom"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={error ? "text-red-500" : ""}>
+                <FormLabel className={error ? "text-red-500" : "text-primary"}>
                   Prénom
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  <FormInput
                     placeholder="Saisissez votre prénom..."
-                    {...field}
-                    className={error ? "border-destructive" : ""}
+                    field={field}
+                    error={error || form.formState.errors?.prenom}
                   />
                 </FormControl>
                 <FormMessage />
@@ -184,27 +174,17 @@ export default function SignupForm({ toggleForm, to = "#" }) {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={error ? "text-red-500" : ""}>
+                <FormLabel className={error ? "text-red-500" : "text-primary"}>
                   Mot de passe
                 </FormLabel>
                 <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Saisissez votre mot de passe..."
-                      className={error ? "border-destructive" : ""}
-                      {...field}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-2"
-                      onClick={handleTogglePassword}
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </Button>
-                  </div>
+                  <PasswordInput
+                    field={field}
+                    error={error || form.formState.errors?.password}
+                    handleTogglePassword={handleTogglePassword}
+                    showPassword={showPassword}
+                    placeholder="Saisissez votre mot de passe..."
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -217,29 +197,17 @@ export default function SignupForm({ toggleForm, to = "#" }) {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={error ? "text-red-500" : ""}>
+                <FormLabel className={error ? "text-red-500" : "text-primary"}>
                   Confirmez le mot de passe
                 </FormLabel>
                 <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Confirmez votre mot de passe..."
-                      className={
-                        (error ? "border-destructive" : "") + "h-auto p-3"
-                      }
-                      {...field}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-4 text-primary"
-                      onClick={handleTogglePassword}
-                    >
-                      {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
-                    </Button>
-                  </div>
+                  <PasswordInput
+                    field={field}
+                    error={error || form.formState.errors?.confirmPassword}
+                    handleTogglePassword={handleTogglePassword}
+                    showPassword={showPassword}
+                    placeholder="Confirmez votre mot de passe..."
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -288,35 +256,38 @@ export default function SignupForm({ toggleForm, to = "#" }) {
             )}
           />
 
-          {/* Global Redux error */}
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertTitle>Echec de l&#39;inscription</AlertTitle>
+              <AlertDescription>{error.message}</AlertDescription>
             </Alert>
           )}
 
           {/* Submit button */}
           <Button
             type="submit"
+            onClick={() => {
+              console.log(form.formState);
+            }}
             className="w-full bg-blue-2"
-            disabled={status === "loading" || form.formState.isSubmitting}
+            disabled={isSigningUp || form.formState.isSubmitting}
           >
-            {status === "loading" || form.formState.isSubmitting
+            {isSigningUp || form.formState.isSubmitting
               ? "Création du compte..."
               : "Créer un compte"}
           </Button>
         </form>
       </Form>
-      <div className="mt-4 text-center text-sm text-muted-foreground">
+      <div className="mt-0 text-center text-sm text-muted-foreground">
         Vous avez déjà un compte ?{" "}
         <Button
           variant="link"
           className="px-0 text-blue-2"
           onClick={toggleForm}
+          disabled={isSigningUp}
         >
-          Connectez-vous
+          Se Connecter
         </Button>
       </div>
     </>

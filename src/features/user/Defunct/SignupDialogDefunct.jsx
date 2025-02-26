@@ -2,8 +2,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useDispatch, useSelector } from "react-redux";
-import { signupUser } from "@/features/user/userSlice";
 
 import { Button } from "@/components/ui/button";
 import {

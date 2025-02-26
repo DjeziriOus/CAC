@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
+
 import { motion } from "framer-motion";
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";

@@ -6,7 +6,9 @@ import { useSearchParams } from "react-router-dom";
 export function useQuestions() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const questionsType = searchParams.get("type") || "patient";
+  const questionsType = location.pathname.includes("patient")
+    ? "patient"
+    : "etudiant";
   const page = Number(searchParams.get("page")) || 1;
 
   const {

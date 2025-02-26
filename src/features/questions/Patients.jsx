@@ -5,15 +5,15 @@ import TabSwitcher from "@/components/ui/TabSwitcher";
 import { getMyQuestions, getRecentQuestions } from "@/services/apiQuestions";
 import { ArrowDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
 import { Outlet, useSearchParams } from "react-router-dom";
-import { fetchUser } from "../user/userSlice";
+
+import { useUser } from "../user/useUser";
 const fullTabs = [
   { name: "Mes Questions", link: "my" },
   { name: "Questions les plus récentes", link: "recents" },
   { name: "Ajouter une question", link: "ajouter" },
 ];
-
 const defaultTabs = [{ name: "Questions les plus récentes", link: "recents" }];
 
 function Patients() {
@@ -23,20 +23,19 @@ function Patients() {
     targetRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const { status } = useSelector((state) => state.user);
-  const questionType = location.pathname.includes("/patients/")
+  const { user, isPending } = useUser();
+  const questionsType = location.pathname.includes("patient")
     ? "patient"
     : "etudiant";
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(fetchUser()).then((e) => {
-      if (!e.payload.id || e.payload.role !== questionType) {
-        setTabs(defaultTabs);
-      } else {
-        setTabs(fullTabs);
-      }
-    });
-  }, [questionType, dispatch]);
+    if (!user) return;
+    if (user?.role === questionsType) {
+      setTabs(fullTabs);
+    } else {
+      setTabs(defaultTabs);
+    }
+  }, [questionsType, user]);
 
   return (
     <div className="mt-16 bg-lgt-1">
@@ -66,11 +65,7 @@ function Patients() {
         ref={targetRef}
         className="mx-auto flex w-[1000px] flex-col items-center justify-center bg-lgt-1 pt-16"
       >
-        {status === "loadingUser" ? (
-          <TabsSkeleton />
-        ) : (
-          <TabSwitcher tabs={tabs} />
-        )}
+        {isPending ? <TabsSkeleton /> : <TabSwitcher tabs={tabs} />}
         {/* {isLoading && <Loader />} */}
         <Separator />
         <Outlet />

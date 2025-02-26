@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 // Redux action
-import { loginUser } from "@/features/user/userSlice";
 
 // UI Components
 import {
@@ -24,6 +23,8 @@ import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { DialogTitle } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "./useLogin";
+import PasswordInput from "./PasswordInput";
+import FormInput from "./FormInput";
 
 /**
  * Zod schema for the login form
@@ -45,7 +46,9 @@ const loginSchema = z.object({
  * - shows server errors
  * - includes show/hide password
  */
-export default function LoginForm({ toggleForm, to = "#" }) {
+
+// TODO: to='#'
+export default function LoginForm({ toggleForm }) {
   const { isConnecting, error, loginUser } = useLogin();
   // Show/hide password local state
   const [showPassword, setShowPassword] = useState(false);
@@ -61,7 +64,6 @@ export default function LoginForm({ toggleForm, to = "#" }) {
   });
 
   const onSubmit = (values) => {
-    console.log(values);
     loginUser({ email: values.email, password: values.password });
     navigate("/");
   };
@@ -86,14 +88,14 @@ export default function LoginForm({ toggleForm, to = "#" }) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={error ? "text-red-500" : ""}>
+                <FormLabel className={error ? "text-red-500" : "text-primary"}>
                   Email
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  <FormInput
+                    field={field}
+                    error={error}
                     placeholder="Saisissez votre email..."
-                    {...field}
-                    className={error ? "border-destructive" : ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -107,35 +109,16 @@ export default function LoginForm({ toggleForm, to = "#" }) {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={error ? "text-red-500" : ""}>
+                <FormLabel className={error ? "text-red-500" : "text-primary"}>
                   Mot de passe
                 </FormLabel>
                 <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Saisissez votre mot de passe..."
-                      className={
-                        error
-                          ? "border-destructive"
-                          : "h-auto bg-blue-input-bg py-3 text-blue-2 placeholder:text-blue-2"
-                      }
-                      {...field}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full p-4 hover:bg-[#c1e1f396]"
-                      onClick={handleTogglePassword}
-                    >
-                      {showPassword ? (
-                        <EyeOff size={18} className="text-blue-2" />
-                      ) : (
-                        <Eye size={18} className="text-blue-2" />
-                      )}
-                    </Button>
-                  </div>
+                  <PasswordInput
+                    field={field}
+                    error={error}
+                    handleTogglePassword={handleTogglePassword}
+                    showPassword={showPassword}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

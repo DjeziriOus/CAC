@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -25,9 +25,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useDispatch, useSelector } from "react-redux";
-import { addQuestion } from "@/features/questions/questionSlice";
-import { fetchUser } from "@/features/user/userSlice";
+import { useUser } from "@/features/user/useUser";
+import { useAddQuestion } from "@/features/dashboard/useAddQuestion";
 
 const formSchema = z.object({
   object: z.string().min(5, {
@@ -40,16 +39,23 @@ const formSchema = z.object({
 });
 
 export default function AjouterQuestion() {
-  const { user } = useSelector((state) => state.user);
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useUser();
+  // const [isAddingQuestion, setisAddingQuestion] = useState(false);
   const location = useLocation();
-  const questionType = location.pathname.includes("/patients/")
+  // useEffect(() => {
+  //   if (user?.role && user?.role !== searchParams.get("type")) {
+  //     if (user?.role === "admin") navigate("/");
+  //     searchParams.set("type", user?.role);
+  //   }
+  //   searchParams.delete("page");
+  //   setSearchParams(searchParams);
+  // }, [searchParams, setSearchParams, user?.role, navigate]);
+
+  const questionType = location.pathname.includes("patient")
     ? "patient"
     : "etudiant";
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -58,42 +64,11 @@ export default function AjouterQuestion() {
       type: questionType, // default value
     },
   });
-
-  // Update the "type" field if questionType changes
-  useEffect(() => {
-    form.setValue("type", questionType);
-    if (!user) {
-      dispatch(fetchUser()).then((e) => {
-        if (!e.payload.id || e.payload.role !== questionType) {
-          navigate("/");
-        }
-      });
-    }
-  }, [questionType, form, dispatch, navigate, user]);
-
-  async function onSubmit(values) {
-    try {
-      setIsLoading(true);
-      console.log(values);
-      await dispatch(addQuestion(values)).unwrap();
-
-      toast({
-        title: "Question soumise",
-        description: "Votre question a été soumise avec succès.",
-      });
-
-      navigate(`/questions/${questionType}s/my`);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description:
-          "Une erreur est survenue lors de la soumission de votre question. " +
-          error.message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const { addQuestion, isAddingQuestion } = useAddQuestion();
+  function onSubmit(values) {
+    console.log(values);
+    addQuestion(values);
+    navigate("/questions");
   }
 
   return (
@@ -117,7 +92,7 @@ export default function AjouterQuestion() {
                     <Input
                       placeholder="Ex: Consultation pour douleurs abdominales"
                       {...field}
-                      disabled={isLoading}
+                      disabled={isAddingQuestion}
                     />
                   </FormControl>
                   <FormDescription>
@@ -138,7 +113,7 @@ export default function AjouterQuestion() {
                       placeholder="Décrivez votre question en détail..."
                       className="min-h-[200px] resize-y"
                       {...field}
-                      disabled={isLoading}
+                      disabled={isAddingQuestion}
                     />
                   </FormControl>
                   <FormDescription>
@@ -160,12 +135,14 @@ export default function AjouterQuestion() {
                 type="button"
                 variant="outline"
                 onClick={() => navigate(-1)}
-                disabled={isLoading}
+                disabled={isAddingQuestion}
               >
                 Annuler
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={isAddingQuestion}>
+                {isAddingQuestion && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Soumettre la question
               </Button>
             </div>

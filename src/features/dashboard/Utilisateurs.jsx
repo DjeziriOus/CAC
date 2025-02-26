@@ -2,7 +2,6 @@
 
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// import { addDoctor, fetchUsers } from "@/features/dashboard/usersSlice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -38,7 +36,7 @@ export default function Utilisateurs() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingDoctorState, setIsAddingDoctorState] = useState(false);
   const { isAddingDoctor, addDoctor } = useAddDoctor();
-  const dispatch = useDispatch(); // const { status } = useSelector((state) => state.users);
+  // const dispatch = useDispatch(); // const { status } = useSelector((state) => state.users);
 
   const editForm = useForm({
     defaultValues: {

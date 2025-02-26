@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+
 import LinkButton from "./LinkButton";
 import styles from "./Header.module.css";
 import logo from "@/images/CAClogo.svg";
 // import { ReactComponent as logo } from "./CAClogo.svg";
 import { ChevronDown } from "lucide-react";
 import UserInfo from "@/features/user/UserInfo";
-import { fetchUser, logoutUser } from "@/features/user/userSlice";
-import { useSelector, useDispatch } from "react-redux";
+import { useUser } from "@/features/user/useUser";
 
 function Header() {
   const navItems = [
@@ -29,19 +28,17 @@ function Header() {
       components: [
         {
           name: "Espace des patients",
-          href: "/questions/recents?page=1&type=patient",
+          href: "/questions/patient",
         },
         {
           name: "Espace des étudiants",
-          href: "/questions/recents?page=1&type=etudiant",
+          href: "/questions/etudiant",
         },
       ],
     },
   ];
   // let location = useLocation();
   const [open, setOpen] = useState(false);
-  const dispatch = useDispatch();
-  const { user, status } = useSelector((state) => state.user);
   // if (user?.role === "admin" || user?.role === "medecin") {
   //   navItems.push({
   //     name: "Dashboard",

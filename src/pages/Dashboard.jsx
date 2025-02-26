@@ -16,26 +16,23 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { fetchUser } from "@/features/user/userSlice";
+import { useUser } from "@/features/user/useUser";
+
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import { Outlet } from "react-router-dom";
 
 export default function Dashboard() {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      dispatch(fetchUser());
-    }
-  }, [dispatch]);
-  const { user, status } = useSelector((state) => state.user);
+  const { user, isPending, status } = useUser();
+  // const dispatch = useDispatch();
+  // useEffect(() => {
+  //   if (localStorage.getItem("token")) {
+  //     dispatch(fetchUser());
+  //   }
+  // }, [dispatch]);
+  // const { user, status } = useSelector((state) => state.user);
   // if (!user && status === "loadingUser") return <Loader />;
-  if (
-    user?.role !== "admin" &&
-    user?.role !== "medecin" &&
-    status === "succeeded"
-  )
+  if (user?.role !== "admin" && user?.role !== "medecin")
     return (
       <>
         <DelayedRedirect destination="/" time={5} />

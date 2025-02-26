@@ -12,9 +12,9 @@ import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeOff, Eye } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+
 import { z } from "zod";
-import { loginUser } from "../userSlice";
+
 const loginSchema = z.object({
   email: z.string().email("Veuillez saisir un email valide."),
   password: z.string().min(1, "Veuillez saisir votre mot de passe."),

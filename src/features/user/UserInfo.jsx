@@ -19,12 +19,12 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
 function UserInfo() {
-  const { user, isPending, error } = useUser();
+  const { user, allowedTabs, error, isPending, isSuccess, isError } = useUser();
 
   const queryClient = useQueryClient();
   // If user info is still loading, render a skeleton
 
-  if (!localStorage.getItem("token")) {
+  if (!user) {
     return (
       <AuthDialog>
         <Button variant="outline" className="my-2">
@@ -66,14 +66,14 @@ function UserInfo() {
         >
           <Avatar className="h-9 w-9">
             <AvatarImage alt="@shadcn" />
-            <AvatarFallback>{user.prenom[0] + user.nom[0]}</AvatarFallback>
+            <AvatarFallback>{user?.prenom[0] + user?.nom[0]}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col items-start">
             <p className="text-sm font-semibold">
-              {user.nom} {user.prenom}
+              {user?.nom} {user?.prenom}
             </p>
             <p className="text-xs capitalize text-muted-foreground">
-              {user.role}
+              {user?.role}
             </p>
           </div>
         </Button>

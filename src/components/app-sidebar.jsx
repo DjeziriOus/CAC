@@ -1,19 +1,16 @@
 import { CalendarDays, Hospital, MailQuestion, Users } from "lucide-react";
-
 import { NavMain } from "@/components/nav-main";
-// import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
-// import { TeamSwitcher } from "@/components/team-switcher";
+
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchUser } from "@/features/user/userSlice";
-import { useEffect } from "react";
+
 import SkeletonUser from "./ui/SkeletonUser";
+import { useUser } from "@/features/user/useUser";
 
 // This is sample data.
 const data = {
@@ -48,22 +45,18 @@ const data = {
 
 export function AppSidebar({ ...props }) {
   // console.log("nice");
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      dispatch(fetchUser());
-    }
-  }, [dispatch]);
-  const { user, status } = useSelector((state) => state.user);
+
+  // useEffect(() => {
+  //   if (localStorage.getItem("token")) {
+  //   }
+  // }, []);
+
+  const { isPending } = useUser();
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        {status === "loadingUser" ? (
-          <SkeletonUser />
-        ) : (
-          <NavUser user={user} status={status} />
-        )}
+        {isPending ? <SkeletonUser /> : <NavUser />}
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

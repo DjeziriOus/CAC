@@ -5,11 +5,7 @@ import { toast } from "sonner";
 export function useLogin() {
   const queryClient = useQueryClient();
 
-  const {
-    isPending: isConnecting,
-    mutate: loginUser,
-    error,
-  } = useMutation({
+  const stuff = useMutation({
     mutationFn: (credentials) => postLoginUser(credentials), // mutationFn: postLoginUser,
     onSuccess: ({ token }) => {
       localStorage.setItem("token", token);
@@ -23,5 +19,6 @@ export function useLogin() {
       });
     },
   });
-  return { isConnecting, loginUser };
+  const { isConnecting, mutate: loginUser, error, ...other } = stuff;
+  return { isConnecting, loginUser, error, other };
 }

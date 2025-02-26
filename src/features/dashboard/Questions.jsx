@@ -7,7 +7,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -51,13 +50,13 @@ export default function QuestionsDashboard() {
     error,
     page: currentPage,
   } = useQuestions();
+
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
-  const dispatch = useDispatch();
+
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // const { user } = useSelector((state) => state.user); // Assuming user info is in auth slice
   const { user } = useUser();
   const { isDeletingQuestion, deleteQuestion } = useDeleteQuestion();
   const { isDeletingAnswer, deleteAnswer } = useDeleteAnswer();

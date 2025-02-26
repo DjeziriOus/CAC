@@ -1,11 +1,12 @@
 import styles from "./TabSwitcher.module.css";
 import { NavLink } from "react-router-dom";
 import { Button } from "./button";
-import { useSelector } from "react-redux";
+
 import AuthDialog from "@/features/user/AuthDialog";
+import { useUser } from "@/features/user/useUser";
 const TabSwitcher = ({ tabs }) => {
   // const [activeTab, setActiveTab] = useState(0);
-  const { user, status } = useSelector((state) => state.user);
+  const { user } = useUser();
 
   return (
     <div className="flex w-full items-center justify-center py-4">

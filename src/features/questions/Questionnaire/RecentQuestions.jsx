@@ -9,10 +9,9 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import Question from "../../../components/ui/Question";
-import { getMyQuestions } from "@/services/apiQuestions";
+
 import SkeletonLoader from "@/components/ui/SkeletonQuestion";
-import ErrorElement from "@/components/ui/ErrorElement";
-import { useDispatch, useSelector } from "react-redux";
+
 import { EmptyMyQuestions } from "@/components/ui/EmptyMyQuestions";
 import { EmptyQuestions } from "@/components/ui/EmptyQuestions";
 import { toast } from "@/hooks/use-toast";
@@ -32,32 +31,23 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { use } from "react";
 import Paginator from "@/components/paginator";
-import { fetchUser } from "@/features/user/userSlice";
+
 import { useQuestions } from "@/features/dashboard/useQuestions";
 
-function Questions() {
-  // const { questions } = useLoaderData();
-  const { questions, isPending, error, page } = useQuestions();
+import { useTotalPagesRecentQuestions } from "@/features/dashboard/useTotalPagesRecentQuestions";
 
-  const { user, status } = useSelector((state) => state.user);
-
-  const location = useLocation();
-  const questionType = location.pathname.includes("/patients/")
-    ? "patient"
-    : "etudiant";
-  // Check if "my" is in the current URL path
-  const containsMy = location.pathname.includes("my");
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+function RecentQuestions() {
+  const questionsType = location.pathname.includes("patient");
+  const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
-    if (!user) {
-      dispatch(fetchUser()).then((e) => {
-        if (containsMy && (!e.payload.id || e.payload.role !== questionType)) {
-          navigate("/");
-        }
-      });
-    }
-  }, [questionType, dispatch, navigate, user, containsMy]);
+    searchParams.get("page") || searchParams.set("page", 1);
+    setSearchParams(searchParams);
+  }, [searchParams, setSearchParams]);
+  // const { questions } = useLoaderData();
+  const { questions, isPending } = useQuestions();
+
+  const { totalPages, isPending: isPendingTotalPages } =
+    useTotalPagesRecentQuestions();
   if (isPending) {
     return (
       <div className="my-14 flex w-full flex-col items-center">
@@ -100,12 +90,13 @@ function Questions() {
           </div>
         </Suspense>
       </div>
-      <Paginator />
+      <Paginator totalPages={totalPages} isPending={isPendingTotalPages} />
     </div>
   );
 }
 
-export default Questions;
+export default RecentQuestions;
+
 /*
 
       <Suspense

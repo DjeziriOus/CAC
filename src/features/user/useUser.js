@@ -9,20 +9,15 @@ const fullTabs = [
 ];
 const defaultTabs = [{ name: "Questions les plus récentes", link: "recents" }];
 export function useUser() {
-  const {
-    isPending,
-    data: { user } = {},
-    error,
-  } = useQuery({
+  const stuff = useQuery({
     queryKey: ["user"],
-    queryFn: () => {
-      if (!localStorage.getItem("token")) return {};
-      return getUser();
-    },
+    queryFn: getUser,
   });
+  const { isPending, data: { user } = {}, error, isSuccess, isError } = stuff;
+
   const [searchParams] = useSearchParams();
   let allowedTabs = defaultTabs;
   allowedTabs =
     user?.role === searchParams.get("type") ? fullTabs : defaultTabs;
-  return { user, error, isPending, allowedTabs };
+  return { user, allowedTabs, error, isPending, isSuccess, isError };
 }
