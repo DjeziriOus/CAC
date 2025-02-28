@@ -1,7 +1,6 @@
+import { API_URL } from "@/utils/constants";
+import { QUESTIONS_PER_PAGE } from "@/utils/constants";
 import { toast } from "sonner";
-
-const API_URL = "http://localhost:3000";
-const QUESTIONS_PER_PAGE = 5;
 
 export async function getUsers() {
   const res = await fetch(`${API_URL}/user/getUsers`, {
@@ -347,4 +346,139 @@ export async function postSignupUser(credentials) {
     }
     throw error;
   }
+}
+
+export async function getEvents(page) {
+  const res = await fetch(`${API_URL}/event/getEvents`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    console.log(data);
+    throw new Error("Failed getting events");
+  }
+  const { events } = await res.json();
+  console.log(events);
+  return events;
+}
+
+export async function getEvent(id) {
+  const res = await fetch(`${API_URL}/event/getEvent/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    console.log(data);
+    throw new Error("Failed getting event");
+  }
+  const data = await res.json();
+  return data;
+}
+
+// export async function addEvent(event) {
+//   const res = await fetch(`${API_URL}/event/addEvent`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(event),
+//   });
+//   if (!res.ok) {
+//     const data = await res.json();
+//     console.log(data);
+//     throw new Error("Failed adding event");
+//   }
+//   const data = await res.json();
+//   return data;
+// }
+export async function deleteEventAPI(eventID) {
+  console.log(eventID);
+  const res = await fetch(`${API_URL}/event/deleteEvent`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: localStorage.getItem("token"),
+    },
+    body: JSON.stringify({ id: eventID }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    console.log(data);
+    throw new Error("Failed deleting event " + eventID);
+  }
+  const data = await res.json();
+  return data;
+}
+// Helper function to convert a data URL (base64) into a Blob
+function dataURLtoBlob(dataURL) {
+  const [header, base64Data] = dataURL.split(",");
+  const mimeMatch = header.match(/:(.*?);/);
+  const mime = mimeMatch ? mimeMatch[1] : "image/png";
+  const binary = atob(base64Data);
+  const array = [];
+  for (let i = 0; i < binary.length; i++) {
+    array.push(binary.charCodeAt(i));
+  }
+  return new Blob([new Uint8Array(array)], { type: mime });
+}
+
+// API function to add an event using FormData
+export async function addEvent(event) {
+  const formData = new FormData();
+
+  // Append text fields
+  formData.append("title", event.title);
+  formData.append("description", event.description);
+  // Note: the backend expects "endroit" instead of "location"
+  formData.append("endroit", event.location);
+  formData.append("type", event.type);
+  formData.append("date", new Date(event.date).toISOString());
+
+  // Prepare sections; backend expects a JSON string.
+  // Here we map each section: converting "content" to "paragraph" and setting imageCount.
+  const sections = event.sections.map((section) => ({
+    title: section.title,
+    paragraph: section.content, // backend expects "paragraph"
+    imageCount: section.image ? 1 : 0, // adjust if you support multiple images per section
+  }));
+  formData.append("sections", JSON.stringify(sections));
+
+  // Append cover image (backend field: "cover")
+  if (event.coverImage) {
+    const coverBlob = dataURLtoBlob(event.coverImage);
+    formData.append("cover", coverBlob, "cover.png");
+  }
+
+  // Append carousel images (backend field: "carousel")
+  event.sections.forEach((section) => {
+    if (section.image) {
+      const carouselBlob = dataURLtoBlob(section.image);
+      formData.append("carousel", carouselBlob, "section-image.png");
+    }
+  });
+
+  // Send the POST request; let the browser set the proper Content-Type header for FormData
+  const res = await fetch(`${API_URL}/event/addEvent`, {
+    method: "POST",
+    headers: {
+      Authorization: localStorage.getItem("token"),
+      contentType: "multipart/form-data",
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    console.error("Error adding event:", errorData);
+    throw new Error("Failed adding event");
+  }
+
+  return await res.json();
 }

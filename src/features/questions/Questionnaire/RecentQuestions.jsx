@@ -32,9 +32,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { use } from "react";
 import Paginator from "@/components/paginator";
 
-import { useQuestions } from "@/features/dashboard/useQuestions";
+import { useQuestions } from "@/features/dashboard/Questions/useQuestions";
 
-import { useTotalPagesRecentQuestions } from "@/features/dashboard/useTotalPagesRecentQuestions";
+import { useTotalPagesRecentQuestions } from "@/features/dashboard/Questions/useTotalPagesRecentQuestions";
 
 function RecentQuestions() {
   const questionsType = location.pathname.includes("patient");

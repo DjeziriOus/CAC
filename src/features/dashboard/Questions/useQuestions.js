@@ -1,5 +1,5 @@
 import { getQuestionsAPI } from "@/services/apiQuestions";
-import { PAGE_SIZE } from "@/utils/constants";
+import { QUESTIONS_PER_PAGE } from "@/utils/constants";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
@@ -20,7 +20,7 @@ export function useQuestions() {
     queryFn: () => getQuestionsAPI(questionsType, page),
   });
 
-  const totalPages = Math.ceil(totalQuestions / PAGE_SIZE);
+  const totalPages = Math.ceil(totalQuestions / QUESTIONS_PER_PAGE);
   const nextPage = page + 1;
   const prevPage = page - 1;
   if (page < totalPages)

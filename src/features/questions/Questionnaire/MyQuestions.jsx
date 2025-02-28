@@ -31,8 +31,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { use } from "react";
 import Paginator from "@/components/paginator";
 
-import { useMyQuestions } from "@/features/dashboard/useMyQuestions";
-import { useTotalPagesMyQuestions } from "@/features/dashboard/useTotalPagesMyQuestions";
+import { useMyQuestions } from "@/features/dashboard/Questions/useMyQuestions";
+import { useTotalPagesMyQuestions } from "@/features/dashboard/Questions/useTotalPagesMyQuestions";
 import { useUser } from "@/features/user/useUser";
 
 function MyQuestions() {

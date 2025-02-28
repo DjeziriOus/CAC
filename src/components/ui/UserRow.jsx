@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useDeleteAccount } from "@/features/dashboard/useDeleteAccount";
+import { useDeleteAccount } from "@/features/dashboard/Utilisateurs/useDeleteAccount";
 import DeleteDialog from "./DeleteUserDialog";
 import DeleteUserDialog from "./DeleteUserDialog";
 

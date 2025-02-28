@@ -35,8 +35,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Paginator from "@/components/paginator";
 import { useSearchParams } from "react-router-dom";
 
-import { useQuestions } from "./useQuestions";
-import { useUser } from "../user/useUser";
+import { useQuestions } from "@/features/dashboard/Questions/useQuestions";
+import { useUser } from "@/features/user/useUser";
 import { useDeleteQuestion } from "./useDeleteQuestion";
 import { useDeleteAnswer } from "./useDeleteAnswer";
 import { useUpdateResponse } from "./useUpdateResponse";

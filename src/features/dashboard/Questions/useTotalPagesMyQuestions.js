@@ -1,9 +1,9 @@
-import { getQuestionsAPI } from "@/services/apiQuestions";
-import { PAGE_SIZE } from "@/utils/constants";
+import { getMyQuestions } from "@/services/apiQuestions";
+import { QUESTIONS_PER_PAGE } from "@/utils/constants";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
-export function useTotalPagesRecentQuestions() {
+export function useTotalPagesMyQuestions() {
   // const containsMy = location.pathname.includes("my");
   // const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
@@ -14,13 +14,13 @@ export function useTotalPagesRecentQuestions() {
 
   const {
     isPending,
-    data: { total: totalQuestions } = {},
+    data: { totalPages } = {},
     error,
   } = useQuery({
-    queryKey: ["questions", questionsType],
-    queryFn: () => getQuestionsAPI(questionsType, 1),
+    queryKey: ["myQuestions", questionsType],
+    queryFn: () => getMyQuestions(1),
   });
 
-  const totalPages = Math.ceil(totalQuestions / PAGE_SIZE);
+  console.log("totalQuestions", totalPages);
   return { totalPages, isPending, error, page };
 }

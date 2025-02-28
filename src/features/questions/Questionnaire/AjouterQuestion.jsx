@@ -26,7 +26,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useUser } from "@/features/user/useUser";
-import { useAddQuestion } from "@/features/dashboard/useAddQuestion";
+import { useAddQuestion } from "@/features/dashboard/Questions/useAddQuestion";
 
 const formSchema = z.object({
   object: z.string().min(5, {
