@@ -29,6 +29,8 @@ import MyQuestions from "./features/questions/Questionnaire/myQuestions";
 import Etudiants from "./features/questions/Etudiants";
 import AjouterEvenement from "./features/dashboard/Evenements/AjouterEvenementForm.v2";
 import EditEvenement from "./features/dashboard/Evenements/EditEvenement";
+import EventDetails from "./pages/EventDetails";
+import Events from "./pages/Events";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -129,8 +131,12 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "international",
-        element: <International />,
+        path: "evenements",
+        element: <Events />,
+      },
+      {
+        path: "evenements/:eventId",
+        element: <EventDetails />,
       },
     ],
   },
