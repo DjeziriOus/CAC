@@ -8,8 +8,8 @@ export function useDeleteEvent() {
   const { isPending: isDeletingEvent, mutate: deleteEvent } = useMutation({
     mutationFn: (id) => deleteEventAPI(id), // mutationFn: DeleteEventAPI,
     onSuccess: () => {
-      toast.success("Evenement supprimé", {
-        description: "L'Événement a bien été supprimé.",
+      toast.success("Événement supprimé", {
+        description: "l'Événement a bien été supprimé.",
       });
       queryClient.invalidateQueries({
         queryKey: ["events"],
@@ -18,7 +18,7 @@ export function useDeleteEvent() {
     onError: (error) => {
       toast.error("Erreur lors de la suppression", {
         description: `${error.message}, 
-      Erreur lors de la suppression du Evenement.`,
+      Erreur lors de la suppression de l'Événement.`,
       });
     },
   });

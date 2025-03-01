@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Image, X, Loader2 } from "lucide-react";
 import { API_URL } from "@/utils/constants";
+import { toast } from "sonner";
 
 export default function ImageUpload({
   onImageSelect,
@@ -106,7 +107,7 @@ export default function ImageUpload({
                 </p>
               </div>
               <p className="mt-2 text-xs leading-5 text-gray-600">
-                PNG, JPG, GIF jusqu&#39;à 10MB
+                PNG, JPG, GIF jusqu&#39;à 5MB
               </p>
             </>
           )}
@@ -127,10 +128,13 @@ function validateAndProcessImage(file, onImageSelect) {
   }
 
   // Validate file size (10MB)
-  const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+  const maxSize = 5 * 1024 * 1024; // 5MB in bytes
   if (file.size > maxSize) {
     // TODO:
-    alert("File size must be less than 10MB");
+    // alert("Taille de fichier trop grande. Limite: 5MB");
+    toast.error("Erreur lors de l'ajout", {
+      description: "Taille de fichier trop grande. Limite: 5MB",
+    });
     return;
   }
 
@@ -144,13 +148,20 @@ function validateAndProcessImage(file, onImageSelect) {
     };
     tempImg.onerror = () => {
       // TODO:
-      alert("Error processing image. Please try another file.");
+      // alert("Error processing image. Please try another file.");
+      toast.error("Erreur lors de l'ajout", {
+        description:
+          "Erreur lors de l'ajout de l'image. Veuillez choisir une autre image.",
+      });
     };
     tempImg.src = e.target.result;
   };
   reader.onerror = () => {
     // TODO:
     alert("Error reading file. Please try again.");
+    toast.error("Erreur lors de l'ajout", {
+      description: "Erreur lors de l'ajout de l'image. Veuillez reessayer.",
+    });
   };
   reader.readAsDataURL(file);
 }

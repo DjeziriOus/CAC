@@ -1,5 +1,6 @@
 import { API_URL } from "@/utils/constants";
 import { QUESTIONS_PER_PAGE } from "@/utils/constants";
+import { title } from "process";
 import { toast } from "sonner";
 
 export async function getUsers() {
@@ -419,72 +420,79 @@ export async function deleteEventAPI(eventID) {
   return data;
 }
 // Helper function to convert a data URL (base64) into a Blob
-function dataURLtoBlob(dataURL) {
-  const [header, base64Data] = dataURL.split(",");
+function dataURLtoFile(dataUrl, filename) {
+  const [header, base64Data] = dataUrl.split(",");
   const mimeMatch = header.match(/:(.*?);/);
-  const mime = mimeMatch ? mimeMatch[1] : "image/png";
-  const binary = atob(base64Data);
-  const array = [];
-  for (let i = 0; i < binary.length; i++) {
-    array.push(binary.charCodeAt(i));
+  if (!mimeMatch) {
+    throw new Error("Invalid data URL");
   }
-  return new Blob([new Uint8Array(array)], { type: mime });
+  const mime = mimeMatch[1];
+  const binaryStr = atob(base64Data);
+  const len = binaryStr.length;
+  const u8arr = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    u8arr[i] = binaryStr.charCodeAt(i);
+  }
+  return new File([u8arr], filename, { type: mime });
 }
 
-// API function to add an event using FormData
-export async function addEvent(event) {
+export async function addEvent(eventData) {
+  // Create a new FormData instance
   const formData = new FormData();
-  console.log(event);
-  // Append text fields
-  formData.append("title", event.title);
-  formData.append("description", event.description);
-  // Note: the backend expects "endroit" instead of "location"
-  formData.append("endroit", event.location);
-  formData.append("type", event.type);
-  formData.append("date", new Date(event.date).toISOString());
 
-  // Prepare sections; backend expects a JSON string.
-  // Here we map each section: converting "content" to "paragraph" and setting imageCount.
-  const sections = event.sections.map((section) => ({
-    title: section.title,
-    paragraph: section.content, // backend expects "paragraph"
-    imageCount: section.image ? 1 : 0, // adjust if you support multiple images per section
-  }));
-  formData.append("sections", JSON.stringify(sections));
+  // Append the cover image file (field name "cover")
+  const coverFile = dataURLtoFile(eventData.coverImage, "cover.png");
+  formData.append("cover", coverFile);
 
-  // Append cover image (backend field: "cover")
-  if (event.coverImage) {
-    const coverBlob = dataURLtoBlob(event.coverImage);
-    formData.append("cover", coverBlob, "cover.png");
-  }
+  // Append basic event details
+  formData.append("title", eventData.title);
+  formData.append("description", eventData.description);
+  formData.append("date", eventData.date);
+  formData.append("endroit", eventData.location); // note: field expected by backend is "endroit"
+  formData.append("type", eventData.type);
 
-  // Append carousel images (backend field: "carousel")
-  event.sections.forEach((section, idx) => {
-    if (section.image) {
-      const carouselBlob = dataURLtoBlob(section.image);
-      formData.append("carousel", carouselBlob, `section-image-${idx}.png`);
+  // Ensure each section has an "imageCount" property (derived from the number of images)
+  const sectionsWithCount = eventData.sections.map((section) => {
+    return {
+      title: section.title,
+      paragraph: section.paragraph,
+      imageCount: section.images.length,
+    };
+  });
+  // Append sections as a JSON string
+  formData.append("sections", JSON.stringify(sectionsWithCount));
+
+  // Append all section images in order as "carousel"
+  // The backend expects these files in the order defined by imageCount in sections.
+  eventData.sections.forEach((section, sectionIndex) => {
+    section.images.forEach((imgData, imageIndex) => {
+      // Convert each base64 image to a File
+      const filename = `section-${sectionIndex}-img-${imageIndex}.png`;
+      const file = dataURLtoFile(imgData, filename);
+      formData.append("carousel", file);
+    });
+  });
+
+  // Post the FormData to the backend route
+  try {
+    const response = await fetch(`${API_URL}/event/addEvent`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+      // Note: Do not set Content-Type; the browser will add the correct multipart boundary.
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || "Something went wrong");
     }
-  });
-
-  // Send the POST request; let the browser set the proper Content-Type header for FormData
-  const res = await fetch(`${API_URL}/event/addEvent`, {
-    method: "POST",
-    headers: {
-      Authorization: localStorage.getItem("token"),
-      contentType: "multipart/form-data",
-    },
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json();
-    console.error("Error adding event:", errorData);
-    throw new Error("Failed adding event");
+    return result;
+  } catch (error) {
+    console.error("Error creating event:", error);
+    throw error;
   }
-
-  return await res.json();
 }
-
 export async function updateEvent(
   // eventData = {
   //   id: 2,

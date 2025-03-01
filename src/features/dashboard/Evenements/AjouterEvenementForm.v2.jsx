@@ -30,9 +30,12 @@ import {
 import { useAddEvent } from "./useAddEvent";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import SectionItem from "./SectionItem";
+import SectionEditForm from "./SectionEditForm";
 
 // Validation helper
 const validateForm = (formData) => {
+  console.log(formData);
   const errors = {};
 
   if (!formData.title.trim()) {
@@ -62,8 +65,8 @@ const validateForm = (formData) => {
       const sectionError = {};
       if (!section.title.trim())
         sectionError.title = "Section title is required";
-      if (!section.content.trim())
-        sectionError.content = "Section content is required";
+      if (!section.paragraph.trim())
+        sectionError.paragraph = "Section contentsss is required";
       if (!section.images?.length)
         sectionError.images = "At least one section image is required";
       return Object.keys(sectionError).length ? sectionError : null;
@@ -87,11 +90,12 @@ export default function AjouterEvenementForm() {
   const [date, setDate] = useState(undefined);
   const [eventType, setEventType] = useState("national");
   const [coverImage, setCoverImage] = useState(null);
+  const [editingSectionId, setEditingSectionId] = useState(null);
   const [sections, setSections] = useState([]);
   const [isAddingSectionOpen, setIsAddingSectionOpen] = useState(false);
   const [newSection, setNewSection] = useState({
     title: "",
-    content: "",
+    paragraph: "",
     images: [],
   });
 
@@ -125,7 +129,7 @@ export default function AjouterEvenementForm() {
       coverImage !== null ||
       sections.length > 0 ||
       newSection.title !== "" ||
-      newSection.content !== "" ||
+      newSection.paragraph !== "" ||
       newSection.images.length > 0;
 
     setIsDirty(hasContent);
@@ -158,7 +162,7 @@ export default function AjouterEvenementForm() {
 
     setNewSection({
       title: "",
-      content: "",
+      paragraph: "",
       images: [],
     });
 
@@ -193,12 +197,12 @@ export default function AjouterEvenementForm() {
       coverImage,
       sections: sections.map((section) => ({
         ...section,
-        paragraph: section.content, // Map content to paragraph for API consistency
+        paragraph: section.paragraph, // Map content to paragraph for API consistency
       })),
     };
 
     const validationErrors = validateForm(formData);
-
+    console.log(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -227,6 +231,46 @@ export default function AjouterEvenementForm() {
         <span>{error}</span>
       </div>
     );
+  };
+
+  const handleDeleteSection = (sectionId) => {
+    try {
+      // deleteSection(sectionId);
+      setSections((prev) => prev.filter((section) => section.id !== sectionId));
+    } catch (error) {
+      console.error("Failed to delete section:", error);
+      // Handle error (could add a toast notification here)
+    }
+  };
+
+  const handleUpdateSection = (section) => {
+    setEditingSectionId(section.id);
+  };
+
+  const handleSaveSection = (updatedSection, newImageFiles = []) => {
+    try {
+      const originalSection = sections.find((s) => s.id === updatedSection.id);
+
+      if (!originalSection) return;
+      // updateSection({
+      //   originalSection,
+      //   updatedSection: {
+      //     ...updatedSection,
+      //     eventId: initialEvent.id,
+      //   },
+      //   newImageFiles,
+      // });
+
+      setSections((prev) =>
+        prev.map((section) =>
+          section.id === updatedSection.id ? updatedSection : section,
+        ),
+      );
+      setEditingSectionId(null);
+    } catch (error) {
+      console.error("Failed to update section:", error);
+      // Handle error (could add a toast notification here)
+    }
   };
 
   return (
@@ -454,50 +498,62 @@ export default function AjouterEvenementForm() {
           )}
         </div>
 
-        {sections.map((section, index) => (
-          <div key={section.id} data-error={errors.sections?.[index]}>
-            <EventSection
-              section={section}
-              onRemove={() => removeSection(section.id)}
-              errors={errors.sections?.[index]}
-            />
-          </div>
-        ))}
+        <div className="space-y-4">
+          {sections.map((section) => (
+            <div key={section.id}>
+              {editingSectionId === section.id ? (
+                <SectionEditForm
+                  section={section}
+                  onSave={handleSaveSection}
+                  onCancel={() => setEditingSectionId(null)}
+                />
+              ) : (
+                <SectionItem
+                  section={section}
+                  onEdit={handleUpdateSection}
+                  onDelete={handleDeleteSection}
+                />
+              )}
+            </div>
+          ))}
+        </div>
 
         {isAddingSectionOpen ? (
           <div className="space-y-4 rounded-lg border border-primary bg-card p-6 shadow-sm">
-            <h3 className="text-lg font-medium">Create New Section</h3>
+            <h3 className="text-xl font-semibold text-primary">
+              Créer Une Nouvelle Section
+            </h3>
 
             <div className="space-y-2">
-              <Label htmlFor="section-title">Section Title *</Label>
+              <Label htmlFor="section-title">Titre de Section *</Label>
               <Input
                 id="section-title"
                 value={newSection.title}
                 onChange={(e) =>
                   setNewSection((prev) => ({ ...prev, title: e.target.value }))
                 }
-                placeholder="Enter section title"
+                placeholder="Entrez le titre de la section"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="section-content">Section Content *</Label>
+              <Label htmlFor="section-paragraph">Contenu de Section *</Label>
               <Textarea
-                id="section-content"
-                value={newSection.content}
+                id="section-paragraph"
+                value={newSection.paragraph}
                 onChange={(e) =>
                   setNewSection((prev) => ({
                     ...prev,
-                    content: e.target.value,
+                    paragraph: e.target.value,
                   }))
                 }
-                placeholder="Enter section content"
+                placeholder="Décrivez le contenu de la section"
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Section Images *</Label>
+              <Label>Images de la Section</Label>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {newSection.images.map((image, index) => (
                   <div key={index} className="group relative aspect-video">
@@ -505,7 +561,8 @@ export default function AjouterEvenementForm() {
                       src={
                         typeof image === "string"
                           ? image
-                          : URL.createObjectURL(image)
+                          : // : `${API_URL}${image.imgUrl}`
+                            `${image.imgUrl}`
                       }
                       alt={`New section image ${index + 1}`}
                       className="h-full w-full rounded-md object-cover"
@@ -548,10 +605,10 @@ export default function AjouterEvenementForm() {
                 variant="outline"
                 onClick={() => {
                   setIsAddingSectionOpen(false);
-                  setNewSection({ title: "", content: "", images: [] });
+                  setNewSection({ title: "", paragraph: "", images: [] });
                 }}
               >
-                Cancel
+                Annuler
               </Button>
               <Button onClick={addSection}>Add Section</Button>
             </div>
@@ -563,7 +620,7 @@ export default function AjouterEvenementForm() {
             onClick={() => setIsAddingSectionOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add New Section
+            Ajouter une Nouvelle Section
           </Button>
         )}
       </div>
