@@ -13,8 +13,9 @@ import DeleteUserDialog from "../../../../components/ui/DeleteUserDialog";
 import moment from "moment";
 import { API_URL } from "@/utils/constants";
 import DeleteEventDialog from "@/components/ui/DeleteEventDialog";
+import { useNavigate } from "react-router-dom";
 
-function EventRow({ event, onEdit }) {
+function EventRow({ event }) {
   const {
     id,
     title,
@@ -31,6 +32,10 @@ function EventRow({ event, onEdit }) {
   const { isDeletingEvent, deleteEvent } = useDeleteEvent();
   const handleDelete = (id) => {
     deleteEvent(id);
+  };
+  const navigate = useNavigate();
+  const onEdit = function () {
+    navigate(`/dashboard/evenements/edit/${id}`);
   };
   return (
     <TableRow key={id}>

@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Image, X, Loader2 } from "lucide-react";
+import { API_URL } from "@/utils/constants";
 
 export default function ImageUpload({
   onImageSelect,
@@ -49,11 +50,17 @@ export default function ImageUpload({
   );
 
   return (
-    <div className="relative">
+    <div>
       {currentImage ? (
         <div className={`relative w-full ${height} mb-4`}>
           <img
-            src={currentImage || "/placeholder.svg"}
+            src={
+              currentImage
+                ? currentImage?.startsWith("data:image")
+                  ? currentImage
+                  : API_URL + currentImage
+                : "placeholder.svg"
+            }
             alt="Preview"
             className="h-full w-full rounded-md object-cover"
           />
@@ -112,6 +119,7 @@ function validateAndProcessImage(file, onImageSelect) {
   // Validate file type
   const validTypes = ["image/jpeg", "image/png", "image/gif"];
   if (!validTypes.includes(file.type)) {
+    // TODO:
     alert("Please upload a valid image file (PNG, JPG, or GIF)");
     return;
   }
@@ -119,6 +127,7 @@ function validateAndProcessImage(file, onImageSelect) {
   // Validate file size (10MB)
   const maxSize = 10 * 1024 * 1024; // 10MB in bytes
   if (file.size > maxSize) {
+    // TODO:
     alert("File size must be less than 10MB");
     return;
   }
@@ -132,11 +141,13 @@ function validateAndProcessImage(file, onImageSelect) {
       onImageSelect(e.target.result);
     };
     tempImg.onerror = () => {
+      // TODO:
       alert("Error processing image. Please try another file.");
     };
     tempImg.src = e.target.result;
   };
   reader.onerror = () => {
+    // TODO:
     alert("Error reading file. Please try again.");
   };
   reader.readAsDataURL(file);

@@ -9,7 +9,7 @@ export function useDeleteEvent() {
     mutationFn: (id) => deleteEventAPI(id), // mutationFn: DeleteEventAPI,
     onSuccess: () => {
       toast.success("Evenement supprimé", {
-        description: "Le Evenement a bien été supprimé.",
+        description: "L'Événement a bien été supprimé.",
       });
       queryClient.invalidateQueries({
         queryKey: ["events"],

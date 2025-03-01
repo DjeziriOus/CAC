@@ -11,8 +11,16 @@ import UserRowSkeleton from "../../../../components/ui/UserRowSkeleton";
 import UserRow from "../../../../components/ui/UserRow";
 import { useEvents } from "../useEvents";
 import EventRow from "./EventRow";
+import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
 
 function EventsTable({ onEdit: handleEdit }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    searchParams.get("page") || searchParams.set("page", 1);
+    searchParams.get("type") || searchParams.set("type", "international");
+    setSearchParams(searchParams);
+  }, [searchParams, setSearchParams]);
   const { events, isPending, error } = useEvents();
   return (
     <div className="rounded-md border">

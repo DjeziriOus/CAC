@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,10 +31,11 @@ import { toast } from "sonner";
 import UsersTable from "@/components/ui/UsersTable";
 import { useAddDoctor } from "@/features/dashboard/Utilisateurs/useAddDoctor";
 import EventsTable from "./Components/EventsTable";
-import { NavLink } from "react-router-dom";
+import { NavLink, useSearchParams } from "react-router-dom";
 import LinkButton from "@/components/ui/LinkButton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function Utilisateurs() {
+export default function Evenements() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingDoctorState, setIsAddingDoctorState] = useState(false);
@@ -83,6 +84,7 @@ export default function Utilisateurs() {
       });
     }
   };
+  const [searchParams, setSearchParams] = useSearchParams();
 
   return (
     <div className="flex h-full">
@@ -93,6 +95,31 @@ export default function Utilisateurs() {
       >
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Événements</h2>
+
+          {/* <NavLink to="/dashboard/evenements/ajouter">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Ajouter un événement
+            </Button>
+          </NavLink> */}
+          <Tabs
+            defaultValue={searchParams.get("type") || "international"}
+            onValueChange={(e) => {
+              searchParams.set("type", e);
+              searchParams.set("page", 1);
+              setSearchParams(searchParams);
+            }}
+            className="w-[400px]"
+          >
+            <TabsList className="grid h-12 w-full grid-cols-2">
+              <TabsTrigger value="international" className="h-10">
+                Événements Internationaux
+              </TabsTrigger>
+              <TabsTrigger value="national" className="h-10">
+                Événements Nationaux
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <NavLink to="/dashboard/evenements/ajouter">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -102,107 +129,6 @@ export default function Utilisateurs() {
         </div>
 
         <EventsTable />
-      </div>
-
-      {/* Add Doctor Panel */}
-      <div
-        className={`fixed right-0 top-0 h-full w-[400px] border-l bg-background p-6 shadow-lg transition-transform duration-300 ${
-          isAddingDoctorState ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="flex h-full flex-col">
-          <h3 className="text-lg font-medium">Ajouter un médecin</h3>
-          <Form {...addDoctorForm}>
-            <form
-              onSubmit={addDoctorForm.handleSubmit(onAddDoctorSubmit)}
-              className="flex h-full flex-col"
-            >
-              <div className="flex-1 space-y-4 py-4">
-                <FormField
-                  control={addDoctorForm.control}
-                  name="nom"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1">
-                        Prénom
-                        <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Entrez le prénom" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={addDoctorForm.control}
-                  name="prenom"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1">
-                        Nom
-                        <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Entrez le nom" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={addDoctorForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1">
-                        Email
-                        <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          {...field}
-                          placeholder="docteur@exemple.com"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={addDoctorForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1">
-                        Mot de Passe
-                        <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Entrez le mot de passe"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex justify-end gap-4 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsAddingDoctorState(false)}
-                  type="button"
-                >
-                  Annuler
-                </Button>
-                <Button type="submit">Ajouter</Button>
-              </div>
-            </form>
-          </Form>
-        </div>
       </div>
     </div>
   );
