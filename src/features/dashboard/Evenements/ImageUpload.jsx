@@ -86,12 +86,12 @@ export default function ImageUpload({
           ) : (
             <>
               <Image className="mx-auto h-12 w-12 text-gray-400" />
-              <div className="mt-4 flex text-sm leading-6 text-gray-600">
+              <div className="mt-4 flex flex-col text-sm leading-6 text-gray-600">
                 <label
                   htmlFor={inputId}
                   className="relative cursor-pointer rounded-md bg-white font-semibold text-primary hover:text-primary/80"
                 >
-                  <span>Upload a file</span>
+                  <span>Sélectionnez une image à uploader</span>
                   <input
                     id={inputId}
                     name={inputId}
@@ -101,10 +101,12 @@ export default function ImageUpload({
                     onChange={handleChange}
                   />
                 </label>
-                <p className="pl-1">or drag and drop</p>
+                <p className="pl-1">
+                  ou bien faites un glisser-deposer (drag-and-drop)
+                </p>
               </div>
               <p className="mt-2 text-xs leading-5 text-gray-600">
-                PNG, JPG, GIF up to 10MB
+                PNG, JPG, GIF jusqu&#39;à 10MB
               </p>
             </>
           )}

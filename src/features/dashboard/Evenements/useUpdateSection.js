@@ -17,7 +17,7 @@ export function useUpdateSection() {
     },
     onSuccess: (data) => {
       // Invalidate and refetch the event query to get the updated data
-      queryClient.invalidateQueries({ queryKey: ["event", data.eventId] });
+      // queryClient.invalidateQueries({ queryKey: ["event", data.eventId] });
       toast.success("Section modifiée", {
         description: "La section a bien été modifiée.",
       });

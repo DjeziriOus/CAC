@@ -22,7 +22,6 @@ function EditEvenement() {
   };
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Modifier un événement</h1>
       <EditEvenementForm
         initialEvent={eventDetails}
         onSubmit={handleSubmit}

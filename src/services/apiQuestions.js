@@ -434,7 +434,7 @@ function dataURLtoBlob(dataURL) {
 // API function to add an event using FormData
 export async function addEvent(event) {
   const formData = new FormData();
-
+  console.log(event);
   // Append text fields
   formData.append("title", event.title);
   formData.append("description", event.description);

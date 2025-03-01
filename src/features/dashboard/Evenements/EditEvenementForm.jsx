@@ -94,7 +94,7 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => onEdit(section)}>
             <Edit className="mr-2 h-4 w-4" />
-            Edit
+            Modifier
           </Button>
           <AlertDialog
             open={showDeleteDialog}
@@ -103,25 +103,25 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="sm">
                 <Trash className="mr-2 h-4 w-4" />
-                Delete
+                Supprimer
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Section</AlertDialogTitle>
+                <AlertDialogTitle>Supprimer la section</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this section? This action
-                  cannot be undone.
+                  Êtes-vous sûr de vouloir supprimer cette section? Cette action
+                  ne peut pas être annulée.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
                     return onDelete(section.id);
                   }}
                 >
-                  Delete
+                  Supprimer
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -224,7 +224,7 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
           htmlFor="section-title"
           className={cn(errors.title && "text-destructive")}
         >
-          Section Title *
+          Titre de la Section *
         </Label>
         <Input
           id="section-title"
@@ -237,7 +237,7 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
               setErrors(newErrors);
             }
           }}
-          placeholder="Enter section title"
+          placeholder="Définissez le titre de la section"
           className={cn(errors.title && "border-destructive")}
         />
         {errors.title && (
@@ -266,7 +266,7 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
               setErrors(newErrors);
             }
           }}
-          placeholder="Enter section content"
+          placeholder="Définissez le contenu de la section"
           rows={4}
           className={cn(errors.paragraph && "border-destructive")}
         />
@@ -318,9 +318,9 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
 
       <div className="mt-4 flex justify-end space-x-2">
         <Button variant="outline" onClick={onCancel}>
-          Cancel
+          Annuler
         </Button>
-        <Button onClick={handleSave}>Save Changes</Button>
+        <Button onClick={handleSave}>Sauvegarder</Button>
       </div>
     </div>
   );
@@ -583,14 +583,16 @@ export default function EditEvenementForm({
       <div className="rounded-md bg-destructive/10 p-6 text-center text-destructive">
         <h3 className="mb-2 text-lg font-semibold">Error Loading Event</h3>
         <p>
-          There was a problem loading the event data. Please try again later.
+          {/* There was a problem loading the event data. Please try again later. */}
+          Il y a eu une erreur lors du chargement des données de
+          l&apos;événement. Veuillez essayer de nouveau plus tard.
         </p>
         <Button
           variant="outline"
           className="mt-4"
           onClick={() => navigate("/dashboard/evenements")}
         >
-          Return to Events
+          Revenir aux Événements
         </Button>
       </div>
     );
@@ -604,20 +606,23 @@ export default function EditEvenementForm({
         </div>
       )}
 
-      <div className="mb-6 flex justify-end space-x-4">
-        <Button variant="outline" onClick={handleCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit} disabled={!isDirty || isUpdatingEvent}>
-          {isUpdatingEvent ? (
-            <>
-              <Loader size="sm" className="mr-2" />
-              Saving...
-            </>
-          ) : (
-            "Save Changes"
-          )}
-        </Button>
+      <div className="mb-2 flex justify-between space-x-2">
+        <h1 className="mb-2 text-3xl font-bold">Modifier un événement</h1>
+        <div className="flex gap-5">
+          <Button variant="outline" onClick={handleCancel}>
+            Fermer et Quitter
+          </Button>
+          <Button onClick={handleSubmit} disabled={!isDirty || isUpdatingEvent}>
+            {isUpdatingEvent ? (
+              <>
+                <Loader size="sm" className="mr-2" />
+                Saving...
+              </>
+            ) : (
+              "Sauvegarder les Modifications"
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-6 rounded-lg bg-card p-6 shadow-sm">
@@ -629,7 +634,7 @@ export default function EditEvenementForm({
               errors.title && "text-destructive",
             )}
           >
-            Event Title *
+            Titre de l&#39;Événement *
           </Label>
           <Input
             id="title"
@@ -642,7 +647,7 @@ export default function EditEvenementForm({
                 setErrors(newErrors);
               }
             }}
-            placeholder="Enter event title"
+            placeholder="Donnez un titre à votre Événement"
             className={cn(errors.title && "border-destructive")}
           />
           <ErrorMessage error={errors.title} />
@@ -656,7 +661,7 @@ export default function EditEvenementForm({
               errors.description && "text-destructive",
             )}
           >
-            Event Description *
+            Description de l&#39;Événement *
           </Label>
           <Textarea
             id="description"
@@ -669,7 +674,7 @@ export default function EditEvenementForm({
                 setErrors(newErrors);
               }
             }}
-            placeholder="Enter event description"
+            placeholder="Donnez une description à votre Événement"
             rows={4}
             className={cn(errors.description && "border-destructive")}
           />
@@ -697,7 +702,7 @@ export default function EditEvenementForm({
                 setErrors(newErrors);
               }
             }}
-            placeholder="Enter event location"
+            placeholder="Où se deroule l&#39;Événement?"
             className={cn(errors.location && "border-destructive")}
           />
           <ErrorMessage error={errors.location} />
@@ -749,12 +754,12 @@ export default function EditEvenementForm({
           <div className="space-y-2">
             <div className="flex items-center gap-10">
               <Label className="text-2xl font-semibold text-primary">
-                Event Type
+                Type de l&#39;Événement *
               </Label>
               <RadioGroup
                 value={eventType}
                 onValueChange={setEventType}
-                className="flex gap-10 rounded-lg border bg-lgt-1 py-2 pl-3 pr-10"
+                className="flex gap-10 rounded-lg border bg-lgt-1 py-2 pl-7 pr-10"
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="national" id="national" />
@@ -777,7 +782,6 @@ export default function EditEvenementForm({
               </RadioGroup>
             </div>
           </div>
-          <div> </div>
         </div>
 
         <div className="space-y-2" data-error={!!errors.coverImage}>
@@ -787,7 +791,7 @@ export default function EditEvenementForm({
               errors.coverImage && "text-destructive",
             )}
           >
-            Cover Image *
+            Image de Couverture *
           </Label>
           <ImageUpload
             inputId="cover-image-upload"
@@ -813,7 +817,7 @@ export default function EditEvenementForm({
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-center text-2xl font-semibold text-primary">
-            Event Sections
+            Sections de l&apos;Événement *
           </h2>
           {typeof errors.sections === "string" && (
             <ErrorMessage error={errors.sections} />
@@ -842,22 +846,24 @@ export default function EditEvenementForm({
 
         {isAddingSectionOpen ? (
           <div className="space-y-4 rounded-lg border border-primary bg-card p-6 shadow-sm">
-            <h3 className="text-lg font-medium">Create New Section</h3>
+            <h3 className="text-xl font-semibold text-primary">
+              Créer Une Nouvelle Section
+            </h3>
 
             <div className="space-y-2">
-              <Label htmlFor="section-title">Section Title *</Label>
+              <Label htmlFor="section-title">Titre de Section *</Label>
               <Input
                 id="section-title"
                 value={newSection.title}
                 onChange={(e) =>
                   setNewSection((prev) => ({ ...prev, title: e.target.value }))
                 }
-                placeholder="Enter section title"
+                placeholder="Entrez le titre de la section"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="section-paragraph">Section Content *</Label>
+              <Label htmlFor="section-paragraph">Contenu de Section *</Label>
               <Textarea
                 id="section-paragraph"
                 value={newSection.paragraph}
@@ -867,13 +873,13 @@ export default function EditEvenementForm({
                     paragraph: e.target.value,
                   }))
                 }
-                placeholder="Enter section content"
+                placeholder="Décrivez le contenu de la section"
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Section Images</Label>
+              <Label>Images de la Section</Label>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {newSection.images.map((image, index) => (
                   <div key={index} className="group relative aspect-video">
@@ -928,7 +934,7 @@ export default function EditEvenementForm({
                   setNewSection({ title: "", paragraph: "", images: [] });
                 }}
               >
-                Cancel
+                Annuler
               </Button>
               <Button onClick={addSection}>Add Section</Button>
             </div>
@@ -940,7 +946,7 @@ export default function EditEvenementForm({
             onClick={() => setIsAddingSectionOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add New Section
+            Ajouter une Nouvelle Section
           </Button>
         )}
       </div>
@@ -948,10 +954,12 @@ export default function EditEvenementForm({
       <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogTitle>Changements non enregistrés</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes. Are you sure you want to leave this
-              page? All your progress will be lost.
+              {/* You have unsaved changes. Are you sure you want to leave this
+              page? All your progress will be lost. */}
+              Vous avez des changements non enregistrés. Êtes-vous sûr de
+              vouloir quitter cette page? Tous vos progresses seront perdus.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -961,7 +969,7 @@ export default function EditEvenementForm({
                 setIsLeaving(false);
               }}
             >
-              Stay on Page
+              Rester sur la Page
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
@@ -969,7 +977,7 @@ export default function EditEvenementForm({
                 navigate("/dashboard/evenements");
               }}
             >
-              Leave Page
+              Quitter
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
