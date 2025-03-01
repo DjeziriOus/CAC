@@ -1,6 +1,5 @@
 import { API_URL } from "@/utils/constants";
 import { QUESTIONS_PER_PAGE } from "@/utils/constants";
-import { title } from "process";
 import { toast } from "sonner";
 
 export async function getUsers() {
