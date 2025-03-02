@@ -6,15 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon, X, Plus, Image, AlertCircle, Trash } from "lucide-react";
+
+import { Plus, AlertCircle, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -37,20 +30,12 @@ const validateForm = (formData) => {
   console.log(formData);
   const errors = {};
 
-  if (!formData.title.trim()) {
+  if (!formData.nom.trim()) {
     errors.title = "Event title is required";
   }
 
   if (!formData.description.trim()) {
     errors.description = "Event description is required";
-  }
-
-  if (!formData.location.trim()) {
-    errors.location = "Event location is required";
-  }
-
-  if (!formData.date) {
-    errors.date = "Event date is required";
   }
 
   if (!formData.coverImage) {
@@ -186,7 +171,6 @@ export default function AjouterServiceForm() {
     const formData = {
       nom,
       description,
-      location,
       coverImage,
       sections: sections.map((section) => ({
         ...section,
