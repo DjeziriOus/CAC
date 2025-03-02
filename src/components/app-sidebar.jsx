@@ -51,7 +51,7 @@ export function AppSidebar({ ...props }) {
   //   }
   // }, []);
 
-  const { isPending } = useUser();
+  const { isPending, user } = useUser();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -59,6 +59,8 @@ export function AppSidebar({ ...props }) {
         {isPending ? <SkeletonUser /> : <NavUser />}
       </SidebarHeader>
       <SidebarContent>
+        {/* TODO: role based rendering*/}
+        {/* {isPending} */}
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarRail />
