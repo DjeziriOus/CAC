@@ -1,4 +1,4 @@
-import { Outlet, useNavigation } from "react-router-dom";
+import { Outlet, ScrollRestoration, useNavigation } from "react-router-dom";
 import Header from "./components/ui/Header";
 import Footer from "./components/ui/Footer";
 import Loader from "./components/ui/Loader";
@@ -19,7 +19,7 @@ function AppLayout() {
   return (
     <div className="h-screen">
       {isLoading && <Loader />}
-
+      <ScrollRestoration />
       <Header />
       <div className="mx-auto">
         <main className="">

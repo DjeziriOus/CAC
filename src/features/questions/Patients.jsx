@@ -70,7 +70,7 @@ function Patients() {
       >
         {isPending ? <TabsSkeleton /> : <TabSwitcher tabs={tabs} />}
         {/* {isLoading && <Loader />} */}
-        {/* <ScrollRestoration /> */}
+        <ScrollRestoration />
         <Separator />
         <div className="h-[700px] w-full">
           <Outlet />
