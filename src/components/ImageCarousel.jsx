@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -10,6 +10,21 @@ export function ImageCarousel({ images, onImageClick }) {
   const scrollContainerRef = useRef(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
+  const [imageOrientations, setImageOrientations] = useState({});
+
+  useEffect(() => {
+    // Preload images and detect orientations
+    images.forEach((image, index) => {
+      const img = new Image();
+      img.onload = () => {
+        setImageOrientations((prev) => ({
+          ...prev,
+          [index]: img.width > img.height ? "landscape" : "portrait",
+        }));
+      };
+      img.src = image.imgUrl;
+    });
+  }, [images]);
 
   const scroll = (direction) => {
     const container = scrollContainerRef.current;
@@ -66,7 +81,7 @@ export function ImageCarousel({ images, onImageClick }) {
         {images.map((image, index) => (
           <div
             key={index}
-            className="relative aspect-[4/3] w-[280px] flex-none cursor-pointer overflow-hidden rounded-md"
+            className={`relative flex-none cursor-pointer overflow-hidden rounded-md ${imageOrientations[index] === "portrait" ? "aspect-[3/4] w-[200px]" : "aspect-[4/3] w-[280px]"} `}
             onClick={() => onImageClick(image.imgUrl)}
           >
             <img
