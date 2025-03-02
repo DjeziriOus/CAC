@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { useAddService } from "@/features/dashboard/Service/useAddService";
+import { useAddService } from "@/features/dashboard/Services/useAddService";
 import ServicesTable from "./Components/ServicesTable";
 import { NavLink, useSearchParams } from "react-router-dom";
 

@@ -1,21 +1,16 @@
 import { Edit2Icon, Trash2 } from "lucide-react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../../../components/ui/avatar";
+
 import { Button } from "../../../../components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 
-import { useDeleteService } from "@/features/dashboard/Evenements/useDeleteService";
-import DeleteDialog from "../../../../components/ui/DeleteUserDialog";
-import DeleteUserDialog from "../../../../components/ui/DeleteUserDialog";
+import { useDeleteService } from "@/features/dashboard/Services/useDeleteService";
+
 import moment from "moment";
 import { API_URL } from "@/utils/constants";
 import DeleteServiceDialog from "@/components/ui/DeleteServiceDialog";
 import { useNavigate } from "react-router-dom";
 
-function ServiceRow({ event }) {
+function ServiceRow({ service }) {
   const {
     id,
     nom,
@@ -24,8 +19,12 @@ function ServiceRow({ event }) {
     medecinId,
     createdAt,
     updatedAt,
-    medecin: { id: idMedecin, nomMedecin, prenom, email },
-  } = event;
+    medecin: { nomMedecin, prenom, email } = {
+      nomMedecin: "",
+      prenom: "",
+      email: "",
+    },
+  } = service;
   const { isDeletingService, deleteService } = useDeleteService();
   const handleDelete = (id) => {
     deleteService(id);
@@ -50,14 +49,16 @@ function ServiceRow({ event }) {
           className="h-10 w-28 object-cover"
         />
       </TableCell>
-      <TableCell>{nomMedecin + " " + prenom}</TableCell>
-      <TableCell>{email}</TableCell>
 
       <TableCell className="flex gap-2">
-        <Button variant="outline" size="icon" onClick={() => onEdit(event)}>
+        <Button variant="outline" size="icon" onClick={() => onEdit(service)}>
           <Edit2Icon className="h-4 w-4" />
         </Button>
-        <DeleteServiceDialog handleDelete={handleDelete} event={event}>
+        <DeleteServiceDialog
+          handleDelete={handleDelete}
+          element={service}
+          type={"le service"}
+        >
           <Button
             variant="outline"
             size="icon"

@@ -14,7 +14,7 @@ import Patients, {
 // import Etudiants from "./features/questions/Etudiants";
 import Questions from "./features/questions/Questionnaire/RecentQuestions";
 import AjouterQuestion from "./features/questions/Questionnaire/AjouterQuestion";
-import Services from "./features/services/services";
+import Services from "./features/dashboard/Services/Services";
 import Dashboard from "./pages/Dashboard";
 // import Page from "./app/dashboard/page";
 import Utilisateurs from "./features/dashboard/Utilisateurs/Utilisateurs";
@@ -32,6 +32,7 @@ import EditEvenement from "./features/dashboard/Evenements/EditEvenement";
 import EventDetails from "./pages/EventDetails";
 import Events from "./pages/Events";
 import AjouterService from "./features/dashboard/Services/AjouterService";
+import EditService from "./features/dashboard/Services/EditService";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -172,7 +173,7 @@ const router = createBrowserRouter([
       },
       {
         path: "services/edit/:serviceId",
-        element: <AjouterService />,
+        element: <EditService />,
       },
       {
         path: "questions",
