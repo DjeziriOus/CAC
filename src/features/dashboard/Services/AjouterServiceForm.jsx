@@ -269,37 +269,37 @@ export default function AjouterServiceForm() {
               Publishing...
             </>
           ) : (
-            "Publish Event"
+            "Publier le Service"
           )}
         </Button>
       </div>
 
       <div className="space-y-6 rounded-lg bg-card p-6 shadow-sm">
-        <div className="space-y-2" data-error={!!errors.title}>
+        <div className="space-y-2" data-error={!!errors.nom}>
           <Label
-            htmlFor="title"
+            htmlFor="nom"
             className={
               "text-2xl font-semibold text-primary" +
-              cn(errors.title && "text-destructive")
+              cn(errors.nom && "text-destructive")
             }
           >
-            Event Title *
+            Titre du Service*
           </Label>
           <Input
-            id="title"
+            id="nom"
             value={nom}
             onChange={(e) => {
               setNom(e.target.value);
-              if (errors.title) {
+              if (errors.nom) {
                 const newErrors = { ...errors };
-                delete newErrors.title;
+                delete newErrors.nom;
                 setErrors(newErrors);
               }
             }}
-            placeholder="Enter event title"
-            className={cn(errors.title && "border-destructive")}
+            placeholder="Introduisez le nom du service"
+            className={cn(errors.nom && "border-destructive")}
           />
-          <ErrorMessage error={errors.title} />
+          <ErrorMessage error={errors.nom} />
         </div>
 
         <div className="space-y-2" data-error={!!errors.description}>
@@ -310,7 +310,7 @@ export default function AjouterServiceForm() {
               cn(errors.description && "text-destructive")
             }
           >
-            Event Description *
+            Description du Service *
           </Label>
           <Textarea
             id="description"
@@ -323,7 +323,7 @@ export default function AjouterServiceForm() {
                 setErrors(newErrors);
               }
             }}
-            placeholder="Enter event description"
+            placeholder="Introduisez la description du service"
             rows={4}
             className={cn(errors.description && "border-destructive")}
           />
@@ -337,7 +337,7 @@ export default function AjouterServiceForm() {
               cn(errors.coverImage && "text-destructive")
             }
           >
-            Cover Image *
+            Image de couverture *
           </Label>
           <ImageUpload
             inputId="cover-image-upload"
@@ -363,7 +363,7 @@ export default function AjouterServiceForm() {
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-center text-2xl font-semibold text-primary">
-            Event Sections *
+            Sections de la description du Service*
           </h2>
           {typeof errors.sections === "string" && (
             <ErrorMessage error={errors.sections} />
