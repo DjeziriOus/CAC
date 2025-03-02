@@ -82,12 +82,12 @@ function UserInfo() {
       <DropdownMenuContent className="w-48">
         <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="hover:cursor-pointer">
-          <NavLink to={"/dashboard"} className="flex items-center gap-2">
+        <NavLink to={"/dashboard"} className="flex w-full items-center gap-2">
+          <DropdownMenuItem className="w-full hover:cursor-pointer">
             <LayoutDashboardIcon className="h-4 w-4" />
             Dashboard
-          </NavLink>
-        </DropdownMenuItem>
+          </DropdownMenuItem>
+        </NavLink>
         <DropdownMenuItem
           onClick={handleLogout}
           className="text-red-500 hover:cursor-pointer"
