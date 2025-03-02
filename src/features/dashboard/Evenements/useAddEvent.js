@@ -8,7 +8,7 @@ export function useAddEvent() {
   const { isPending: isAddingEvent, mutate: addEvent } = useMutation({
     mutationFn: (event) => addEventAPI(event), // mutationFn: addEventAPI,
     onSuccess: () => {
-      toast.success("Docteur ajouté", {
+      toast.success("événement ajouté", {
         description: "L'événement a bien été ajouté.",
       });
       queryClient.invalidateQueries({

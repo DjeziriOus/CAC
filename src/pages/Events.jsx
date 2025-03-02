@@ -128,7 +128,7 @@ const EventsList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-3">
       {events.map((event) => (
         <EventCard key={event.id} event={event} />
       ))}
@@ -170,7 +170,7 @@ export default function Events() {
           </TabsList>
         </div>
 
-        <TabsContent value="national" className="mt-0">
+        <TabsContent value="national" className="mx-auto mt-0 max-w-[65dvw]">
           <div className="mb-6">
             <h2 className="mb-2 text-2xl font-semibold">
               Événements Nationaux
@@ -183,7 +183,10 @@ export default function Events() {
           <EventsList />
         </TabsContent>
 
-        <TabsContent value="international" className="mt-0">
+        <TabsContent
+          value="international"
+          className="mx-auto mt-0 max-w-[65dvw]"
+        >
           <div className="mb-6">
             <h2 className="mb-2 text-2xl font-semibold">
               Événements Internationaux

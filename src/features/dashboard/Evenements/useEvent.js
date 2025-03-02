@@ -14,5 +14,6 @@ export function useEvent() {
     queryKey: ["event", Number(eventId)],
     queryFn: () => getEvent(eventId),
   });
+  // console.log(event);
   return { event, isPending, error };
 }

@@ -225,3 +225,12 @@ html {
     @apply bg-background text-foreground;
   }
 }
+/* Add this to your existing CSS */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -1,4 +1,6 @@
 "use client";
+
+import { useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -6,9 +8,12 @@ import { CalendarIcon, MapPinIcon, ArrowLeft } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { ImageModal } from "@/components/ImageModal";
+import { ImageCarousel } from "@/components/ImageCarousel";
 import { API_URL } from "@/utils/constants";
+import { useEvent } from "@/features/dashboard/Evenements/useEvent";
 
-// Sample event data
+// Sample event data (same as before)
 const eventData = {
   event: {
     id: 4,
@@ -55,26 +60,40 @@ const eventData = {
 
 export default function EventDetails() {
   const { id } = useParams();
-  const { event } = eventData; // In a real app, you would fetch based on the ID
-  const formattedDate = format(new Date(event.date), "dd MMMM yyyy", {
-    locale: fr,
-  });
+  // const {event, }
+  const { event, isPending, error } = useEvent();
+  // const { event } = eventData; // In a real app, you would fetch based on the ID
+  // const formattedDate =
 
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // Collect all images from the event including cover and section images
+  const allImages = useMemo(() => {
+    const images = event?.coverUrl ? [{ imgUrl: event.coverUrl }] : [];
+    event?.sections.forEach((section) => {
+      images.push(...section.images);
+    });
+    return images;
+  }, [event]);
+  if (isPending || error) {
+    return <div>Loading...</div>;
+  }
   return (
     <article className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="relative h-[40vh] min-h-[400px] w-full overflow-hidden">
         <img
-          src={API_URL + event.coverUrl || "/placeholder.svg"}
+          src={event.coverUrl ? API_URL + event.coverUrl : "/placeholder.svg"}
           alt={event.title}
-          className="h-full w-full object-cover"
+          className="h-full w-full cursor-pointer object-cover"
+          onClick={() => setSelectedImage(event.coverUrl)}
           onError={(e) => {
             e.target.src = "https://placehold.co/1200x600/png";
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background to-background/20" />
         <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="container mx-auto">
+          <div className="container mx-auto max-w-[90dvw]">
             <Link
               to="/evenements"
               className="mb-4 inline-flex items-center text-primary hover:underline"
@@ -86,7 +105,7 @@ export default function EventDetails() {
             <div className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center text-muted-foreground">
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {formattedDate}
+                {format(new Date(event?.date), "dd MMMM yyyy", { locale: fr })}
               </div>
               <div className="flex items-center text-muted-foreground">
                 <MapPinIcon className="mr-2 h-4 w-4" />
@@ -97,7 +116,7 @@ export default function EventDetails() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto max-w-[90dvw] px-4 py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           {/* Main Content */}
           <div className="lg:col-span-8">
@@ -125,10 +144,15 @@ export default function EventDetails() {
                       {section.images.map((image, imageIndex) => (
                         <div
                           key={imageIndex}
-                          className="relative aspect-video overflow-hidden rounded-lg"
+                          className="relative aspect-video cursor-pointer overflow-hidden rounded-lg"
+                          onClick={() => setSelectedImage(image.imgUrl)}
                         >
                           <img
-                            src={API_URL + image.imgUrl || "/placeholder.svg"}
+                            src={
+                              image.imgUrl
+                                ? API_URL + image.imgUrl
+                                : "/placeholder.svg"
+                            }
                             alt={`Image ${imageIndex + 1} for ${section.title}`}
                             className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                             onError={(e) => {
@@ -145,6 +169,19 @@ export default function EventDetails() {
                 </section>
               ))}
             </div>
+
+            {/* Image Gallery Carousel */}
+            {allImages.length > 0 && (
+              <div className="mt-16">
+                <h2 className="mb-6 text-2xl font-bold">
+                  Galerie d&apos;images
+                </h2>
+                <ImageCarousel
+                  images={allImages}
+                  onImageClick={(imageUrl) => setSelectedImage(imageUrl)}
+                />
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -157,16 +194,16 @@ export default function EventDetails() {
                   <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16">
                       <AvatarFallback className="bg-primary text-xl text-primary-foreground">
-                        {event.medecin.prenom[0]}
-                        {event.medecin.nom[0]}
+                        {event?.medecin?.prenom[0]}
+                        {event?.medecin?.nom[0]}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-lg font-medium">
-                        {event.medecin.prenom} {event.medecin.nom}
+                        {event?.medecin?.prenom} {event?.medecin?.nom}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {event.medecin.email}
+                        {event?.medecin?.email}
                       </p>
                     </div>
                   </div>
@@ -194,6 +231,13 @@ export default function EventDetails() {
           </aside>
         </div>
       </div>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+        imageUrl={selectedImage}
+      />
     </article>
   );
 }
