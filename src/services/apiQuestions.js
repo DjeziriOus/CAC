@@ -810,6 +810,23 @@ export const updateSection = async (
   return updatedSection;
 };
 
+export async function getServices(page) {
+  const res = await fetch(`${API_URL}/services/getServices?tpage=${page}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // Authorization: localStorage.getItem("token"),
+    },
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error("Failed getting services");
+  }
+  const data = await res.json();
+  const { services } = data;
+  return services;
+}
+
 export async function addService(serviceData) {
   // Create a new FormData instance
   const formData = new FormData();
