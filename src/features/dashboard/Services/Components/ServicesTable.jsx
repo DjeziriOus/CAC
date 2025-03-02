@@ -13,11 +13,14 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 
 function ServicesTable({ onEdit: handleEdit }) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams({ page: "1" });
   useEffect(() => {
-    searchParams.get("page") || searchParams.set("page", 1);
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
+    if (!searchParams.get("page")) {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set("page", "1");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, []);
   const { services, isPending, error } = useServices();
   return (
     <div className="rounded-md border">

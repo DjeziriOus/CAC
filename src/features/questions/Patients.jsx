@@ -7,6 +7,7 @@ import { ArrowDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Outlet, useSearchParams } from "react-router-dom";
+import img from "/src/images/Patients.png";
 
 import { useUser } from "../user/useUser";
 const fullTabs = [
@@ -39,12 +40,14 @@ function Patients() {
 
   return (
     <div className="mt-16 bg-lgt-1">
-      <div className="flex h-[38rem] w-full items-center justify-center bg-[url('/src/images/Patients.png')] bg-cover bg-center">
+      <div
+        className={`flex h-[38rem] w-full items-center justify-center bg-[url('${img}')] bg-cover bg-center`}
+      >
         <div className="mx-auto flex w-[1200px] justify-between">
           <div></div>
           <div className="flex w-[40%] flex-col items-center justify-center gap-6 text-white">
             <h2 className="text-[2.5rem] font-bold tracking-wide">
-              Espace des patients
+              Espace des Questions
             </h2>
             <p className="text-lg font-normal leading-[1.7] text-white">
               Vous avez des interrogations ou des préoccupations concernant

@@ -852,6 +852,7 @@ export const updateSection = async (
 };
 
 export async function getServices(page) {
+  console.log(page);
   const res = await fetch(`${API_URL}/service/getServices?tpage=${page}`, {
     method: "GET",
     headers: {

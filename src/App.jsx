@@ -29,8 +29,8 @@ import MyQuestions from "./features/questions/Questionnaire/myQuestions";
 import Etudiants from "./features/questions/Etudiants";
 import AjouterEvenement from "./features/dashboard/Evenements/AjouterEvenementForm";
 import EditEvenement from "./features/dashboard/Evenements/EditEvenement";
-import EventDetails from "./pages/EventDetails";
-import Events from "./pages/Events";
+import EventDetails from "./features/evenements/EventDetails";
+import Events from "./features/evenements/Events";
 import AjouterService from "./features/dashboard/Services/AjouterService";
 import EditService from "./features/dashboard/Services/EditService";
 const queryClient = new QueryClient({

@@ -15,12 +15,29 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 
 function EventsTable({ onEdit: handleEdit }) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams({
+    page: "1",
+    type: "international",
+  });
+
   useEffect(() => {
-    searchParams.get("page") || searchParams.set("page", 1);
-    searchParams.get("type") || searchParams.set("type", "international");
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
+    const newParams = new URLSearchParams(searchParams);
+    let updated = false;
+
+    if (!newParams.get("page")) {
+      newParams.set("page", "1");
+      updated = true;
+    }
+    if (!newParams.get("type")) {
+      newParams.set("type", "international");
+      updated = true;
+    }
+
+    if (updated) {
+      setSearchParams(newParams, { replace: true });
+    }
+  }, []);
+
   const { events, isPending, error } = useEvents();
   return (
     <div className="rounded-md border">

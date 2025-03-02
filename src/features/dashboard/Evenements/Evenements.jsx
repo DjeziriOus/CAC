@@ -36,6 +36,7 @@ import LinkButton from "@/components/ui/LinkButton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Evenements() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingDoctorState, setIsAddingDoctorState] = useState(false);
@@ -84,7 +85,6 @@ export default function Evenements() {
       });
     }
   };
-  const [searchParams, setSearchParams] = useSearchParams();
 
   return (
     <div className="flex h-full">

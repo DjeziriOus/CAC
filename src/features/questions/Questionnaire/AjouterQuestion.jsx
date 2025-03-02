@@ -40,7 +40,7 @@ const formSchema = z.object({
 
 export default function AjouterQuestion() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  // const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useUser();
   // const [isAddingQuestion, setisAddingQuestion] = useState(false);
   const location = useLocation();

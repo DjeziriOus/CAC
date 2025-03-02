@@ -55,7 +55,10 @@ export default function QuestionsDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams({
+    page: "1",
+    type: "patient",
+  });
 
   const { user } = useUser();
   const { isDeletingQuestion, deleteQuestion } = useDeleteQuestion();
@@ -64,10 +67,22 @@ export default function QuestionsDashboard() {
   const { isAnsweringQuestion, answerQuestion } = useAnswerQuestion();
 
   useEffect(() => {
-    searchParams.get("page") || searchParams.set("page", 1);
-    searchParams.get("type") || searchParams.set("type", "patient");
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
+    const newParams = new URLSearchParams(searchParams);
+    let updated = false;
+
+    if (!newParams.get("page")) {
+      newParams.set("page", "1");
+      updated = true;
+    }
+    if (!newParams.get("type")) {
+      newParams.set("type", "patient");
+      updated = true;
+    }
+
+    if (updated) {
+      setSearchParams(newParams, { replace: true });
+    }
+  }, []);
 
   const answerForm = useForm({
     defaultValues: {

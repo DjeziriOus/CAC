@@ -38,11 +38,11 @@ import { useTotalPagesRecentQuestions } from "@/features/dashboard/Questions/use
 
 function RecentQuestions() {
   const questionsType = location.pathname.includes("patient");
-  const [searchParams, setSearchParams] = useSearchParams();
-  useEffect(() => {
-    searchParams.get("page") || searchParams.set("page", 1);
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
+  const [searchParams, setSearchParams] = useSearchParams({ page: "1" });
+  // useEffect(() => {
+  //   searchParams.get("page") || searchParams.set("page", 1);
+  //   setSearchParams(searchParams);
+  // }, [searchParams, setSearchParams]);
   // const { questions } = useLoaderData();
   const { questions, isPending } = useQuestions();
 

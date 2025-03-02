@@ -19,35 +19,6 @@ import { API_URL } from "@/utils/constants";
 import { use } from "react";
 import { useEvents } from "@/features/dashboard/Evenements/useEvents";
 
-// Sample data (same as before)
-const nationalEvents = [
-  {
-    id: 1,
-    title: "Conférence sur l'oncologie",
-    description:
-      "Une conférence nationale sur les dernières avancées en oncologie.",
-    endroit: "Alger",
-    date: "2025-03-01T15:11:51.000Z",
-    type: "national",
-    coverUrl: "/uploads/cover1.jpg",
-    medecinId: 2,
-    createdAt: "2025-03-01T15:11:51.000Z",
-    updatedAt: "2025-03-01T15:11:51.000Z",
-    medecin: {
-      id: 2,
-      nom: "Allag",
-      prenom: "Aymen",
-      email: "Aymen@esi-sba.dz",
-    },
-  },
-  // ... other events
-];
-
-const internationalEvents = [
-  // ... your international events data
-];
-
-// Event Card Component
 const EventCard = ({ event }) => {
   const formattedDate = format(new Date(event.date), "dd MMMM yyyy", {
     locale: fr,
@@ -138,12 +109,34 @@ const EventsList = () => {
 
 export default function Events() {
   const [activeTab, setActiveTab] = useState("national");
-  const [searchParams, setSearchParams] = useSearchParams();
-  useEffect(() => {
-    // setActiveTab(searchParams.get("type") || "national");
-    searchParams.get("type") || searchParams.set("type", "national");
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
+  // const [searchParams, setSearchParams] = useSearchParams();
+  // useEffect(() => {
+  //   // setActiveTab(searchParams.get("type") || "national");
+  //   searchParams.get("type") || searchParams.set("type", "national");
+  //   setSearchParams(searchParams);
+  // }, [searchParams, setSearchParams]);
+  const [searchParams, setSearchParams] = useSearchParams({
+    page: "1",
+    type: "national",
+  });
+
+  // useEffect(() => {
+  //   const newParams = new URLSearchParams(searchParams);
+  //   let updated = false;
+
+  //   if (!newParams.get("page")) {
+  //     newParams.set("page", "1");
+  //     updated = true;
+  //   }
+  //   if (!newParams.get("type")) {
+  //     newParams.set("type", "national");
+  //     updated = true;
+  //   }
+
+  //   if (updated) {
+  //     setSearchParams(newParams, { replace: true });
+  //   }
+  // }, []);
 
   return (
     <div className="container mx-auto min-h-[120dvh] px-4 py-24">
