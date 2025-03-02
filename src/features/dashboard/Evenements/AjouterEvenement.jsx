@@ -1,7 +1,7 @@
 "use client";
 
 import EventForm from "@/components/event-form";
-import AjouterEvenementForm from "./AjouterEvenementForm.v2";
+import AjouterEvenementForm from "./AjouterEvenementForm";
 
 export default function AjouterEvenement({ params }) {
   return (

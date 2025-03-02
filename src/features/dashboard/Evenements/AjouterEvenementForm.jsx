@@ -1,4 +1,5 @@
 "use client";
+
 import ImageUpload from "@/features/dashboard/Evenements/ImageUpload";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, X, Plus, Image, AlertCircle } from "lucide-react";
+import { CalendarIcon, X, Plus, Image, AlertCircle, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import EventSection from "@/features/dashboard/Evenements/EventSection";
 import {
@@ -29,9 +30,12 @@ import {
 import { useAddEvent } from "./useAddEvent";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import SectionItem from "./SectionItem";
+import SectionEditForm from "./SectionEditForm";
 
 // Validation helper
 const validateForm = (formData) => {
+  console.log(formData);
   const errors = {};
 
   if (!formData.title.trim()) {
@@ -61,9 +65,10 @@ const validateForm = (formData) => {
       const sectionError = {};
       if (!section.title.trim())
         sectionError.title = "Section title is required";
-      if (!section.content.trim())
-        sectionError.content = "Section content is required";
-      if (!section.image) sectionError.image = "Section image is required";
+      if (!section.paragraph.trim())
+        sectionError.paragraph = "Section contentsss is required";
+      if (!section.images?.length)
+        sectionError.images = "At least one section image is required";
       return Object.keys(sectionError).length ? sectionError : null;
     });
 
@@ -85,12 +90,13 @@ export default function AjouterEvenementForm() {
   const [date, setDate] = useState(undefined);
   const [eventType, setEventType] = useState("national");
   const [coverImage, setCoverImage] = useState(null);
+  const [editingSectionId, setEditingSectionId] = useState(null);
   const [sections, setSections] = useState([]);
   const [isAddingSectionOpen, setIsAddingSectionOpen] = useState(false);
   const [newSection, setNewSection] = useState({
     title: "",
-    content: "",
-    image: null,
+    paragraph: "",
+    images: [],
   });
 
   // UI state
@@ -123,8 +129,8 @@ export default function AjouterEvenementForm() {
       coverImage !== null ||
       sections.length > 0 ||
       newSection.title !== "" ||
-      newSection.content !== "" ||
-      newSection.image !== null;
+      newSection.paragraph !== "" ||
+      newSection.images.length > 0;
 
     setIsDirty(hasContent);
   }, [title, description, location, date, coverImage, sections, newSection]);
@@ -156,8 +162,8 @@ export default function AjouterEvenementForm() {
 
     setNewSection({
       title: "",
-      content: "",
-      image: null,
+      paragraph: "",
+      images: [],
     });
 
     setIsAddingSectionOpen(false);
@@ -176,7 +182,6 @@ export default function AjouterEvenementForm() {
       setShowAlert(true);
       setIsLeaving(true);
     } else {
-      // Navigate away - replace with your navigation method
       navigate("/dashboard/evenements");
     }
   };
@@ -190,11 +195,14 @@ export default function AjouterEvenementForm() {
       date,
       type: eventType,
       coverImage,
-      sections,
+      sections: sections.map((section) => ({
+        ...section,
+        paragraph: section.paragraph, // Map content to paragraph for API consistency
+      })),
     };
 
     const validationErrors = validateForm(formData);
-
+    console.log(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -204,38 +212,10 @@ export default function AjouterEvenementForm() {
       setIsDirty(false);
       setErrors({});
 
-      // Submit the form
-      console.log("Submitting form data:", formData);
-
-      // // Here you would typically submit the form data to your backend
-      // console.log({
-      //   title,
-      //   description,
-      //   location,
-      //   date,
-      //   type: eventType,
-      //   coverImage,
-      //   sections,
-      // });
-
-      addEvent({
-        title,
-        description,
-        location,
-        date,
-        type: eventType,
-        coverImage,
-        sections,
-      });
-
-      // // Reset form and navigate away
-
-      // replace with your navigation method
+      addEvent(formData);
       navigate("/dashboard/evenements");
     } catch (error) {
-      // If there's an error, set form back to dirty
       setIsDirty(true);
-      // You might want to show an error message to the user here
       toast.error("Failed to submit the form. Please try again.", {
         description: error.message,
       });
@@ -253,6 +233,46 @@ export default function AjouterEvenementForm() {
     );
   };
 
+  const handleDeleteSection = (sectionId) => {
+    try {
+      // deleteSection(sectionId);
+      setSections((prev) => prev.filter((section) => section.id !== sectionId));
+    } catch (error) {
+      console.error("Failed to delete section:", error);
+      // Handle error (could add a toast notification here)
+    }
+  };
+
+  const handleUpdateSection = (section) => {
+    setEditingSectionId(section.id);
+  };
+
+  const handleSaveSection = (updatedSection, newImageFiles = []) => {
+    try {
+      const originalSection = sections.find((s) => s.id === updatedSection.id);
+
+      if (!originalSection) return;
+      // updateSection({
+      //   originalSection,
+      //   updatedSection: {
+      //     ...updatedSection,
+      //     eventId: initialEvent.id,
+      //   },
+      //   newImageFiles,
+      // });
+
+      setSections((prev) =>
+        prev.map((section) =>
+          section.id === updatedSection.id ? updatedSection : section,
+        ),
+      );
+      setEditingSectionId(null);
+    } catch (error) {
+      console.error("Failed to update section:", error);
+      // Handle error (could add a toast notification here)
+    }
+  };
+
   return (
     <div className="space-y-8" ref={formRef}>
       {errors.submit && (
@@ -265,7 +285,16 @@ export default function AjouterEvenementForm() {
         <Button variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
-        <Button onClick={handlePublish}>Publish Event</Button>
+        <Button onClick={handlePublish} disabled={isAddingEvent}>
+          {isAddingEvent ? (
+            <>
+              <span className="loading loading-spinner loading-sm mr-2"></span>
+              Publishing...
+            </>
+          ) : (
+            "Publish Event"
+          )}
+        </Button>
       </div>
 
       <div className="space-y-6 rounded-lg bg-card p-6 shadow-sm">
@@ -469,65 +498,106 @@ export default function AjouterEvenementForm() {
           )}
         </div>
 
-        {sections.map((section, index) => (
-          <div key={section.id} data-error={errors.sections?.[index]}>
-            <EventSection
-              key={section.id}
-              section={section}
-              onRemove={() => removeSection(section.id)}
-              errors={errors.sections?.[index]}
-            />
-          </div>
-        ))}
+        <div className="space-y-4">
+          {sections.map((section) => (
+            <div key={section.id}>
+              {editingSectionId === section.id ? (
+                <SectionEditForm
+                  section={section}
+                  onSave={handleSaveSection}
+                  onCancel={() => setEditingSectionId(null)}
+                />
+              ) : (
+                <SectionItem
+                  section={section}
+                  onEdit={handleUpdateSection}
+                  onDelete={handleDeleteSection}
+                />
+              )}
+            </div>
+          ))}
+        </div>
 
         {isAddingSectionOpen ? (
           <div className="space-y-4 rounded-lg border border-primary bg-card p-6 shadow-sm">
-            <h3 className="text-lg font-medium">Create New Section</h3>
+            <h3 className="text-xl font-semibold text-primary">
+              Créer Une Nouvelle Section
+            </h3>
 
             <div className="space-y-2">
-              <Label htmlFor="section-title">Section Title *</Label>
+              <Label htmlFor="section-title">Titre de Section *</Label>
               <Input
                 id="section-title"
                 value={newSection.title}
                 onChange={(e) =>
                   setNewSection((prev) => ({ ...prev, title: e.target.value }))
                 }
-                placeholder="Enter section title"
+                placeholder="Entrez le titre de la section"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="section-content">Section Content *</Label>
+              <Label htmlFor="section-paragraph">Contenu de Section *</Label>
               <Textarea
-                id="section-content"
-                value={newSection.content}
+                id="section-paragraph"
+                value={newSection.paragraph}
                 onChange={(e) =>
                   setNewSection((prev) => ({
                     ...prev,
-                    content: e.target.value,
+                    paragraph: e.target.value,
                   }))
                 }
-                placeholder="Enter section content"
+                placeholder="Décrivez le contenu de la section"
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-2xl font-semibold text-primary">
-                Section Image *
-              </Label>
-              <ImageUpload
-                inputId="section-image-upload"
-                currentImage={newSection.image}
-                onImageSelect={(image) =>
-                  setNewSection((prev) => ({ ...prev, image }))
-                }
-                onImageRemove={() =>
-                  setNewSection((prev) => ({ ...prev, image: null }))
-                }
-                height="h-48"
-                loading={isUploading}
-              />
+              <Label>Images de la Section</Label>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {newSection.images.map((image, index) => (
+                  <div key={index} className="group relative aspect-video">
+                    <img
+                      src={
+                        typeof image === "string"
+                          ? image
+                          : // : `${API_URL}${image.imgUrl}`
+                            `${image.imgUrl}`
+                      }
+                      alt={`New section image ${index + 1}`}
+                      className="h-full w-full rounded-md object-cover"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
+                      onClick={() => {
+                        setNewSection((prev) => ({
+                          ...prev,
+                          images: prev.images.filter((_, i) => i !== index),
+                        }));
+                      }}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <div className="aspect-video">
+                  <ImageUpload
+                    inputId={`new-section-image-upload-${newSection.images.length}`}
+                    currentImage={null}
+                    onImageSelect={(image) =>
+                      setNewSection((prev) => ({
+                        ...prev,
+                        images: [...prev.images, image],
+                      }))
+                    }
+                    onImageRemove={() => {}}
+                    height="h-full"
+                    className="h-full"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="mt-4 flex justify-end space-x-2">
@@ -535,12 +605,12 @@ export default function AjouterEvenementForm() {
                 variant="outline"
                 onClick={() => {
                   setIsAddingSectionOpen(false);
-                  setNewSection({ title: "", content: "", image: null });
+                  setNewSection({ title: "", paragraph: "", images: [] });
                 }}
               >
-                Cancel
+                Annuler
               </Button>
-              <Button onClick={addSection}>Confirm Add Section</Button>
+              <Button onClick={addSection}>Add Section</Button>
             </div>
           </div>
         ) : (
@@ -550,7 +620,7 @@ export default function AjouterEvenementForm() {
             onClick={() => setIsAddingSectionOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add New Section
+            Ajouter une Nouvelle Section
           </Button>
         )}
       </div>
@@ -576,7 +646,6 @@ export default function AjouterEvenementForm() {
             <AlertDialogAction
               onClick={() => {
                 setIsDirty(false);
-                // window.location.href = "/dashboard/evenements";
                 navigate("/dashboard/evenements");
               }}
             >

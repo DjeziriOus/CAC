@@ -27,10 +27,11 @@ import { Toaster } from "sonner";
 import QuestionsForum from "./features/questions/QuestionsForum";
 import MyQuestions from "./features/questions/Questionnaire/myQuestions";
 import Etudiants from "./features/questions/Etudiants";
-import AjouterEvenement from "./features/dashboard/Evenements/AjouterEvenementForm.v2";
+import AjouterEvenement from "./features/dashboard/Evenements/AjouterEvenementForm";
 import EditEvenement from "./features/dashboard/Evenements/EditEvenement";
 import EventDetails from "./pages/EventDetails";
 import Events from "./pages/Events";
+import AjouterService from "./features/dashboard/Services/AjouterService";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -164,6 +165,14 @@ const router = createBrowserRouter([
       {
         path: "services",
         element: <Services />,
+      },
+      {
+        path: "services/ajouter",
+        element: <AjouterService />,
+      },
+      {
+        path: "services/edit/:serviceId",
+        element: <AjouterService />,
       },
       {
         path: "questions",

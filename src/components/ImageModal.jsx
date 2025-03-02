@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/ImageDialog";
 import { API_URL } from "@/utils/constants";
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";

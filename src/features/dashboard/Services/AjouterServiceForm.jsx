@@ -16,7 +16,6 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon, X, Plus, Image, AlertCircle, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
-import EventSection from "@/features/dashboard/Evenements/EventSection";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,11 +26,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useAddEvent } from "./useAddEvent";
+import { useAddService } from "./useAddService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import SectionItem from "./SectionItem";
-import SectionEditForm from "./SectionEditForm";
+import SectionItem from "@/features/dashboard/Evenements/SectionItem";
+import SectionEditForm from "@/features/dashboard/Evenements/SectionEditForm";
 
 // Validation helper
 const validateForm = (formData) => {
@@ -80,15 +79,13 @@ const validateForm = (formData) => {
   return errors;
 };
 
-export default function AjouterEvenementForm() {
-  const { addEvent, isAddingEvent } = useAddEvent();
+export default function AjouterServiceForm() {
+  const { addService, isAddingService } = useAddService();
   const navigate = useNavigate();
   const formRef = useRef(null);
-  const [title, setTitle] = useState("");
+  const [nom, setNom] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
-  const [date, setDate] = useState(undefined);
-  const [eventType, setEventType] = useState("national");
+
   const [coverImage, setCoverImage] = useState(null);
   const [editingSectionId, setEditingSectionId] = useState(null);
   const [sections, setSections] = useState([]);
@@ -122,10 +119,8 @@ export default function AjouterEvenementForm() {
   // Track form changes
   useEffect(() => {
     const hasContent =
-      title !== "" ||
+      nom !== "" ||
       description !== "" ||
-      location !== "" ||
-      date !== undefined ||
       coverImage !== null ||
       sections.length > 0 ||
       newSection.title !== "" ||
@@ -133,7 +128,7 @@ export default function AjouterEvenementForm() {
       newSection.images.length > 0;
 
     setIsDirty(hasContent);
-  }, [title, description, location, date, coverImage, sections, newSection]);
+  }, [nom, description, coverImage, sections, newSection]);
 
   // Handle beforeunload event
   useEffect(() => {
@@ -182,18 +177,16 @@ export default function AjouterEvenementForm() {
       setShowAlert(true);
       setIsLeaving(true);
     } else {
-      navigate("/dashboard/evenements");
+      navigate("/dashboard/services");
     }
   };
 
   const handlePublish = () => {
     // Validate form
     const formData = {
-      title,
+      nom,
       description,
       location,
-      date,
-      type: eventType,
       coverImage,
       sections: sections.map((section) => ({
         ...section,
@@ -212,8 +205,8 @@ export default function AjouterEvenementForm() {
       setIsDirty(false);
       setErrors({});
 
-      addEvent(formData);
-      navigate("/dashboard/evenements");
+      addService(formData);
+      navigate("/dashboard/services");
     } catch (error) {
       setIsDirty(true);
       toast.error("Failed to submit the form. Please try again.", {
@@ -285,8 +278,8 @@ export default function AjouterEvenementForm() {
         <Button variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
-        <Button onClick={handlePublish} disabled={isAddingEvent}>
-          {isAddingEvent ? (
+        <Button onClick={handlePublish} disabled={isAddingService}>
+          {isAddingService ? (
             <>
               <span className="loading loading-spinner loading-sm mr-2"></span>
               Publishing...
@@ -310,9 +303,9 @@ export default function AjouterEvenementForm() {
           </Label>
           <Input
             id="title"
-            value={title}
+            value={nom}
             onChange={(e) => {
-              setTitle(e.target.value);
+              setNom(e.target.value);
               if (errors.title) {
                 const newErrors = { ...errors };
                 delete newErrors.title;
@@ -351,111 +344,6 @@ export default function AjouterEvenementForm() {
             className={cn(errors.description && "border-destructive")}
           />
           <ErrorMessage error={errors.description} />
-        </div>
-
-        <div className="space-y-2" data-error={!!errors.location}>
-          <Label
-            htmlFor="location"
-            className={
-              "text-2xl font-semibold text-primary" +
-              cn(errors.location && "text-destructive")
-            }
-          >
-            Location *
-          </Label>
-          <Input
-            id="location"
-            value={location}
-            onChange={(e) => {
-              setLocation(e.target.value);
-              if (errors.location) {
-                const newErrors = { ...errors };
-                delete newErrors.location;
-                setErrors(newErrors);
-              }
-            }}
-            placeholder="Enter event location"
-            className={cn(errors.location && "border-destructive")}
-          />
-          <ErrorMessage error={errors.location} />
-        </div>
-
-        <div className="flex justify-between gap-2" data-error={!!errors.date}>
-          <div className="flex items-center gap-10">
-            <Label
-              className={
-                "text-2xl font-semibold text-primary" +
-                cn(errors.date && "text-destructive")
-              }
-            >
-              Date *
-            </Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-[240px] justify-start text-left font-normal",
-                    !date && "text-muted-foreground",
-                    errors.date && "border-destructive",
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : "Select date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(newDate) => {
-                    setDate(newDate);
-                    if (errors.date) {
-                      const newErrors = { ...errors };
-                      delete newErrors.date;
-                      setErrors(newErrors);
-                    }
-                  }}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            <ErrorMessage error={errors.date} />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-10">
-              <Label className="text-2xl font-semibold text-primary">
-                Event Type
-              </Label>
-              <RadioGroup
-                defaultValue="national"
-                value={eventType}
-                onValueChange={setEventType}
-                className="flex gap-10 rounded-lg border bg-lgt-1 py-2 pl-3 pr-10"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="national" id="national" />
-                  <Label
-                    htmlFor="national"
-                    className="text-lg hover:cursor-pointer"
-                  >
-                    National
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="international" id="international" />
-                  <Label
-                    htmlFor="international"
-                    className="text-lg hover:cursor-pointer"
-                  >
-                    International
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </div>
-          <div> </div>
         </div>
 
         <div className="space-y-2" data-error={!!errors.coverImage}>
@@ -646,7 +534,7 @@ export default function AjouterEvenementForm() {
             <AlertDialogAction
               onClick={() => {
                 setIsDirty(false);
-                navigate("/dashboard/evenements");
+                navigate("/dashboard/services");
               }}
             >
               Leave Page

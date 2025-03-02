@@ -806,7 +806,61 @@ export const updateSection = async (
       newImageFiles,
     );
   }
-
   // Return the updated section
   return updatedSection;
 };
+
+export async function addService(serviceData) {
+  // Create a new FormData instance
+  const formData = new FormData();
+
+  // Append the cover image file (field name "cover")
+  const coverFile = dataURLtoFile(serviceData.coverImage, "cover.png");
+  formData.append("cover", coverFile);
+
+  // Append basic service details
+  formData.append("nom", serviceData.nom);
+  formData.append("description", serviceData.description);
+
+  // Ensure each section has an "imageCount" property (derived from the number of images)
+  const sectionsWithCount = serviceData.sections.map((section) => {
+    return {
+      title: section.title,
+      paragraph: section.paragraph,
+      imageCount: section.images.length,
+    };
+  });
+  // Append sections as a JSON string
+  formData.append("sections", JSON.stringify(sectionsWithCount));
+
+  // Append all section images in order as "carousel"
+  // The backend expects these files in the order defined by imageCount in sections.
+  serviceData.sections.forEach((section, sectionIndex) => {
+    section.images.forEach((imgData, imageIndex) => {
+      // Convert each base64 image to a File
+      const filename = `section-${sectionIndex}-img-${imageIndex}.png`;
+      const file = dataURLtoFile(imgData, filename);
+      formData.append("carousel", file);
+    });
+  });
+
+  // Post the FormData to the backend route
+  try {
+    const response = await fetch(`${API_URL}/service/addService`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+      // Note: Do not set Content-Type; the browser will add the correct multipart boundary.
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || "Something went wrong");
+    }
+    return result;
+  } catch (error) {
+    console.error("Error creating service:", error);
+    throw error;
+  }
+}
