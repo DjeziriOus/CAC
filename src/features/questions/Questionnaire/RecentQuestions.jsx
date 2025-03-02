@@ -37,8 +37,30 @@ import { useQuestions } from "@/features/dashboard/Questions/useQuestions";
 import { useTotalPagesRecentQuestions } from "@/features/dashboard/Questions/useTotalPagesRecentQuestions";
 
 function RecentQuestions() {
-  const questionsType = location.pathname.includes("patient");
-  const [searchParams, setSearchParams] = useSearchParams({ page: "1" });
+  const questionsType = location.pathname.includes("patient")
+    ? "patient"
+    : "etudiant";
+  const [searchParams, setSearchParams] = useSearchParams({
+    page: "1",
+    type: questionsType,
+  });
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams);
+    let updated = false;
+
+    if (!newParams.get("page")) {
+      newParams.set("page", "1");
+      updated = true;
+    }
+    if (!newParams.get("type")) {
+      newParams.set("type", questionsType);
+      updated = true;
+    }
+
+    if (updated) {
+      setSearchParams(newParams, { replace: true });
+    }
+  }, []);
   // useEffect(() => {
   //   searchParams.get("page") || searchParams.set("page", 1);
   //   setSearchParams(searchParams);

@@ -220,6 +220,7 @@ export async function deleteResponseAPI(id) {
   return data;
 }
 export async function getQuestionsAPI(type = "patient", page = 1) {
+  console.log(type);
   const res = await fetch(
     `${API_URL}/FAQ/getQuestions?type=${type}&page=${page}`,
     {
