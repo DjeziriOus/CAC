@@ -6,7 +6,7 @@ import { getMyQuestions, getRecentQuestions } from "@/services/apiQuestions";
 import { ArrowDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { Outlet, useSearchParams } from "react-router-dom";
+import { Outlet, ScrollRestoration, useSearchParams } from "react-router-dom";
 import img from "/src/images/Patients.png";
 
 import { useUser } from "../user/useUser";
@@ -70,8 +70,11 @@ function Patients() {
       >
         {isPending ? <TabsSkeleton /> : <TabSwitcher tabs={tabs} />}
         {/* {isLoading && <Loader />} */}
+        {/* <ScrollRestoration /> */}
         <Separator />
-        <Outlet />
+        <div className="h-[700px] w-full">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

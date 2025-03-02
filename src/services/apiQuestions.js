@@ -10,7 +10,6 @@ export async function getUsers() {
       Authorization: localStorage.getItem("token"),
     },
   });
-  await new Promise((resolve) => setTimeout(resolve, 500));
   if (!res.ok) throw Error("Failed getting users");
   const { users } = await res.json();
   return users;
@@ -69,7 +68,7 @@ export async function getMyQuestions(page) {
         },
       },
     );
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // await new Promise((resolve) => setTimeout(resolve, 500));
     const data = await res.json();
     console.log(data);
     if (!res.ok) {
@@ -134,7 +133,7 @@ export async function getRecentQuestions(page, type) {
   if (!res.ok) throw Error("Failed getting recent questions");
   const data = await res.json();
 
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  // await new Promise((resolve) => setTimeout(resolve, 500));
 
   return {
     questions: data.questions,
@@ -238,9 +237,9 @@ export async function getQuestionsAPI(type = "patient", page = 1) {
     });
     throw new Error("Erreur lors de la récupération des questions.");
   }
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const { total, questions } = await res.json();
+  let { total, questions } = await res.json();
   console.log(questions);
+  // questions = [];
   return { total, questions };
 }
 
