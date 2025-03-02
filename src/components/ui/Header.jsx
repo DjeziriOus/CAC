@@ -12,9 +12,9 @@ function Header() {
   const navItems = [
     { name: "Accueil", href: "/", secondaryName: "Page d'Accueil" },
     {
-      name: "Activités hospitalière",
+      name: "Services Hospitaliers",
       href: "/services",
-      secondaryName: "Activités hospitalière",
+      secondaryName: "Services Hospitaliers",
     },
     {
       name: "Événements",

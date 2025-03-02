@@ -14,7 +14,9 @@ import Patients, {
 // import Etudiants from "./features/questions/Etudiants";
 import Questions from "./features/questions/Questionnaire/RecentQuestions";
 import AjouterQuestion from "./features/questions/Questionnaire/AjouterQuestion";
-import Services from "./features/dashboard/Services/Services";
+import ServicesDashboard from "./features/dashboard/Services/Services";
+
+import Services from "./features/services hospitaliers/Services";
 import Dashboard from "./pages/Dashboard";
 // import Page from "./app/dashboard/page";
 import Utilisateurs from "./features/dashboard/Utilisateurs/Utilisateurs";
@@ -140,11 +142,11 @@ const router = createBrowserRouter([
         path: "evenements/:eventId",
         element: <EventDetails />,
       },
+      {
+        path: "/services",
+        element: <Services />,
+      },
     ],
-  },
-  {
-    path: "/services",
-    element: <Services />,
   },
   // {
   //   path: "*",
@@ -165,7 +167,7 @@ const router = createBrowserRouter([
       },
       {
         path: "services",
-        element: <Services />,
+        element: <ServicesDashboard />,
       },
       {
         path: "services/ajouter",
