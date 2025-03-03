@@ -51,7 +51,7 @@ export function AppSidebar({ ...props }) {
   //   }
   // }, []);
 
-  const { isPending, user } = useUser();
+  const { isPending, user, navSidebar } = useUser();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -61,7 +61,7 @@ export function AppSidebar({ ...props }) {
       <SidebarContent>
         {/* TODO: role based rendering*/}
         {/* {isPending} */}
-        <NavMain items={data.navMain} />
+        <NavMain items={navSidebar} />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

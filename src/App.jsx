@@ -148,10 +148,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // {
-  //   path: "*",
-  //   element: <Navigate to="/" />,
-  // },
   {
     path: "/dashboard",
     element: <Dashboard />,
@@ -159,7 +155,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to={"/dashboard/utilisateurs"} replace />,
+        element: <Navigate to={"/dashboard/questions"} replace />,
       },
       {
         path: "utilisateurs",

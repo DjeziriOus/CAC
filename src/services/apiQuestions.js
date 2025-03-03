@@ -268,6 +268,7 @@ export async function getUser() {
   }
   const data = await res.json();
   // throw new Error("Failed getting user");
+  await new Promise((r) => setTimeout(r, 1000));
   return data;
 }
 export async function postLoginUser(credentials) {

@@ -24,7 +24,7 @@ import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
 export default function Dashboard() {
-  const { user, isPending, status, isSuccess } = useUser();
+  const { user, isPending, status, isSuccess, navSidebar } = useUser();
 
   // if (isPending) return <Loader />;
   if (user?.role !== "admin" && user?.role !== "medecin" && !isPending)
