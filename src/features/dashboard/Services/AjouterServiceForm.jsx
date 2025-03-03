@@ -31,28 +31,28 @@ const validateForm = (formData) => {
   const errors = {};
 
   if (!formData.nom.trim()) {
-    errors.title = "Event title is required";
+    errors.nom = "le Nom du service est requis";
   }
 
   if (!formData.description.trim()) {
-    errors.description = "Event description is required";
+    errors.description = "la Description du service est requise";
   }
 
   if (!formData.coverImage) {
-    errors.coverImage = "Cover image is required";
+    errors.coverImage = "l'image de couverture est requise";
   }
 
   if (!formData.sections.length) {
-    errors.sections = "At least one section is required";
+    errors.sections = "Au moins une section de description est requise";
   } else {
     const sectionErrors = formData.sections.map((section) => {
       const sectionError = {};
       if (!section.title.trim())
-        sectionError.title = "Section title is required";
+        sectionError.title = "Titre de la section est requis";
       if (!section.paragraph.trim())
-        sectionError.paragraph = "Section contentsss is required";
-      if (!section.images?.length)
-        sectionError.images = "At least one section image is required";
+        sectionError.paragraph = "Contenu de la section est requis";
+      // if (!section.images?.length)
+      //   sectionError.images = "Au moins une image est requise";
       return Object.keys(sectionError).length ? sectionError : null;
     });
 

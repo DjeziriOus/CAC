@@ -39,36 +39,34 @@ const validateForm = (formData) => {
   const errors = {};
 
   if (!formData.title.trim()) {
-    errors.title = "Event title is required";
+    errors.title = "Veuilliez donner un titre à l'événement";
   }
 
   if (!formData.description.trim()) {
-    errors.description = "Event description is required";
+    errors.description = "Veuilliez donner une description à l'événement";
   }
 
   if (!formData.location.trim()) {
-    errors.location = "Event location is required";
+    errors.location = "Veuilliez specifier au se déroulera l'événement";
   }
 
   if (!formData.date) {
-    errors.date = "Event date is required";
+    errors.date = "Date de l'événement est requise";
   }
 
   if (!formData.coverImage) {
-    errors.coverImage = "Cover image is required";
+    errors.coverImage = "Image de couverture est requise";
   }
 
   if (!formData.sections.length) {
-    errors.sections = "At least one section is required";
+    errors.sections = "Au moins une section est requise";
   } else {
     const sectionErrors = formData.sections.map((section) => {
       const sectionError = {};
       if (!section.title.trim())
-        sectionError.title = "Section title is required";
+        sectionError.title = "Titre de la section est requis";
       if (!section.paragraph.trim())
-        sectionError.paragraph = "Section contentsss is required";
-      if (!section.images?.length)
-        sectionError.images = "At least one section image is required";
+        sectionError.paragraph = "Contenu de la section est requis";
       return Object.keys(sectionError).length ? sectionError : null;
     });
 
@@ -289,10 +287,10 @@ export default function AjouterEvenementForm() {
           {isAddingEvent ? (
             <>
               <span className="loading loading-spinner loading-sm mr-2"></span>
-              Publishing...
+              Ajout en cours...
             </>
           ) : (
-            "Publish Event"
+            "Publier l'Événement"
           )}
         </Button>
       </div>
@@ -306,7 +304,7 @@ export default function AjouterEvenementForm() {
               cn(errors.title && "text-destructive")
             }
           >
-            Event Title *
+            Titre de l&apos;Événement *
           </Label>
           <Input
             id="title"
@@ -333,7 +331,7 @@ export default function AjouterEvenementForm() {
               cn(errors.description && "text-destructive")
             }
           >
-            Event Description *
+            Description de l&apos;Événement *
           </Label>
           <Textarea
             id="description"
@@ -346,7 +344,7 @@ export default function AjouterEvenementForm() {
                 setErrors(newErrors);
               }
             }}
-            placeholder="Enter event description"
+            placeholder="Introduissez une description"
             rows={4}
             className={cn(errors.description && "border-destructive")}
           />
@@ -361,7 +359,7 @@ export default function AjouterEvenementForm() {
               cn(errors.location && "text-destructive")
             }
           >
-            Location *
+            Lieu de l&apos;Événement *
           </Label>
           <Input
             id="location"
@@ -426,7 +424,7 @@ export default function AjouterEvenementForm() {
           <div className="space-y-2">
             <div className="flex items-center gap-10">
               <Label className="text-2xl font-semibold text-primary">
-                Event Type
+                Type d&apos;Événement
               </Label>
               <RadioGroup
                 defaultValue="national"
@@ -465,7 +463,7 @@ export default function AjouterEvenementForm() {
               cn(errors.coverImage && "text-destructive")
             }
           >
-            Cover Image *
+            Image de Couverture *
           </Label>
           <ImageUpload
             inputId="cover-image-upload"
@@ -491,7 +489,7 @@ export default function AjouterEvenementForm() {
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-center text-2xl font-semibold text-primary">
-            Event Sections *
+            les Sections de l&apos;Événement *
           </h2>
           {typeof errors.sections === "string" && (
             <ErrorMessage error={errors.sections} />
