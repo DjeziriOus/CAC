@@ -1,5 +1,4 @@
 import { getUser } from "@/services/apiQuestions";
-import { QUESTIONS_PER_PAGE } from "@/utils/constants";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 const fullTabs = [

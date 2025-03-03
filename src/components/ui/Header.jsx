@@ -6,7 +6,6 @@ import logo from "@/images/CAClogo.svg";
 // import { ReactComponent as logo } from "./CAClogo.svg";
 import { ChevronDown } from "lucide-react";
 import UserInfo from "@/features/user/UserInfo";
-import { useUser } from "@/features/user/useUser";
 
 function Header() {
   const navItems = [

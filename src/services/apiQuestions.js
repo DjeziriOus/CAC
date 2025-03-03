@@ -267,6 +267,7 @@ export async function getUser() {
     throw new Error("Failed getting user");
   }
   const data = await res.json();
+  // throw new Error("Failed getting user");
   return data;
 }
 export async function postLoginUser(credentials) {

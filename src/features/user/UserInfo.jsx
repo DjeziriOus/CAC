@@ -24,7 +24,7 @@ function UserInfo() {
   const queryClient = useQueryClient();
   // If user info is still loading, render a skeleton
 
-  if (!user) {
+  if (!user && !isPending) {
     return (
       <AuthDialog>
         <Button variant="outline" className="my-2">
