@@ -11,11 +11,11 @@ import { Separator } from "@/components/ui/separator";
 import { ImageModal } from "@/components/ImageModal";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { API_URL } from "@/utils/constants";
-import { useEvent } from "@/features/dashboard/Evenements/useEvent";
+import { useService } from "@/features/dashboard/Services/useService";
 
-// Sample event data (same as before)
-const eventData = {
-  event: {
+// Sample service data (same as before)
+const serviceData = {
+  service: {
     id: 4,
     title: "t1",
     description: "d1",
@@ -58,23 +58,23 @@ const eventData = {
   },
 };
 
-export default function EventDetails() {
+export default function ServiceDetails() {
   const { id } = useParams();
-  // const {event, }
-  const { event, isPending, error } = useEvent();
-  // const { event } = eventData; // In a real app, you would fetch based on the ID
+  // const {service, }
+  const { service, isPending, error } = useService();
+  // const { service } = serviceData; // In a real app, you would fetch based on the ID
   // const formattedDate =
 
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Collect all images from the event including cover and section images
+  // Collect all images from the service including cover and section images
   const allImages = useMemo(() => {
-    const images = event?.coverUrl ? [{ imgUrl: event.coverUrl }] : [];
-    event?.sections.forEach((section) => {
+    const images = service?.coverUrl ? [{ imgUrl: service.coverUrl }] : [];
+    service?.sections.forEach((section) => {
       images.push(...section.images);
     });
     return images;
-  }, [event]);
+  }, [service]);
   if (isPending || error) {
     return <div>Loading...</div>;
   }
@@ -83,10 +83,12 @@ export default function EventDetails() {
       {/* Hero Section */}
       <div className="relative h-[40vh] min-h-[400px] w-full overflow-hidden">
         <img
-          src={event.coverUrl ? API_URL + event.coverUrl : "/placeholder.svg"}
-          alt={event.title}
+          src={
+            service.coverUrl ? API_URL + service.coverUrl : "/placeholder.svg"
+          }
+          alt={service.nom}
           className="h-full w-full cursor-pointer object-cover"
-          onClick={() => setSelectedImage(event.coverUrl)}
+          onClick={() => setSelectedImage(service.coverUrl)}
           onError={(e) => {
             e.target.src = "https://placehold.co/1200x600/png";
           }}
@@ -95,23 +97,13 @@ export default function EventDetails() {
         <div className="absolute bottom-0 left-0 right-0 p-8">
           <div className="container mx-auto max-w-[90dvw]">
             <Link
-              to="/evenements"
+              to="/services"
               className="mb-4 inline-flex items-center text-primary hover:underline"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Retour aux événements
+              Retour aux services
             </Link>
-            <h1 className="mb-4 text-4xl font-bold">{event.title}</h1>
-            <div className="flex flex-wrap gap-4 text-sm">
-              <div className="flex items-center text-muted-foreground">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {format(new Date(event?.date), "dd MMMM yyyy", { locale: fr })}
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                <MapPinIcon className="mr-2 h-4 w-4" />
-                {event.endroit}
-              </div>
-            </div>
+            <h1 className="mb-4 text-4xl font-bold">{service.nom}</h1>
           </div>
         </div>
       </div>
@@ -120,16 +112,16 @@ export default function EventDetails() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           {/* Main Content */}
           <div className="lg:col-span-8">
-            {/* Event Description */}
+            {/* Service Description */}
             <div className="prose prose-lg mb-12 max-w-none">
               <p className="text-xl leading-relaxed text-muted-foreground">
-                {event.description}
+                {service.description}
               </p>
             </div>
 
-            {/* Event Sections */}
+            {/* Service Sections */}
             <div className="space-y-16">
-              {event.sections.map((section, index) => (
+              {service.sections.map((section, index) => (
                 <section
                   key={section.id}
                   className="scroll-mt-16"
@@ -163,7 +155,7 @@ export default function EventDetails() {
                       ))}
                     </div>
                   )}
-                  {index < event.sections.length - 1 && (
+                  {index < service.sections.length - 1 && (
                     <Separator className="mt-16" />
                   )}
                 </section>
@@ -188,34 +180,13 @@ export default function EventDetails() {
           <aside className="lg:col-span-4">
             <div className="sticky top-8 space-y-6">
               {/* Author Card */}
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="mb-4 text-lg font-semibold">Présentateur</h2>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarFallback className="bg-primary text-xl text-primary-foreground">
-                        {event?.medecin?.prenom[0]}
-                        {event?.medecin?.nom[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-lg font-medium">
-                        {event?.medecin?.prenom} {event?.medecin?.nom}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {event?.medecin?.email}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
               {/* Table of Contents */}
               <Card>
                 <CardContent className="p-6">
                   <h2 className="mb-4 text-lg font-semibold">Contenu</h2>
                   <nav className="space-y-2">
-                    {event.sections.map((section, index) => (
+                    {service.sections.map((section, index) => (
                       <a
                         key={section.id}
                         href={`#section-${section.id}`}

@@ -35,6 +35,7 @@ import EventDetails from "./features/evenements/EventDetails";
 import Events from "./features/evenements/Events";
 import AjouterService from "./features/dashboard/Services/AjouterService";
 import EditService from "./features/dashboard/Services/EditService";
+import ServiceDetails from "./features/services hospitaliers/ServicesDetails";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -143,8 +144,12 @@ const router = createBrowserRouter([
         element: <EventDetails />,
       },
       {
-        path: "/services",
+        path: "services",
         element: <Services />,
+      },
+      {
+        path: "services/:serviceId",
+        element: <ServiceDetails />,
       },
     ],
   },

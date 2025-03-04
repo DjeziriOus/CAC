@@ -40,7 +40,7 @@ const ServiceCard = ({ service }) => {
       </CardContent>
       <CardFooter className="flex-col gap-4 border-t pt-4">
         <Link
-          to={`/evenements/${service.id}`}
+          to={`/services/${service.id}`}
           className="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
         >
           Voir les détails
