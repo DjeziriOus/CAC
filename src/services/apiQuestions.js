@@ -855,7 +855,7 @@ export const updateSection = async (
 
 export async function getServices(page) {
   console.log(page);
-  const res = await fetch(`${API_URL}/service/getServices?tpage=${page}`, {
+  const res = await fetch(`${API_URL}/service/getServices?page=${page}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

@@ -35,6 +35,7 @@ import Paginator from "@/components/paginator";
 import { useQuestions } from "@/features/dashboard/Questions/useQuestions";
 
 import { useTotalPagesRecentQuestions } from "@/features/dashboard/Questions/useTotalPagesRecentQuestions";
+import { ErrorQuestions } from "@/components/ui/ErrorQuestions";
 
 function RecentQuestions() {
   const questionsType = location.pathname.includes("patient")
@@ -66,7 +67,7 @@ function RecentQuestions() {
   //   setSearchParams(searchParams);
   // }, [searchParams, setSearchParams]);
   // const { questions } = useLoaderData();
-  const { questions, isPending } = useQuestions();
+  const { questions, isPending, error } = useQuestions();
 
   const { totalPages, isPending: isPendingTotalPages } =
     useTotalPagesRecentQuestions();
@@ -97,9 +98,9 @@ function RecentQuestions() {
           }
         >
           <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
-            <Await resolve={questions} errorElement={<SkeletonLoader />}>
+            {/* <Await resolve={questions} errorElement={<SkeletonLoader />}>
               {(loadedData) => {
-                if (loadedData.length == 0) return <EmptyMyQuestions />;
+                if (!loadedData?.length) return <EmptyMyQuestions />;
                 return (
                   <div className="flex flex-col gap-4">
                     {loadedData.map((q) => (
@@ -108,7 +109,16 @@ function RecentQuestions() {
                   </div>
                 );
               }}
-            </Await>
+            </Await> */}
+            {isPending ? (
+              <SkeletonLoader />
+            ) : error ? (
+              <ErrorQuestions />
+            ) : !questions.length ? (
+              <EmptyMyQuestions />
+            ) : (
+              questions.map((q) => <Question question={q} key={q.id} />)
+            )}
           </div>
         </Suspense>
       </div>

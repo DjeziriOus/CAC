@@ -60,7 +60,16 @@ const ServicesList = () => {
       </div>
     );
   }
-  if (services.length === 0) {
+  if (error) {
+    return (
+      <div className="flex min-h-[60dvh] items-center justify-center">
+        <p className="text-muted-foreground">
+          Une erreur est survenue, Serveur indisponible
+        </p>
+      </div>
+    );
+  }
+  if (!services.length) {
     return (
       <div className="flex min-h-[60dvh] items-center justify-center">
         <p className="text-muted-foreground">Aucun service disponible</p>
