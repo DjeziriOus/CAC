@@ -1,15 +1,10 @@
 import { Edit2Icon, Trash2 } from "lucide-react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../../../components/ui/avatar";
+
 import { Button } from "../../../../components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 
 import { useDeleteEvent } from "@/features/dashboard/Evenements/useDeleteEvent";
-import DeleteDialog from "../../../../components/ui/DeleteUserDialog";
-import DeleteUserDialog from "../../../../components/ui/DeleteUserDialog";
+
 import moment from "moment";
 import { API_URL } from "@/utils/constants";
 import DeleteEventDialog from "@/components/ui/DeleteEventDialog";
@@ -20,14 +15,12 @@ function EventRow({ event }) {
   const {
     id,
     title,
-    description,
+
     endroit,
     date,
     type,
     coverUrl,
-    medecinId,
-    createdAt,
-    updatedAt,
+
     medecin: { id: idMedecin, nom, prenom, email },
   } = event;
   const { isDeletingEvent, deleteEvent } = useDeleteEvent();

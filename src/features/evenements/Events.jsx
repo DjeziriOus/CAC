@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { API_URL } from "@/utils/constants";
-import { use } from "react";
+
 import { useEvents } from "@/features/dashboard/Evenements/useEvents";
 
 const EventCard = ({ event }) => {
