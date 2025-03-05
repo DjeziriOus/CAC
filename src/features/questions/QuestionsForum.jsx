@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import TabsSkeleton from "@/components/ui/tabsSkeleton";
+import TabsSkeleton from "@/components/ui/TabsSkeleton";
 import TabSwitcher from "@/components/ui/TabSwitcher";
 import { getMyQuestions, getRecentQuestions } from "@/services/apiQuestions";
 import { ArrowDown } from "lucide-react";
