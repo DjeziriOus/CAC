@@ -9,7 +9,9 @@ export function ErrorQuestions() {
           <MailWarning className="h-8 w-8 text-red-500" />
         </div>
         <div className="space-y-2">
-          <h3 className="font-semibold tracking-tight">Serveur indisponible</h3>
+          <h3 className="font-semibold tracking-tight">
+            Serveur indisponibl e
+          </h3>
           <p className="text-sm text-muted-foreground">
             Erreur lors de la connexion au serveur: Serveur indisponible
           </p>
