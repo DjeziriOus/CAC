@@ -13,6 +13,7 @@ import { useEvents } from "../useEvents";
 import EventRow from "./EventRow";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
+import { useUser } from "@/features/user/useUser";
 
 function EventsTable({ onEdit: handleEdit }) {
   const [searchParams, setSearchParams] = useSearchParams({
@@ -39,6 +40,12 @@ function EventsTable({ onEdit: handleEdit }) {
   }, []);
 
   const { events, isPending, error } = useEvents();
+  const {
+    user,
+    isPending: isPendingUser,
+    error: userError,
+    isSuccess,
+  } = useUser();
   return (
     <div className="rounded-md border">
       <Table>
@@ -53,7 +60,9 @@ function EventsTable({ onEdit: handleEdit }) {
             <TableHead className="w-[13%]">Couverture</TableHead>
             <TableHead className="w-[10%]">Medecin</TableHead>
             <TableHead className="w-[20%]">Medecin Email</TableHead>
-            <TableHead className="w-[20%]">Actions</TableHead>
+            {isSuccess && events?.some((event) => event?.id === user?.id) ? (
+              <TableHead className="w-[20%]">Actions</TableHead>
+            ) : null}
           </TableRow>
         </TableHeader>
         <TableBody>

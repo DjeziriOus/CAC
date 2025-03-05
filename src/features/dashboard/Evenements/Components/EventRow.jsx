@@ -14,6 +14,7 @@ import moment from "moment";
 import { API_URL } from "@/utils/constants";
 import DeleteEventDialog from "@/components/ui/DeleteEventDialog";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@/features/user/useUser";
 
 function EventRow({ event }) {
   const {
@@ -37,6 +38,7 @@ function EventRow({ event }) {
   const onEdit = function () {
     navigate(`/dashboard/evenements/edit/${id}`);
   };
+  const { user, isPending, error } = useUser();
   return (
     <TableRow key={id}>
       <TableCell>{id}</TableCell>
@@ -67,19 +69,25 @@ function EventRow({ event }) {
       <TableCell>{email}</TableCell>
 
       <TableCell className="flex gap-2">
-        <Button variant="outline" size="icon" onClick={() => onEdit(event)}>
-          <Edit2Icon className="h-4 w-4" />
-        </Button>
-        <DeleteEventDialog handleDelete={handleDelete} event={event}>
-          <Button
-            variant="outline"
-            size="icon"
-            className="text-destructive"
-            disabled={isDeletingEvent}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </DeleteEventDialog>
+        {user.id != event.medecinId ? (
+          <></>
+        ) : (
+          <>
+            <Button variant="outline" size="icon" onClick={() => onEdit(event)}>
+              <Edit2Icon className="h-4 w-4" />
+            </Button>
+            <DeleteEventDialog handleDelete={handleDelete} event={event}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="text-destructive"
+                disabled={isDeletingEvent}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </DeleteEventDialog>
+          </>
+        )}
       </TableCell>
     </TableRow>
   );
