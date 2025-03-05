@@ -1,7 +1,7 @@
 import bienvenue from "@/images/bienvenue.png";
 import calendar from "@/images/Calendar.svg";
-import message from "@/images/Message.svg";
 import user from "@/images/User.svg";
+import message from "@/images/Message.svg";
 const content = [
   {
     id: 1,
