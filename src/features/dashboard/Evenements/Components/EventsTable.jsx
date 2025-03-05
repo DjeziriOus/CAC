@@ -1,14 +1,12 @@
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import UserRowSkeleton from "../../../../components/ui/UserRowSkeleton";
 
-import UserRow from "../../../../components/ui/UserRow";
 import { useEvents } from "../useEvents";
 import EventRow from "./EventRow";
 import { useSearchParams } from "react-router-dom";
@@ -66,13 +64,33 @@ function EventsTable({ onEdit: handleEdit }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isPending
-            ? Array.from({ length: 5 }).map((_, idx) => (
-                <UserRowSkeleton key={idx} />
-              ))
-            : events.map((event) => (
-                <EventRow event={event} key={event.id} onEdit={handleEdit} />
-              ))}
+          {isPending ? (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <UserRowSkeleton key={idx} />
+            ))
+          ) : error ? (
+            <TableRow>
+              <td
+                colSpan="5"
+                className="p-4 text-center font-medium text-gray-500"
+              >
+                Serveur indisponible
+              </td>
+            </TableRow>
+          ) : !events.length ? (
+            <TableRow>
+              <td
+                colSpan="5"
+                className="p-4 text-center font-medium text-gray-500"
+              >
+                Aucun événement disponible
+              </td>
+            </TableRow>
+          ) : (
+            events.map((event) => (
+              <EventRow event={event} key={event.id} onEdit={handleEdit} />
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

@@ -1,38 +1,17 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { addDoctorAPI, getUsers } from "@/services/apiQuestions";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
-import UsersTable from "@/components/ui/UsersTable";
 import { useAddDoctor } from "@/features/dashboard/Utilisateurs/useAddDoctor";
 import EventsTable from "./Components/EventsTable";
 import { NavLink, useSearchParams } from "react-router-dom";
-import LinkButton from "@/components/ui/LinkButton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Evenements() {

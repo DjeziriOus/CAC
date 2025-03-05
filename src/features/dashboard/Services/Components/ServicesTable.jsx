@@ -42,7 +42,16 @@ function ServicesTable({ onEdit: handleEdit }) {
             Array.from({ length: 5 }).map((_, idx) => (
               <UserRowSkeleton key={idx} />
             ))
-          ) : services.length === 0 ? (
+          ) : error ? (
+            <TableRow>
+              <td
+                colSpan="5"
+                className="p-4 text-center font-medium text-gray-500"
+              >
+                Serveur indisponible
+              </td>
+            </TableRow>
+          ) : !services.length ? (
             <TableRow>
               <td
                 colSpan="5"
