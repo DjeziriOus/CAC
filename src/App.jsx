@@ -27,7 +27,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // import { loader as userLoader } from "./features/user/UserInfo";
 import { Toaster } from "sonner";
 import QuestionsForum from "./features/questions/QuestionsForum";
-import MyQuestions from "./features/questions/Questionnaire/myQuestions";
+import MyQuestions from "@/features/questions/Questionnaire/MyQuestions";
 // import Etudiants from "./features/questions/Etudiants";
 import AjouterEvenement from "./features/dashboard/Evenements/AjouterEvenementForm";
 import EditEvenement from "./features/dashboard/Evenements/EditEvenement";
