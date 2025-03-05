@@ -11,7 +11,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+
 downloads/
 eggs/
 .eggs/
@@ -144,7 +144,7 @@ docker-compose.override.yml
 
 # Node.js
 node_modules/
-dist/
+
 build/
 
 # Temporary and cache files
