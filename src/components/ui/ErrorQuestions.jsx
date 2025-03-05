@@ -11,7 +11,7 @@ export function ErrorQuestions() {
         <div className="space-y-2">
           <h3 className="font-semibold tracking-tight">Serveur indisponible</h3>
           <p className="text-sm text-muted-foreground">
-            Erreur lors de la connexion au serveur
+            Erreur lors de la connexion au serveur: Serveur indisponible
           </p>
         </div>
       </CardContent>
