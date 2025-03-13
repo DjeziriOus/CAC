@@ -6,11 +6,10 @@ import {
 import AppLayout from "./AppLayout";
 import Error from "./components/ui/Error";
 import Home from "./pages/Home";
-import International from "./features/questions/International";
 import Patients, {
   myQuestionsLoader,
   recentQuestionsLoader,
-} from "./features/questions/Patients";
+} from "./features/questions/Questions";
 // import Etudiants from "./features/questions/Etudiants";
 import Questions from "./features/questions/Questionnaire/RecentQuestions";
 import AjouterQuestion from "./features/questions/Questionnaire/AjouterQuestion";
