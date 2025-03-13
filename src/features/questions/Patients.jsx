@@ -41,7 +41,8 @@ function Patients() {
   return (
     <div className="mt-16 bg-lgt-1">
       <div
-        className={`flex h-[38rem] w-full items-center justify-center bg-[url('${img}')] bg-cover bg-center`}
+        className="flex h-[38rem] w-full items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: `url(${img})` }}
       >
         <div className="mx-auto flex w-[1200px] justify-between">
           <div></div>
