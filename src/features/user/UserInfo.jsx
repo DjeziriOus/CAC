@@ -66,7 +66,9 @@ function UserInfo() {
         >
           <Avatar className="h-9 w-9">
             <AvatarImage alt="@shadcn" />
-            <AvatarFallback>{user?.prenom[0] + user?.nom[0]}</AvatarFallback>
+            <AvatarFallback>
+              {user?.prenom?.[0] + user?.nom?.[0]}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col items-start">
             <p className="text-sm font-semibold">

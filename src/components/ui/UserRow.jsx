@@ -26,7 +26,7 @@ function UserRow({ user, onEdit }) {
         <Avatar className="h-10 w-10">
           <AvatarImage alt="@shadcn" />
           <AvatarFallback className="bg-gray-200">
-            {prenom[0] + nom[0]}
+            {prenom?.[0] + nom?.[0]}
           </AvatarFallback>
         </Avatar>
       </TableCell>

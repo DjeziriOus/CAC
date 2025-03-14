@@ -56,16 +56,16 @@ const EventCard = ({ event }) => {
         <div className="flex w-full items-center gap-2">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-primary-foreground">
-              {event.medecin.prenom[0]}
-              {event.medecin.nom[0]}
+              {event?.medecin?.prenom[0]}
+              {event?.medecin?.nom[0]}
             </AvatarFallback>
           </Avatar>
           <div className="text-sm">
             <p className="font-medium">
-              {event.medecin.prenom} {event.medecin.nom}
+              {event?.medecin?.prenom} {event?.medecin?.nom}
             </p>
             <p className="text-xs text-muted-foreground">
-              {event.medecin.email}
+              {event?.medecin?.email}
             </p>
           </div>
         </div>
