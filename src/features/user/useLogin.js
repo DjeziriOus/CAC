@@ -14,15 +14,15 @@ export function useLogin() {
       } catch (error) {
         // Only handle auth errors here - prevent them from triggering the global error boundary
         console.log(error.isAuthError);
-        if (error.isAuthError) {
-          setAuthError(error.message);
-          // toast.error("Échec de la connexioxxn", {
-          //   description: error.message,
-          // });
-          return null; // Return null to prevent error propagation
-        }
+        // if (error.isAuthError) {
+        setAuthError(error.message);
+        // toast.error("Échec de la connexioxxn", {
+        //   description: error.message,
+        // });
+        return null; // Return null to prevent error propagation
+        // }
         // Let other errors propagate
-        throw error;
+        // throw error;
       }
     },
     onSuccess: (data) => {
@@ -36,13 +36,11 @@ export function useLogin() {
       setAuthError(null); // Clear any previous errors
     },
     onError: (error) => {
-      console.log(error.message);
-
-      if (error.message !== "Route non trouvée (ERREUR 404)") {
-        toast.error("Erreur lors de la connexion", {
-          description: `${error.message}`,
-        });
-      }
+      // if (error.message !== "Route non trouvée (ERREUR 404)") {
+      toast.error("Erreur lors de la connexion", {
+        description: `${error.message}`,
+      });
+      // }
     },
   });
 
