@@ -53,7 +53,7 @@ export function useLogin() {
 
   return {
     isConnecting: mutation.isLoading,
-    error: authError, // String error message, not an object
+    error: authError || mutation.error, // String error message, not an object
     hasAuthError: !!authError,
     loginUser,
   };
