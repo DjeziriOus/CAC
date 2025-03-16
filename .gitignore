@@ -151,3 +151,5 @@ build/
 cache/
 tmp/
 frontend/package-lock.json
+dist.zip
+

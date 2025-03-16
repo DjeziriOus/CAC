@@ -68,7 +68,15 @@ export default function AjouterQuestion() {
   function onSubmit(values) {
     console.log(values);
     addQuestion(values);
-    navigate("/questions");
+
+    // Split the pathname into segments while filtering out empty strings (which may occur with leading/trailing slashes)
+    const segments = location.pathname.split("/").filter(Boolean);
+    // Replace the last segment with "ajouter"
+    const newPath = "/" + [...segments.slice(0, -1), "recents"].join("/");
+
+    navigate(newPath);
+
+    // navigate("/questions");
   }
 
   return (

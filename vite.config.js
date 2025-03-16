@@ -20,5 +20,5 @@ export default defineConfig({
     open: true, // Opens the browser automatically
     historyApiFallback: true,
   },
-  base: "/frontend/", // 👈 Update this to match your deployment path
+  // base: "/frontend/", // 👈 Update this to match your deployment path
 });

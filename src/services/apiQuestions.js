@@ -272,48 +272,57 @@ export async function getUser() {
   return data;
 }
 export async function postLoginUser(credentials) {
+  let res = null;
   try {
-    const res = await fetch(`${API_URL}/user/login`, {
+    res = await fetch(`${API_URL}/user/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
     });
-
-    // Handle specific error codes first
     if (res.status === 400) {
-      toast.error("Échec de la connexion", {
-        description:
-          "Échec de la connexion. Veuillez vérifier vos identifiants.",
-      });
-      throw new Error(
-        "Échec de la connexion. Veuillez vérifier vos identifiants.",
-      );
+      throw new Error("Mail ou mot de passe incorrect.");
     }
 
+    if (!res.ok) {
+      console.log("res not ok");
+      throw new Error(`Erreur HTTP: (${res.status}) ${res.statusText}`);
+    }
+    const data = await res.json();
+    console.log(data);
+    return data;
+  } catch (_) {
     if (res.status === 500) {
+      console.log("res not ok");
       throw new Error("Problème serveur (ERREUR 500)");
     }
 
     if (res.status === 404) {
+      console.log("res not ok");
       throw new Error("Route non trouvée (ERREUR 404)");
     }
 
+    if (res.status === 503) {
+      console.log("res not ok");
+      throw new Error("Serveur indisponible");
+    }
+    if (res.status === 400) {
+      console.log("res not ok");
+      toast.error("Échec de la connexion", {
+        description:
+          "Échec de la connexion. Veuillez vérifier vos identifiants.",
+      });
+      // return;
+      const error = new Error(
+        "Échec de la connexion. Veuillez vérifier vos identifiants.",
+      );
+      error.status = 400;
+      error.isAuthError = true; // Special flag to identify this as an auth error
+      throw error;
+    }
     if (!res.ok) {
+      console.log("res not ok");
       throw new Error(`Erreur HTTP: (${res.status}) ${res.statusText}`);
     }
-
-    const data = await res.json();
-
-    return data;
-  } catch (error) {
-    // Add generic network error handling
-    if (error.message === "Failed to fetch") {
-      toast.error("Serveur indisponible");
-      throw new Error(
-        "Serveur indisponible - vérifiez votre connexion internet",
-      );
-    }
-    throw error;
   }
 }
 export async function postSignupUser(credentials) {

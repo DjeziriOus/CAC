@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,7 +49,9 @@ const loginSchema = z.object({
 
 // TODO: to='#'
 export default function LoginForm({ toggleForm }) {
-  const { isConnecting, error, loginUser } = useLogin();
+  // const { isConnecting, error, loginUser } = useLogin();
+  const { isConnecting, error, hasAuthError, loginUser } = useLogin();
+
   // Show/hide password local state
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -62,12 +64,26 @@ export default function LoginForm({ toggleForm }) {
       rememberMe: false,
     },
   });
-
+  useEffect(() => {
+    if (hasAuthError) {
+      form.setError("email", {
+        message: "Identifiants incorrects. Veuillez réessayer.",
+      });
+      form.setError("password", {
+        message: "Identifiants incorrects. Veuillez réessayer.",
+      });
+    }
+  }, [hasAuthError, form]);
   const onSubmit = (values) => {
+    form.clearErrors(); // Clear any previous form errors
     loginUser({ email: values.email, password: values.password });
     navigate("/");
   };
+  // const onSubmit = (values) => {
 
+  // Move navigation logic to a useEffect that watches for authentication state
+  // or handle it in the onSuccess callback of the mutation
+  // };
   // Toggles password field type
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
 
@@ -94,7 +110,7 @@ export default function LoginForm({ toggleForm }) {
                 <FormControl>
                   <FormInput
                     field={field}
-                    error={error}
+                    error={error || hasAuthError}
                     placeholder="Saisissez votre email..."
                   />
                 </FormControl>
@@ -115,7 +131,7 @@ export default function LoginForm({ toggleForm }) {
                 <FormControl>
                   <PasswordInput
                     field={field}
-                    error={error}
+                    error={error || hasAuthError}
                     handleTogglePassword={handleTogglePassword}
                     showPassword={showPassword}
                   />
@@ -150,13 +166,13 @@ export default function LoginForm({ toggleForm }) {
           </div>
 
           {/* Server error */}
-          {error && (
+          {/* {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          )}
+          )} */}
 
           <Button
             type="submit"

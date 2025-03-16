@@ -46,18 +46,18 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
-    errorElement: <Error />,
+    errorElement: <Error error={{ message: Error }} />,
     children: [
       {
         index: true,
         element: <Home />,
       },
       {
-        path: "/contact",
+        path: "contact",
         element: <Home />,
       },
       {
-        path: "/questions",
+        path: "questions",
         element: <QuestionsForum />,
         children: [
           {

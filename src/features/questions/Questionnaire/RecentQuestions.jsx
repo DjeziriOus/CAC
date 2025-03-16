@@ -36,8 +36,11 @@ import { useQuestions } from "@/features/dashboard/Questions/useQuestions";
 
 import { useTotalPagesRecentQuestions } from "@/features/dashboard/Questions/useTotalPagesRecentQuestions";
 import { ErrorQuestions } from "@/components/ui/ErrorQuestions";
+import { useUser } from "@/features/user/useUser";
+import { EmptyQuestionsNoAdd } from "@/components/ui/EmptyQuestionsNoAdd";
 
 function RecentQuestions() {
+  const { user } = useUser();
   const questionsType = location.pathname.includes("patient")
     ? "patient"
     : "etudiant";
@@ -62,6 +65,8 @@ function RecentQuestions() {
       setSearchParams(newParams, { replace: true });
     }
   }, []);
+  console.log(user);
+  // {id: 1, nom: 'DJEZIRI', prenom: 'Oussama', email: 'Aymen@esi-sba.dz', role: 'etudiant'}
   // useEffect(() => {
   //   searchParams.get("page") || searchParams.set("page", 1);
   //   setSearchParams(searchParams);
@@ -115,7 +120,11 @@ function RecentQuestions() {
             ) : error ? (
               <ErrorQuestions />
             ) : !questions.length ? (
-              <EmptyMyQuestions />
+              questionsType == user?.role ? (
+                <EmptyMyQuestions />
+              ) : (
+                <EmptyQuestionsNoAdd />
+              )
             ) : (
               questions.map((q) => <Question question={q} key={q.id} />)
             )}
