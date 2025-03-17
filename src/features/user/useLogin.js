@@ -1,4 +1,5 @@
 import { postLoginUser } from "@/services/apiQuestions";
+import { EXPIRATION_TIME } from "@/utils/constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +11,9 @@ export function useLogin() {
   const mutation = useMutation({
     mutationFn: async (credentials) => {
       try {
-        return await postLoginUser(credentials);
+        const response = await postLoginUser(credentials);
+        console.log("response", response);
+        return response;
       } catch (error) {
         // Only handle auth errors here - prevent them from triggering the global error boundary
         console.log(error.isAuthError);
@@ -26,13 +29,15 @@ export function useLogin() {
       }
     },
     onSuccess: (data) => {
-      // Skip null returns from auth errors
-      if (!data) return;
-
-      if (!data?.token) return;
+      if (!data || !data?.token) return;
       const { token } = data;
-      localStorage.setItem("token", token);
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      const expirationTime = Date.now() + EXPIRATION_TIME;
+      localStorage.setItem(
+        "jwt",
+        JSON.stringify({ token: token, exp: expirationTime }),
+      );
+      queryClient.refetchQueries({ queryKey: ["user"] });
+      window.location.reload();
       setAuthError(null); // Clear any previous errors
     },
     onError: (error) => {
@@ -50,7 +55,7 @@ export function useLogin() {
   };
 
   return {
-    isConnecting: mutation.isLoading,
+    isConnecting: mutation.isPending,
     error: authError || mutation.error, // String error message, not an object
     hasAuthError: !!authError,
     loginUser,

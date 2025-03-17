@@ -51,7 +51,8 @@ function UserInfo() {
 
   // Handler for logout
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("jwt");
+    // navigate("/");
     queryClient.invalidateQueries({
       queryKey: ["user"],
     });

@@ -35,6 +35,7 @@ import Events from "./features/evenements/Events";
 import AjouterService from "./features/dashboard/Services/AjouterService";
 import EditService from "./features/dashboard/Services/EditService";
 import ServiceDetails from "./features/services hospitaliers/ServicesDetails";
+import AuthProvider from "./components/AuthProvider";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -45,7 +46,11 @@ const queryClient = new QueryClient({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <AppLayout />,
+    element: (
+      <AuthProvider>
+        <AppLayout />
+      </AuthProvider>
+    ),
     errorElement: <Error error={{ message: Error }} />,
     children: [
       {
@@ -154,7 +159,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <AuthProvider>
+        <Dashboard />
+      </AuthProvider>
+    ),
     errorElement: <Error />,
     children: [
       {

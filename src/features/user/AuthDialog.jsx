@@ -94,7 +94,7 @@ export default function AuthDialog({ children, to = "#" }) {
                 <LoginForm
                   to={to}
                   error={error}
-                  status={status}
+                  closeForm={handleOpenChange}
                   toggleForm={toggleForm}
                 />
               ) : (

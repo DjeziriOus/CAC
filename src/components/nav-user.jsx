@@ -23,7 +23,8 @@ import { useUser } from "@/features/user/useUser";
 export function NavUser() {
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    console.log("logging out");
+    localStorage.removeItem("jwt");
     navigate("/");
   };
   const { user } = useUser();

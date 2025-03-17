@@ -7,7 +7,7 @@ export async function getUsers() {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
   });
   if (!res.ok) throw Error("Failed getting users");
@@ -19,7 +19,7 @@ export async function addDoctorAPI(doctor) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify(doctor),
   });
@@ -38,7 +38,7 @@ export async function deleteAccountAPI(id) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({ id: id }),
   });
@@ -64,7 +64,7 @@ export async function getMyQuestions(page) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: localStorage.getItem("token"),
+          Authorization: JSON.parse(localStorage.getItem("jwt")).token,
         },
       },
     );
@@ -103,7 +103,7 @@ export async function addQuestionAPI(question) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify(question),
   });
@@ -145,7 +145,7 @@ export async function answerQuestionAPI(id, response) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({ id, response }),
   });
@@ -167,7 +167,7 @@ export async function deleteQuestionAPI(id) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({ id: id }),
   });
@@ -185,7 +185,7 @@ export async function updateResponseAPI(id, response) {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({ id, response }),
   });
@@ -201,7 +201,7 @@ export async function deleteResponseAPI(id) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({ id: id }),
   });
@@ -244,8 +244,9 @@ export async function getQuestionsAPI(type = "patient", page = 1) {
 }
 
 export async function getUser() {
-  if (!localStorage.getItem("token")) {
+  if (!localStorage.getItem("jwt")) {
     console.log("no token");
+    // console.log(res);
     // toast.info("Veuillez vous connecter", {
     //   description:
     //     "Veuillez vous connecter pour avoir accès a toutes les fonctionnalités.",
@@ -255,9 +256,10 @@ export async function getUser() {
   const res = await fetch(`${API_URL}/user/getUser`, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
   });
+  console.log(res);
 
   if (!res.ok) {
     const data = await res.json();
@@ -268,7 +270,7 @@ export async function getUser() {
   }
   const data = await res.json();
   // throw new Error("Failed getting user");
-  await new Promise((r) => setTimeout(r, 1000));
+  // await new Promise((r) => setTimeout(r, 1000));
   return data;
 }
 export async function postLoginUser(credentials) {
@@ -288,7 +290,6 @@ export async function postLoginUser(credentials) {
       throw new Error(`Erreur HTTP: (${res.status}) ${res.statusText}`);
     }
     const data = await res.json();
-    console.log(data);
     return data;
   } catch (_) {
     if (res.status === 500) {
@@ -311,7 +312,6 @@ export async function postLoginUser(credentials) {
         description:
           "Échec de la connexion. Veuillez vérifier vos identifiants.",
       });
-      // return;
       const error = new Error(
         "Échec de la connexion. Veuillez vérifier vos identifiants.",
       );
@@ -366,7 +366,7 @@ export async function getEvents(page, type) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: localStorage.getItem("token"),
+        // Authorization: JSON.parse(localStorage.getItem("jwt")).token,
       },
     },
   );
@@ -418,7 +418,7 @@ export async function deleteEventAPI(eventID) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({ id: eventID }),
   });
@@ -490,7 +490,7 @@ export async function addEvent(eventData) {
       method: "POST",
       body: formData,
       headers: {
-        Authorization: localStorage.getItem("token"),
+        Authorization: JSON.parse(localStorage.getItem("jwt")).token,
       },
       // Note: Do not set Content-Type; the browser will add the correct multipart boundary.
     });
@@ -535,7 +535,7 @@ export async function updateEvent(eventData) {
       method: "PATCH",
       headers: {
         // If your auth middleware requires a token:
-        Authorization: localStorage.getItem("token"),
+        Authorization: JSON.parse(localStorage.getItem("jwt")).token,
         // Do NOT set Content-Type to multipart/form-data; fetch sets it automatically
       },
       body: formData,
@@ -574,7 +574,7 @@ export async function updateSectionAPI(data) {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: localStorage.getItem("token"),
+        Authorization: JSON.parse(localStorage.getItem("jwt")).token,
       },
       body: JSON.stringify({
         eventId: data.eventId,
@@ -603,7 +603,7 @@ export async function deleteSectionAPI(data) {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `${localStorage.getItem("token")}`, // Adjust if needed
+        Authorization: `${JSON.parse(localStorage.getItem("jwt")).token}`, // Adjust if needed
       },
       body: JSON.stringify({
         eventId: data.eventId,
@@ -663,7 +663,7 @@ export async function addSectionAPI(data) {
       method: "POST",
       // Do not set the Content-Type header manually when using FormData.
       headers: {
-        Authorization: `${localStorage.getItem("token")}`, // Adjust token retrieval if needed.
+        Authorization: `${JSON.parse(localStorage.getItem("jwt")).token}`, // Adjust token retrieval if needed.
       },
       body: formData,
     });
@@ -693,7 +693,7 @@ const addSectionImages = async (sectionId, eventId, files) => {
   const response = await fetch(`${API_URL}/event/addImg`, {
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: formData,
   });
@@ -717,7 +717,7 @@ const deleteSectionImages = async (sectionId, eventId, imgUrls) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({
       imgUrls,
@@ -750,7 +750,7 @@ const addSectionImagesService = async (sectionId, serviceId, files) => {
   const response = await fetch(`${API_URL}/service/addImg`, {
     method: "POST",
     headers: {
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: formData,
   });
@@ -773,7 +773,7 @@ const deleteSectionImagesService = async (sectionId, serviceId, imgUrls) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({
       imgUrls,
@@ -868,7 +868,7 @@ export async function getServices(page) {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      // Authorization: localStorage.getItem("token"),
+      // Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
   });
   if (!res.ok) {
@@ -919,7 +919,7 @@ export async function addService(serviceData) {
       method: "POST",
       body: formData,
       headers: {
-        Authorization: localStorage.getItem("token"),
+        Authorization: JSON.parse(localStorage.getItem("jwt")).token,
       },
       // Note: Do not set Content-Type; the browser will add the correct multipart boundary.
     });
@@ -939,7 +939,7 @@ export async function deleteService(serviceID) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
     body: JSON.stringify({ id: serviceID }),
   });
@@ -989,7 +989,7 @@ export async function updateService(serviceData) {
       method: "PATCH",
       headers: {
         // If your auth middleware requires a token:
-        Authorization: localStorage.getItem("token"),
+        Authorization: JSON.parse(localStorage.getItem("jwt")).token,
         // Do NOT set Content-Type to multipart/form-data; fetch sets it automatically
       },
       body: formData,

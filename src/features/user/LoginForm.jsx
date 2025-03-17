@@ -21,10 +21,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { DialogTitle } from "@/components/ui/dialog";
-import { useNavigate } from "react-router-dom";
+import { Router, useNavigate } from "react-router-dom";
 import { useLogin } from "./useLogin";
 import PasswordInput from "./PasswordInput";
 import FormInput from "./FormInput";
+import { useUser } from "./useUser";
 
 /**
  * Zod schema for the login form
@@ -48,9 +49,10 @@ const loginSchema = z.object({
  */
 
 // TODO: to='#'
-export default function LoginForm({ toggleForm }) {
+export default function LoginForm({ toggleForm, closeForm }) {
   // const { isConnecting, error, loginUser } = useLogin();
   const { isConnecting, error, hasAuthError, loginUser } = useLogin();
+  const { user } = useUser();
 
   // Show/hide password local state
   const [showPassword, setShowPassword] = useState(false);
@@ -74,10 +76,12 @@ export default function LoginForm({ toggleForm }) {
       });
     }
   }, [hasAuthError, form]);
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
     form.clearErrors(); // Clear any previous form errors
+    console.log(values);
     loginUser({ email: values.email, password: values.password });
-    navigate("/");
+    // console.log(user);
+    closeForm();
   };
   // const onSubmit = (values) => {
 
