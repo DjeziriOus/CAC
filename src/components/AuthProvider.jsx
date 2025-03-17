@@ -11,13 +11,15 @@ const AuthProvider = ({ children }) => {
       // Check if token is expired
       if (Date.now() > storedData.exp) {
         localStorage.removeItem("jwt");
-        navigate("/"); // redirect if token expired
+        // navigate("/"); // redirect if token expired
+        window.location.reload();
       } else {
         // Calculate remaining time and set timeout
         const remainingTime = storedData.exp - Date.now();
         const timeoutId = setTimeout(() => {
           localStorage.removeItem("jwt");
           navigate("/"); // redirect after token expires
+          window.location.reload();
         }, remainingTime);
 
         // Cleanup the timeout when component unmounts or dependency changes

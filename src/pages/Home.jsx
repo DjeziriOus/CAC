@@ -7,7 +7,7 @@ import { ScrollRestoration } from "react-router-dom";
 function Home() {
   return (
     <div className="bg-lgt-1">
-      <ScrollRestoration />
+      {/* <ScrollRestoration /> */}
       <Bienvenue />
       <Trouver />
       <Stats />

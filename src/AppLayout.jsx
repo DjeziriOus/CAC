@@ -19,7 +19,7 @@ function AppLayout() {
   return (
     <div className="h-screen">
       {isLoading && <Loader />}
-      <ScrollRestoration />
+      {/* <ScrollRestoration /> */}
       <Header />
       <div className="mx-auto">
         <main className="">

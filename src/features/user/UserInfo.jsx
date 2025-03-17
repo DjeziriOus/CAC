@@ -19,8 +19,8 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
 function UserInfo() {
-  const { user, allowedTabs, error, isPending, isSuccess, isError } = useUser();
-
+  const userData = useUser();
+  const { user, allowedTabs, error, isPending, isSuccess, isError } = userData;
   const queryClient = useQueryClient();
   // If user info is still loading, render a skeleton
 
@@ -53,7 +53,7 @@ function UserInfo() {
   const handleLogout = () => {
     localStorage.removeItem("jwt");
     // navigate("/");
-    queryClient.invalidateQueries({
+    queryClient.refetchQueries({
       queryKey: ["user"],
     });
   };
@@ -85,12 +85,14 @@ function UserInfo() {
       <DropdownMenuContent className="w-48">
         <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <NavLink to={"/dashboard"} className="flex w-full items-center gap-2">
-          <DropdownMenuItem className="w-full hover:cursor-pointer">
-            <LayoutDashboardIcon className="h-4 w-4" />
-            Dashboard
-          </DropdownMenuItem>
-        </NavLink>
+        {(user?.role === "admin" || user?.role === "medecin") && (
+          <NavLink to={"/dashboard"} className="flex w-full items-center gap-2">
+            <DropdownMenuItem className="w-full hover:cursor-pointer">
+              <LayoutDashboardIcon className="h-4 w-4" />
+              Tableau de Bord
+            </DropdownMenuItem>
+          </NavLink>
+        )}
         <DropdownMenuItem
           onClick={handleLogout}
           className="text-red-500 hover:cursor-pointer"

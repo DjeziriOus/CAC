@@ -6,16 +6,16 @@ export function useAddQuestion() {
   const queryClient = useQueryClient();
 
   const { isPending: isAddingQuestion, mutate: addQuestion } = useMutation({
-    mutationFn: (question) => addQuestionAPI(question), // mutationFn: addQuestionAPI,
+    mutationFn: async (question) => await addQuestionAPI(question), // mutationFn: addQuestionAPI,
     onSuccess: () => {
       toast.success("Question ajoutée", {
         description: "La question a bien été ajoutée.",
       });
-      queryClient.invalidateQueries({
-        queryKey: ["questions"],
-      });
-      queryClient.invalidateQueries({
+      queryClient.refetchQueries({
         queryKey: ["myQuestions"],
+      });
+      return queryClient.refetchQueries({
+        queryKey: ["questions"],
       });
     },
     onError: (error) => {

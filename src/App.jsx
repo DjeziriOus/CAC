@@ -36,6 +36,7 @@ import AjouterService from "./features/dashboard/Services/AjouterService";
 import EditService from "./features/dashboard/Services/EditService";
 import ServiceDetails from "./features/services hospitaliers/ServicesDetails";
 import AuthProvider from "./components/AuthProvider";
+import VerifyLogin from "./components/ui/VerifyLogin";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -101,7 +102,11 @@ const router = createBrowserRouter([
               },
               {
                 path: "my",
-                element: <MyQuestions />,
+                element: (
+                  <VerifyLogin>
+                    <AjouterQuestion />
+                  </VerifyLogin>
+                ),
               },
               {
                 path: "recents",
@@ -109,33 +114,13 @@ const router = createBrowserRouter([
               },
               {
                 path: "ajouter",
-                element: <AjouterQuestion />,
+                element: (
+                  <VerifyLogin>
+                    <AjouterQuestion />
+                  </VerifyLogin>
+                ),
               },
             ],
-          },
-        ],
-      },
-      {
-        path: "etudiants",
-        element: <Patients />,
-        children: [
-          {
-            index: true, // Matches /patients directly
-            element: <Navigate to="recents" replace />, // Redirects to /patients/my
-          },
-          {
-            path: "my",
-            element: <Questions />,
-            loader: myQuestionsLoader,
-          },
-          {
-            path: "recents",
-            element: <Questions />,
-            loader: recentQuestionsLoader,
-          },
-          {
-            path: "ajouter",
-            element: <AjouterQuestion />,
           },
         ],
       },
@@ -160,9 +145,11 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: (
-      <AuthProvider>
-        <Dashboard />
-      </AuthProvider>
+      <VerifyLogin>
+        <AuthProvider>
+          <Dashboard />
+        </AuthProvider>
+      </VerifyLogin>
     ),
     errorElement: <Error />,
     children: [

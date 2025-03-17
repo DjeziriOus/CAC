@@ -33,5 +33,11 @@ export function useQuestions() {
       queryKey: ["questions", questionsType, prevPage],
       queryFn: () => getQuestionsAPI(questionsType, prevPage),
     });
-  return { questions, totalPages, isPending, error, page };
+  return {
+    questions,
+    totalPages,
+    isPending,
+    error,
+    page,
+  };
 }

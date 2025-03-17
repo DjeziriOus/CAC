@@ -65,9 +65,9 @@ export default function AjouterQuestion() {
     },
   });
   const { addQuestion, isAddingQuestion } = useAddQuestion();
-  function onSubmit(values) {
+  async function onSubmit(values) {
     console.log(values);
-    addQuestion(values);
+    await addQuestion(values);
 
     // Split the pathname into segments while filtering out empty strings (which may occur with leading/trailing slashes)
     const segments = location.pathname.split("/").filter(Boolean);

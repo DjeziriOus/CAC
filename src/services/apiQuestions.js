@@ -238,7 +238,7 @@ export async function getQuestionsAPI(type = "patient", page = 1) {
     throw new Error("Erreur lors de la récupération des questions.");
   }
   let { total, questions } = await res.json();
-  console.log(questions);
+  await new Promise((r) => setTimeout(r, 500));
   // questions = [];
   return { total, questions };
 }

@@ -38,8 +38,10 @@ import { useTotalPagesRecentQuestions } from "@/features/dashboard/Questions/use
 import { ErrorQuestions } from "@/components/ui/ErrorQuestions";
 import { useUser } from "@/features/user/useUser";
 import { EmptyQuestionsNoAdd } from "@/components/ui/EmptyQuestionsNoAdd";
+import { useIsFetching } from "@tanstack/react-query";
 
 function RecentQuestions() {
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
   const { user } = useUser();
   const questionsType = location.pathname.includes("patient")
     ? "patient"
@@ -65,7 +67,7 @@ function RecentQuestions() {
       setSearchParams(newParams, { replace: true });
     }
   }, []);
-  console.log(user);
+
   // {id: 1, nom: 'DJEZIRI', prenom: 'Oussama', email: 'Aymen@esi-sba.dz', role: 'etudiant'}
   // useEffect(() => {
   //   searchParams.get("page") || searchParams.set("page", 1);
@@ -73,65 +75,25 @@ function RecentQuestions() {
   // }, [searchParams, setSearchParams]);
   // const { questions } = useLoaderData();
   const { questions, isPending, error } = useQuestions();
+  const isFetchingQuestions = useIsFetching({ queryKey: ["questions"] });
 
   const { totalPages, isPending: isPendingTotalPages } =
     useTotalPagesRecentQuestions();
-  if (isPending) {
-    return (
-      <div className="my-14 flex w-full flex-col items-center">
-        <div className="mb-10 w-full">
-          <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
-            {isPending ? (
-              <SkeletonLoader />
-            ) : (
-              (questions.length == 0 && <EmptyMyQuestions />) ||
-              questions.map((q) => <Question question={q} key={q.id} />)
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
   return (
-    <div className="my-14 flex w-full flex-col items-center">
-      <div className="mb-10 w-full">
-        <Suspense
-          fallback={
-            <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
-              <SkeletonLoader />
-            </div>
-          }
-        >
-          <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
-            {/* <Await resolve={questions} errorElement={<SkeletonLoader />}>
-              {(loadedData) => {
-                if (!loadedData?.length) return <EmptyMyQuestions />;
-                return (
-                  <div className="flex flex-col gap-4">
-                    {loadedData.map((q) => (
-                      <Question question={q} key={q.id} />
-                    ))}
-                  </div>
-                );
-              }}
-            </Await> */}
-            {isPending ? (
-              <SkeletonLoader />
-            ) : error ? (
-              <ErrorQuestions />
-            ) : !questions.length ? (
-              questionsType == user?.role ? (
-                <EmptyMyQuestions />
-              ) : (
-                <EmptyQuestionsNoAdd />
-              )
-            ) : (
-              questions.map((q) => <Question question={q} key={q.id} />)
-            )}
-          </div>
-        </Suspense>
-      </div>
-      <Paginator totalPages={totalPages} isPending={isPendingTotalPages} />
+    <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
+      {isPending || isFetchingQuestions ? (
+        <SkeletonLoader />
+      ) : error ? (
+        <ErrorQuestions />
+      ) : questions.length == 0 ? (
+        questionsType == user?.role ? (
+          <EmptyMyQuestions />
+        ) : (
+          <EmptyQuestionsNoAdd />
+        )
+      ) : (
+        questions.map((q) => <Question question={q} key={q.id} />)
+      )}
     </div>
   );
 }
@@ -223,3 +185,61 @@ export default RecentQuestions;
       </Suspense>
 
 */
+// if (isPending || isFetchingQuestions) {
+//   return (
+//     <div className="my-14 flex w-full flex-col items-center">
+//       <div className="mb-10 w-full">
+//         <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
+//           {isPending || isFetchingQuestions ? (
+//             <SkeletonLoader />
+//           ) : (
+//             (questions.length == 0 && <EmptyMyQuestions />) ||
+//             questions.map((q) => <Question question={q} key={q.id} />)
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+// return (
+//   <div className="my-14 flex w-full flex-col items-center">
+//     <div className="mb-10 w-full">
+//       <Suspense
+//         fallback={
+//           <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
+//             <SkeletonLoader />
+//           </div>
+//         }
+//       >
+//         <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
+//           {/* <Await resolve={questions} errorElement={<SkeletonLoader />}>
+//             {(loadedData) => {
+//               if (!loadedData?.length) return <EmptyMyQuestions />;
+//               return (
+//                 <div className="flex flex-col gap-4">
+//                   {loadedData.map((q) => (
+//                     <Question question={q} key={q.id} />
+//                   ))}
+//                 </div>
+//               );
+//             }}
+//           </Await> */}
+//           {isPending || isFetchingQuestions > 0 ? (
+//             <SkeletonLoader />
+//           ) : error ? (
+//             <ErrorQuestions />
+//           ) : !questions.length ? (
+//             questionsType == user?.role ? (
+//               <EmptyMyQuestions />
+//             ) : (
+//               <EmptyQuestionsNoAdd />
+//             )
+//           ) : (
+//             questions.map((q) => <Question question={q} key={q.id} />)
+//           )}
+//         </div>
+//       </Suspense>
+//     </div>
+//     <Paginator totalPages={totalPages} isPending={isPendingTotalPages} />
+//   </div>
+// );
