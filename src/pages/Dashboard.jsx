@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import DelayedRedirect from "@/components/DelayedRedirect";
-import Loader from "@/components/ui/Loader";
+
 // import {
 //   Breadcrumb,
 //   BreadcrumbItem,
@@ -16,15 +16,12 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/sonner";
 import { useUser } from "@/features/user/useUser";
-
-import { useEffect } from "react";
 
 import { Outlet } from "react-router-dom";
 
 export default function Dashboard() {
-  const { user, isPending, status, isSuccess, navSidebar } = useUser();
+  const { user, isPending, isSuccess } = useUser();
 
   // if (isPending) return <Loader />;
   if (user?.role !== "admin" && user?.role !== "medecin" && !isPending)

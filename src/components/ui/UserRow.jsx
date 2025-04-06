@@ -1,17 +1,10 @@
 import { Edit2Icon, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Button } from "./button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { TableCell, TableRow } from "@/components/ui/table";
 
 import { useDeleteAccount } from "@/features/dashboard/Utilisateurs/useDeleteAccount";
-import DeleteDialog from "./DeleteUserDialog";
+
 import DeleteUserDialog from "./DeleteUserDialog";
 
 function UserRow({ user, onEdit }) {

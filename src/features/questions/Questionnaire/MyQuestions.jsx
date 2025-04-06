@@ -1,35 +1,12 @@
-import { Suspense, useEffect, useState } from "react";
-import {
-  Await,
-  NavLink,
-  useLoaderData,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { Suspense, useEffect } from "react";
+import { Await, useNavigate } from "react-router-dom";
 import Question from "../../../components/ui/Question";
 
 import SkeletonLoader from "@/components/ui/SkeletonQuestion";
 
 import { EmptyMyQuestions } from "@/components/ui/EmptyMyQuestions";
-import { EmptyQuestions } from "@/components/ui/EmptyQuestions";
-import { toast } from "@/hooks/use-toast";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Skeleton } from "@/components/ui/skeleton";
-import LinkButton from "@/components/ui/LinkButton";
 
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { use } from "react";
-import Paginator from "@/components/paginator";
+import Paginator from "@/components/paginator-v2";
 
 import { useMyQuestions } from "@/features/dashboard/Questions/useMyQuestions";
 import { useTotalPagesMyQuestions } from "@/features/dashboard/Questions/useTotalPagesMyQuestions";
@@ -61,8 +38,8 @@ function MyQuestions() {
     if (user?.role !== questionsType && isSuccess) {
       navigate("/");
     }
-  }, [questionsType, user]);
-  if (isPending) {
+  }, [questionsType, user, navigate, isSuccess]);
+  if (isPending || isPendingUser) {
     return (
       <div className="my-14 flex w-full flex-col items-center">
         <div className="mb-10 w-full">

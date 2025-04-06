@@ -2,7 +2,6 @@ import { getUsers } from "@/services/apiQuestions";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -12,11 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import UserRow from "./UserRow";
 
 function UsersTable({ onEdit: handleEdit }) {
-  const {
-    isPending,
-    data: users,
-    error,
-  } = useQuery({
+  const { isPending, data: users } = useQuery({
     queryKey: ["users"],
     queryFn: getUsers,
   });

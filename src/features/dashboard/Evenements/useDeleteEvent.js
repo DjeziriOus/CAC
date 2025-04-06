@@ -1,3 +1,4 @@
+import { refreshJwtExpiration } from "@/lib/utils";
 import { deleteEventAPI } from "@/services/apiQuestions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,12 +15,14 @@ export function useDeleteEvent() {
       queryClient.invalidateQueries({
         queryKey: ["events"],
       });
+      refreshJwtExpiration();
     },
     onError: (error) => {
       toast.error("Erreur lors de la suppression", {
         description: `${error.message}, 
       Erreur lors de la suppression de l'Événement.`,
       });
+      refreshJwtExpiration();
     },
   });
   return { isDeletingEvent, deleteEvent };

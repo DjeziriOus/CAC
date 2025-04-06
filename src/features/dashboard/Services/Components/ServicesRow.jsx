@@ -5,26 +5,12 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 import { useDeleteService } from "@/features/dashboard/Services/useDeleteService";
 
-import moment from "moment";
 import { API_URL } from "@/utils/constants";
 import DeleteServiceDialog from "@/components/ui/DeleteServiceDialog";
 import { useNavigate } from "react-router-dom";
 
 function ServiceRow({ service }) {
-  const {
-    id,
-    nom,
-    description,
-    coverUrl,
-    medecinId,
-    createdAt,
-    updatedAt,
-    medecin: { nomMedecin, prenom, email } = {
-      nomMedecin: "",
-      prenom: "",
-      email: "",
-    },
-  } = service;
+  const { id, nom, description, coverUrl } = service;
   const { isDeletingService, deleteService } = useDeleteService();
   const handleDelete = (id) => {
     deleteService(id);

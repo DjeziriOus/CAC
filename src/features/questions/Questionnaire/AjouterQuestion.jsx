@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import {
   Card,
   CardContent,
@@ -25,7 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useUser } from "@/features/user/useUser";
 import { useAddQuestion } from "@/features/dashboard/Questions/useAddQuestion";
 
 const formSchema = z.object({
@@ -41,7 +38,6 @@ const formSchema = z.object({
 export default function AjouterQuestion() {
   const navigate = useNavigate();
   // const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useUser();
   // const [isAddingQuestion, setisAddingQuestion] = useState(false);
   const location = useLocation();
   // useEffect(() => {

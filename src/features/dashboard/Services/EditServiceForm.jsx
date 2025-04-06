@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useNavigate } from "react-router-dom";
+import { useBlocker, useNavigate } from "react-router-dom";
 import { useDeleteSection } from "./useDeleteSection";
 
 import { AlertCircle, Plus, Trash, Edit } from "lucide-react";
@@ -21,12 +21,13 @@ import ImageUpload from "@/features/dashboard/Evenements/ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import Loader from "@/components/ui/Loader";
+import { cn, isEqual } from "@/lib/utils";
+// import Loader from "@/components/ui/Loader";
 import { API_URL } from "@/utils/constants";
 import { useUpdateSection } from "./useUpdateSection";
 import { useUpdateService } from "./useUpdateService";
 import { useAddSection } from "./useAddSection";
+import { Spinner } from "@/components/ui/Spinner";
 
 // Define API_URL or import it from a config file
 
@@ -47,24 +48,6 @@ const validateForm = (formData) => {
   }
 
   return errors;
-};
-
-// Helper to compare objects deeply
-const isEqual = (obj1, obj2) => {
-  if (obj1 === obj2) return true;
-  if (typeof obj1 !== "object" || typeof obj2 !== "object") return false;
-
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-
-  if (keys1.length !== keys2.length) return false;
-
-  for (const key of keys1) {
-    if (!keys2.includes(key)) return false;
-    if (!isEqual(obj1[key], obj2[key])) return false;
-  }
-
-  return true;
 };
 
 // Section component with edit and delete functionality
@@ -137,15 +120,37 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
 };
 
 // Section edit form with multiple image support
-const SectionEditForm = ({ section, onSave, onCancel }) => {
+const SectionEditForm = ({
+  section, //backend's pov of the section
+  onSave,
+  onCancel,
+  isEditingSection,
+  isDeletingSection,
+  setIsDirtySection,
+  isDirtySection,
+}) => {
   const [title, setTitle] = useState(section.title || "");
   const [paragraph, setParagraph] = useState(section.paragraph || "");
   const [images, setImages] = useState(section.images || []);
   const [newImageFiles, setNewImageFiles] = useState([]);
   const [errors, setErrors] = useState({});
+  useEffect(() => {
+    // console.log(
+    //   title,
+    //   paragraph,
+    //   images,
+    //   section,
+    //   title !== section.title,
+    //   paragraph !== section.paragraph,
+    // );
+    const hasDiffrentContent =
+      title !== section.title ||
+      paragraph !== section.paragraph ||
+      images.every((s, i) => s?.imgUrl !== section?.images[i]?.imgUrl);
+    setIsDirtySection(hasDiffrentContent);
+  }, [title, paragraph, images, section, setIsDirtySection, isDirtySection]);
 
   const handleAddImage = (newImage) => {
-    console.log();
     if (newImage instanceof File) {
       setNewImageFiles((prev) => [...prev, newImage]);
       // Create a temporary URL for preview
@@ -167,7 +172,7 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const errors = {};
     if (!title.trim()) errors.title = "Titre de la section est requis";
     if (!paragraph.trim())
@@ -177,8 +182,7 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
       setErrors(errors);
       return;
     }
-
-    onSave(
+    await onSave(
       {
         ...section,
         title,
@@ -187,6 +191,9 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
       },
       newImageFiles,
     );
+
+    setIsDirtySection(false);
+    // window.location.reload();
   };
 
   // Clean up object URLs on unmount
@@ -305,25 +312,38 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
         <Button variant="outline" onClick={onCancel}>
           Annuler
         </Button>
-        <Button onClick={handleSave}>Sauvegarder</Button>
+        <Button
+          onClick={async () => {
+            await handleSave();
+          }}
+          disabled={isEditingSection || isDeletingSection || !isDirtySection}
+        >
+          {isEditingSection || isDeletingSection ? (
+            <>
+              <Spinner className="flex text-white"></Spinner>
+              Sauvegarde en cours...
+            </>
+          ) : (
+            "Sauvegarder"
+          )}
+        </Button>
       </div>
     </div>
   );
 };
 
-export default function EditEvenementForm({
+export default function EditServiceForm({
   initialService = null,
   isLoadingService = false,
   errorLoadingService = null,
-  cancelUrl = "/services",
 }) {
+  const abortControllerRef = useRef(null);
   const navigate = useNavigate();
   const formRef = useRef(null);
-  const { deleteSection, isPending: isDeletingSection } = useDeleteSection();
-  // const { updateSection, isPending: isEditingSection } = useUpdateSection();
-  const { updateService, isPending: isUpdatingService } = useUpdateService();
+  const { deleteSection, isDeletingSection } = useDeleteSection();
+  const { updateService, isUpdatingService } = useUpdateService();
   const { addSection: mutateAddSection, isAddingSection } = useAddSection();
-  const { updateSection, isPending: isEditingSection } = useUpdateSection();
+  const { updateSection, isEditingSection } = useUpdateSection();
   // Store original values for dirty checking
   const [originalValues, setOriginalValues] = useState(null);
 
@@ -342,6 +362,7 @@ export default function EditEvenementForm({
 
   // UI state
   const [isDirty, setIsDirty] = useState(false);
+  const [isDirtySection, setIsDirtySection] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -407,8 +428,36 @@ export default function EditEvenementForm({
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 
+  const cancelUpload = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  };
+
+  function usePrompt(message, when = true) {
+    const blocker = useBlocker(when);
+
+    useEffect(() => {
+      if (blocker.state === "blocked") {
+        // Show a native confirmation dialog (you can customize this)
+        const answer = window.confirm(message);
+        if (answer) {
+          cancelUpload();
+          blocker.proceed();
+        } else {
+          blocker.reset();
+        }
+      }
+    }, [blocker, message]);
+  }
+  usePrompt(
+    "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+    isDirty || isDirtySection,
+  );
+
   // Update the addSection function in the main component to handle multiple images
-  const addSection = () => {
+  const addSection = async () => {
     if (newSection.title.trim() === "") return;
 
     // setSections((prev) => [
@@ -422,13 +471,14 @@ export default function EditEvenementForm({
     //     ),
     //   },
     // ]);
-    mutateAddSection({
+    await mutateAddSection({
       serviceId: initialService?.id,
       title: newSection.title,
       paragraph: newSection.paragraph,
       images: newSection.images.map((img) =>
         typeof img === "string" ? { imgUrl: img } : img,
       ),
+      abortControllerRef,
     });
 
     setNewSection({
@@ -457,26 +507,26 @@ export default function EditEvenementForm({
     setEditingSectionId(section.id);
   };
 
-  const handleSaveSection = (updatedSection, newImageFiles = []) => {
+  const handleSaveSection = async (updatedSection, newImageFiles = []) => {
     try {
       const originalSection = sections.find((s) => s.id === updatedSection.id);
-      console.log(originalSection, updatedSection, newImageFiles);
       if (!originalSection) return;
-      updateSection({
+      await updateSection({
         originalSection,
         updatedSection: {
           ...updatedSection,
           serviceId: initialService.id,
         },
         newImageFiles,
+        abortControllerRef,
       });
-
-      setSections((prev) =>
-        prev.map((section) =>
-          section.id === updatedSection.id ? updatedSection : section,
-        ),
-      );
       setEditingSectionId(null);
+      // setSections((prev) =>
+      //   prev.map((section) =>
+      //     section.id === updatedSection.id ? updatedSection : section,
+      //   ),
+      // );
+      // setTimeout(() => setEditingSectionId(null), 100);
     } catch (error) {
       console.error("Failed to update section:", error);
       // Handle error (could add a toast notification here)
@@ -500,6 +550,7 @@ export default function EditEvenementForm({
       description,
       coverImage,
       sections,
+      abortControllerRef,
     };
 
     const validationErrors = validateForm(formData);
@@ -510,13 +561,17 @@ export default function EditEvenementForm({
     }
 
     try {
-      updateService(formData);
+      await updateService(formData);
       setIsDirty(false);
       setErrors({});
-      navigate("/dashboard/services");
-    } catch (error) {
+      setTimeout(() => {
+        navigate("/dashboard/services");
+      }, 0);
+    } catch {
       setIsDirty(true);
-      setErrors({ submit: "Failed to submit the form. Please try again." });
+      setErrors({
+        submit: "Echec de l'envoi du formulaire. Veuillez essayer de nouveau.",
+      });
     }
   };
 
@@ -534,7 +589,7 @@ export default function EditEvenementForm({
   if (isLoadingService) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader size="lg" />
+        <Spinner className="flex text-white" size={"large"}></Spinner>
       </div>
     );
   }
@@ -558,7 +613,6 @@ export default function EditEvenementForm({
       </div>
     );
   }
-
   return (
     <div className="space-y-8" ref={formRef}>
       {errors.submit && (
@@ -575,11 +629,15 @@ export default function EditEvenementForm({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!isDirty || isUpdatingService}
+            disabled={
+              !(isDirtySection || isDirty) ||
+              isUpdatingService ||
+              isAddingSection
+            }
           >
             {isUpdatingService ? (
               <>
-                <Loader size="sm" className="mr-2" />
+                <Spinner className="flex text-white"></Spinner>
                 Saving...
               </>
             ) : (
@@ -598,7 +656,7 @@ export default function EditEvenementForm({
               errors.title && "text-destructive",
             )}
           >
-            Titre du service*
+            Titre du service *
           </Label>
           <Input
             id="title"
@@ -675,6 +733,7 @@ export default function EditEvenementForm({
       <div
         className="space-y-6 rounded-lg bg-card p-6 shadow-sm"
         data-error={!!errors.sections}
+        id="sections"
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-center text-2xl font-semibold text-primary">
@@ -690,15 +749,23 @@ export default function EditEvenementForm({
             <div key={section.id}>
               {editingSectionId === section.id ? (
                 <SectionEditForm
-                  section={section}
-                  onSave={handleSaveSection}
-                  onCancel={() => setEditingSectionId(null)}
+                  isEditingSection={isEditingSection}
+                  isDeletingSection={isDeletingSection}
+                  section={section} // the section's current info (backend data)
+                  onSave={handleSaveSection} // saves the updated section
+                  onCancel={() => {
+                    setEditingSectionId(null);
+                    cancelUpload();
+                  }} // cancels editing
+                  setIsDirty={setIsDirty}
+                  setIsDirtySection={setIsDirtySection}
+                  isDirtySection={isDirtySection}
                 />
               ) : (
                 <SectionItem
-                  section={section}
-                  onEdit={handleUpdateSection}
-                  onDelete={handleDeleteSection}
+                  section={section} // the section's current info (backend data)
+                  onEdit={handleUpdateSection} // opens edit form for this section
+                  onDelete={handleDeleteSection} // starts deletion (opens a confirmation dialog...)
                 />
               )}
             </div>
@@ -791,13 +858,23 @@ export default function EditEvenementForm({
               <Button
                 variant="outline"
                 onClick={() => {
+                  cancelUpload();
                   setIsAddingSectionOpen(false);
                   setNewSection({ title: "", paragraph: "", images: [] });
                 }}
               >
                 Annuler
               </Button>
-              <Button onClick={addSection}>Add Section</Button>
+              <Button onClick={addSection} disabled={isAddingSection}>
+                {!isAddingSection ? (
+                  "Ajouter la Section"
+                ) : (
+                  <>
+                    <Spinner className="flex text-white"></Spinner> Ajout en
+                    cours...
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         ) : (

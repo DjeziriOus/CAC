@@ -1,4 +1,3 @@
-import { CalendarDays, Hospital, MailQuestion, Users } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 
@@ -13,35 +12,35 @@ import SkeletonUser from "./ui/SkeletonUser";
 import { useUser } from "@/features/user/useUser";
 
 // This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Utilisateurs",
-      url: "utilisateurs",
-      icon: Users,
-    },
-    {
-      title: "Événements",
-      url: "evenements",
-      icon: CalendarDays,
-    },
-    {
-      title: "Services",
-      url: "services",
-      icon: Hospital,
-    },
-    {
-      title: "Questions",
-      url: "questions",
-      icon: MailQuestion,
-    },
-  ],
-};
+// const data = {
+//   user: {
+//     name: "shadcn",
+//     email: "m@example.com",
+//     avatar: "/avatars/shadcn.jpg",
+//   },
+//   navMain: [
+//     {
+//       title: "Utilisateurs",
+//       url: "utilisateurs",
+//       icon: Users,
+//     },
+//     {
+//       title: "Événements",
+//       url: "evenements",
+//       icon: CalendarDays,
+//     },
+//     {
+//       title: "Services",
+//       url: "services",
+//       icon: Hospital,
+//     },
+//     {
+//       title: "Questions",
+//       url: "questions",
+//       icon: MailQuestion,
+//     },
+//   ],
+// };
 
 export function AppSidebar({ ...props }) {
   // console.log("nice");
@@ -51,7 +50,7 @@ export function AppSidebar({ ...props }) {
   //   }
   // }, []);
 
-  const { isPending, user, navSidebar } = useUser();
+  const { isPending, navSidebar } = useUser();
 
   return (
     <Sidebar collapsible="icon" {...props}>

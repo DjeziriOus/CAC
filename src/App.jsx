@@ -6,10 +6,7 @@ import {
 import AppLayout from "./AppLayout";
 import Error from "./components/ui/Error";
 import Home from "./pages/Home";
-import Patients, {
-  myQuestionsLoader,
-  recentQuestionsLoader,
-} from "./features/questions/Questions";
+import Patients from "./features/questions/Questions";
 // import Etudiants from "./features/questions/Etudiants";
 import Questions from "./features/questions/Questionnaire/RecentQuestions";
 import AjouterQuestion from "./features/questions/Questionnaire/AjouterQuestion";
@@ -80,7 +77,11 @@ const router = createBrowserRouter([
               },
               {
                 path: "my",
-                element: <MyQuestions />,
+                element: (
+                  <VerifyLogin>
+                    <MyQuestions />
+                  </VerifyLogin>
+                ),
               },
               {
                 path: "recents",
@@ -88,7 +89,11 @@ const router = createBrowserRouter([
               },
               {
                 path: "ajouter",
-                element: <AjouterQuestion />,
+                element: (
+                  <VerifyLogin>
+                    <AjouterQuestion />
+                  </VerifyLogin>
+                ),
               },
             ],
           },
@@ -104,7 +109,7 @@ const router = createBrowserRouter([
                 path: "my",
                 element: (
                   <VerifyLogin>
-                    <AjouterQuestion />
+                    <MyQuestions />
                   </VerifyLogin>
                 ),
               },
@@ -151,7 +156,7 @@ const router = createBrowserRouter([
         </AuthProvider>
       </VerifyLogin>
     ),
-    errorElement: <Error />,
+    errorElement: <Error error={{ message: Error }} />,
     children: [
       {
         index: true,

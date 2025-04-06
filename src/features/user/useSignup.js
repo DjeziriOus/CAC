@@ -1,4 +1,6 @@
+import { refreshJwtExpiration } from "@/lib/utils";
 import { postSignupUser } from "@/services/apiQuestions";
+import { EXPIRATION_TIME } from "@/utils/constants";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -13,13 +15,21 @@ export function useSignup() {
     error,
   } = useMutation({
     mutationFn: (credentials) => postSignupUser(credentials),
-    onSuccess: (user) => {
+    onSuccess: (data) => {
+      if (!data || !data?.token) return;
+      const { token } = data;
+      const expirationTime = Date.now() + EXPIRATION_TIME;
+      localStorage.setItem(
+        "jwt",
+        JSON.stringify({ token: token, exp: expirationTime }),
+      );
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      window.location.reload();
       toast.success(
         //TODO: forgot password
         "Account successfully created!",
       );
-      localStorage.setItem("token", user.token);
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      refreshJwtExpiration();
     },
     onError: (error) => {
       const errorMessage = error?.message
@@ -30,7 +40,7 @@ export function useSignup() {
       });
 
       mailInUse = error.message.includes("Mail déja utilisé.");
-      console.log(mailInUse);
+      refreshJwtExpiration();
     },
   });
 

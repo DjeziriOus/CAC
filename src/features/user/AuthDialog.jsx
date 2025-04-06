@@ -5,12 +5,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import SkeletonUser from "@/components/ui/SkeletonUser";
 
 // Import the two forms
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
-import { toast } from "sonner";
 import { useUser } from "./useUser";
 
 /**
@@ -20,7 +18,7 @@ import { useUser } from "./useUser";
  * - Handling "failed to fetch" case
  */
 export default function AuthDialog({ children, to = "#" }) {
-  const { error, isPending } = useUser();
+  const { error } = useUser();
 
   const [open, setOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(true);

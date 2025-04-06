@@ -14,9 +14,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, X, Plus, Image, AlertCircle, Trash } from "lucide-react";
+import { CalendarIcon, Plus, AlertCircle, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
-import EventSection from "@/features/dashboard/Evenements/EventSection";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,14 +27,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAddEvent } from "./useAddEvent";
-import { useNavigate } from "react-router-dom";
+import { useBlocker, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import SectionItem from "./SectionItem";
 import SectionEditForm from "./SectionEditForm";
+import { Spinner } from "@/components/ui/Spinner";
 
 // Validation helper
 const validateForm = (formData) => {
-  console.log(formData);
   const errors = {};
 
   if (!formData.title.trim()) {
@@ -79,6 +78,7 @@ const validateForm = (formData) => {
 };
 
 export default function AjouterEvenementForm() {
+  const abortControllerRef = useRef(null);
   const { addEvent, isAddingEvent } = useAddEvent();
   const navigate = useNavigate();
   const formRef = useRef(null);
@@ -147,6 +147,34 @@ export default function AjouterEvenementForm() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 
+  const cancelUpload = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  };
+
+  function usePrompt(message, when = true) {
+    const blocker = useBlocker(when);
+
+    useEffect(() => {
+      if (blocker.state === "blocked") {
+        // Show a native confirmation dialog (you can customize this)
+        const answer = window.confirm(message);
+        if (answer) {
+          cancelUpload();
+          blocker.proceed();
+        } else {
+          blocker.reset();
+        }
+      }
+    }, [blocker, message]);
+  }
+  usePrompt(
+    "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+    isDirty,
+  );
+
   const addSection = () => {
     if (newSection.title.trim() === "") return;
 
@@ -171,9 +199,9 @@ export default function AjouterEvenementForm() {
     setErrors(newErrors);
   };
 
-  const removeSection = (id) => {
-    setSections((prev) => prev.filter((section) => section.id !== id));
-  };
+  // const removeSection = (id) => {
+  //   setSections((prev) => prev.filter((section) => section.id !== id));
+  // };
 
   const handleCancel = () => {
     if (isDirty) {
@@ -184,7 +212,7 @@ export default function AjouterEvenementForm() {
     }
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     // Validate form
     const formData = {
       title,
@@ -200,21 +228,20 @@ export default function AjouterEvenementForm() {
     };
 
     const validationErrors = validateForm(formData);
-    console.log(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
     try {
-      setIsDirty(false);
       setErrors({});
-
-      addEvent(formData);
-      navigate("/dashboard/evenements");
+      await addEvent({ formData, abortControllerRef });
+      setIsDirty(false);
+      setTimeout(() => navigate("/dashboard/evenements"), 0);
     } catch (error) {
       setIsDirty(true);
-      toast.error("Failed to submit the form. Please try again.", {
+      if (error.message === "signal is aborted without reason") return;
+      toast.error("Échec de l'envoi du formulaire. Veuillez réessayer.", {
         description: error.message,
       });
     }
@@ -245,19 +272,11 @@ export default function AjouterEvenementForm() {
     setEditingSectionId(section.id);
   };
 
-  const handleSaveSection = (updatedSection, newImageFiles = []) => {
+  const handleSaveSection = (updatedSection) => {
     try {
       const originalSection = sections.find((s) => s.id === updatedSection.id);
 
       if (!originalSection) return;
-      // updateSection({
-      //   originalSection,
-      //   updatedSection: {
-      //     ...updatedSection,
-      //     eventId: initialEvent.id,
-      //   },
-      //   newImageFiles,
-      // });
 
       setSections((prev) =>
         prev.map((section) =>
@@ -281,13 +300,13 @@ export default function AjouterEvenementForm() {
 
       <div className="mb-6 flex justify-end space-x-4">
         <Button variant="outline" onClick={handleCancel}>
-          Cancel
+          Fermer et Quitter
         </Button>
         <Button onClick={handlePublish} disabled={isAddingEvent}>
           {isAddingEvent ? (
             <>
-              <span className="loading loading-spinner loading-sm mr-2"></span>
-              Ajout en cours...
+              <Spinner className="flex text-white"></Spinner>
+              Publication en cours...
             </>
           ) : (
             "Publier l'Événement"
@@ -317,7 +336,7 @@ export default function AjouterEvenementForm() {
                 setErrors(newErrors);
               }
             }}
-            placeholder="Enter event title"
+            placeholder="Introduisez le titre de l'événement"
             className={cn(errors.title && "border-destructive")}
           />
           <ErrorMessage error={errors.title} />
@@ -372,7 +391,7 @@ export default function AjouterEvenementForm() {
                 setErrors(newErrors);
               }
             }}
-            placeholder="Enter event location"
+            placeholder="Où se dérouleras votre événement?"
             className={cn(errors.location && "border-destructive")}
           />
           <ErrorMessage error={errors.location} />
@@ -399,7 +418,7 @@ export default function AjouterEvenementForm() {
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : "Select date"}
+                  {date ? format(date, "PPP") : "Selectioner un date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -507,9 +526,9 @@ export default function AjouterEvenementForm() {
                 />
               ) : (
                 <SectionItem
-                  section={section}
-                  onEdit={handleUpdateSection}
-                  onDelete={handleDeleteSection}
+                  section={section} // the currrent section as it is rn
+                  onEdit={handleUpdateSection} // opens edit form for this section
+                  onDelete={handleDeleteSection} // starts deletion (opens a confirmation dialog...)
                 />
               )}
             </div>
@@ -626,10 +645,10 @@ export default function AjouterEvenementForm() {
       <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogTitle>Quitter la Page</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes. Are you sure you want to leave this
-              page? All your progress will be lost.
+              Etes-vous sur de vouloir quitter la page sans enregistrer les
+              modifications? Toutes les données non enregistrées seront perdues.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -639,7 +658,7 @@ export default function AjouterEvenementForm() {
                 setIsLeaving(false);
               }}
             >
-              Stay on Page
+              Rester sur la Page
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
@@ -647,7 +666,7 @@ export default function AjouterEvenementForm() {
                 navigate("/dashboard/evenements");
               }}
             >
-              Leave Page
+              Quitter la Page
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon, MapPinIcon, ArrowLeft } from "lucide-react";
@@ -14,52 +14,52 @@ import { API_URL } from "@/utils/constants";
 import { useEvent } from "@/features/dashboard/Evenements/useEvent";
 
 // Sample event data (same as before)
-const eventData = {
-  event: {
-    id: 4,
-    title: "t1",
-    description: "d1",
-    endroit: "sba",
-    date: "2020-10-01T00:00:00.000Z",
-    type: "national",
-    coverUrl: "/uploads/1740848022179.png",
-    medecin: {
-      id: 2,
-      nom: "Allag",
-      prenom: "Aymen",
-      email: "Aymen@esi-sba.dz",
-    },
-    createdAt: "2025-03-01T16:53:42.000Z",
-    updatedAt: "2025-03-01T17:35:31.000Z",
-    sections: [
-      {
-        title: "title",
-        id: 8,
-        paragraph: "title title title title ",
-        images: [
-          { imgUrl: "/uploads/1740850495070.png" },
-          { imgUrl: "/uploads/1740850528830.png" },
-        ],
-      },
-      {
-        title: "title",
-        id: 9,
-        paragraph:
-          "titletitletitletitle titletitletitletitle titletitletitletitle titletitletitletitle ",
-        images: [{ imgUrl: "/uploads/1740850500506.png" }],
-      },
-      {
-        title: "title",
-        id: 10,
-        paragraph: "title title title ",
-        images: [{ imgUrl: "/uploads/1740850508937.png" }],
-      },
-    ],
-  },
-};
+// const eventData = {
+//   event: {
+//     id: 4,
+//     title: "t1",
+//     description: "d1",
+//     endroit: "sba",
+//     date: "2020-10-01T00:00:00.000Z",
+//     type: "national",
+//     coverUrl: "/uploads/1740848022179.png",
+//     medecin: {
+//       id: 2,
+//       nom: "Allag",
+//       prenom: "Aymen",
+//       email: "Aymen@esi-sba.dz",
+//     },
+//     createdAt: "2025-03-01T16:53:42.000Z",
+//     updatedAt: "2025-03-01T17:35:31.000Z",
+//     sections: [
+//       {
+//         title: "title",
+//         id: 8,
+//         paragraph: "title title title title ",
+//         images: [
+//           { imgUrl: "/uploads/1740850495070.png" },
+//           { imgUrl: "/uploads/1740850528830.png" },
+//         ],
+//       },
+//       {
+//         title: "title",
+//         id: 9,
+//         paragraph:
+//           "titletitletitletitle titletitletitletitle titletitletitletitle titletitletitletitle ",
+//         images: [{ imgUrl: "/uploads/1740850500506.png" }],
+//       },
+//       {
+//         title: "title",
+//         id: 10,
+//         paragraph: "title title title ",
+//         images: [{ imgUrl: "/uploads/1740850508937.png" }],
+//       },
+//     ],
+//   },
+// };
 
 export default function EventDetails() {
-  const { id } = useParams();
+  // const { id } = useParams();
   // const {event, }
   const { event, isPending, error } = useEvent();
   // const { event } = eventData; // In a real app, you would fetch based on the ID

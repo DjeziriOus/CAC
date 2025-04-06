@@ -1,8 +1,9 @@
-import { getMyQuestions, getQuestionsAPI } from "@/services/apiQuestions";
+import { getMyQuestions } from "@/services/apiQuestions";
 import { QUESTIONS_PER_PAGE } from "@/utils/constants";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
-
+import { refreshJwtExpiration } from "@/lib/utils";
+refreshJwtExpiration();
 export function useMyQuestions() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
@@ -14,7 +15,11 @@ export function useMyQuestions() {
     error,
   } = useQuery({
     queryKey: ["myQuestions", page],
-    queryFn: () => getMyQuestions(page),
+
+    queryFn: async () => {
+      refreshJwtExpiration();
+      return await getMyQuestions(page);
+    },
   });
 
   const totalPages = Math.ceil(totalQuestions / QUESTIONS_PER_PAGE);

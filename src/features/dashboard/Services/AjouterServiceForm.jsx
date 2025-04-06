@@ -20,13 +20,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAddService } from "./useAddService";
-import { useNavigate } from "react-router-dom";
+import { useBlocker, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import SectionItem from "@/features/dashboard/Evenements/SectionItem";
 import SectionEditForm from "@/features/dashboard/Evenements/SectionEditForm";
-
+import { Spinner } from "@/components/ui/Spinner";
 // Validation helper
-const validateForm = (formData) => {
+const validateForm = (formData, editingSectionId, isAddingSectionOpen) => {
   console.log(formData);
   const errors = {};
 
@@ -40,6 +40,15 @@ const validateForm = (formData) => {
 
   if (!formData.coverImage) {
     errors.coverImage = "l'image de couverture est requise";
+  }
+
+  if (editingSectionId !== null) {
+    errors.sections =
+      "Une section n'est pas encore validée, Veuilliez valider (ajouter) la section que vous êtes entrain de modifier";
+  }
+  if (isAddingSectionOpen) {
+    errors.sections =
+      "Une section n'est pas encore validée, Veuilliez valider (ajouter) la section que vous êtes entrain d'introduire";
   }
 
   if (!formData.sections.length) {
@@ -65,6 +74,7 @@ const validateForm = (formData) => {
 };
 
 export default function AjouterServiceForm() {
+  const abortControllerRef = useRef(null);
   const { addService, isAddingService } = useAddService();
   const navigate = useNavigate();
   const formRef = useRef(null);
@@ -129,6 +139,35 @@ export default function AjouterServiceForm() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDirty]);
 
+  const cancelUpload = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  };
+
+  function usePrompt(message, when = true) {
+    const blocker = useBlocker(when);
+
+    useEffect(() => {
+      if (blocker.state === "blocked") {
+        // Show a native confirmation dialog (you can customize this)
+        const answer = window.confirm(message);
+        if (answer) {
+          console.log("proceed");
+          cancelUpload();
+          blocker.proceed();
+        } else {
+          blocker.reset();
+        }
+      }
+    }, [blocker, message]);
+  }
+  usePrompt(
+    "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+    isDirty,
+  );
+
   const addSection = () => {
     if (newSection.title.trim() === "") return;
 
@@ -153,9 +192,9 @@ export default function AjouterServiceForm() {
     setErrors(newErrors);
   };
 
-  const removeSection = (id) => {
-    setSections((prev) => prev.filter((section) => section.id !== id));
-  };
+  // const removeSection = (id) => {
+  //   setSections((prev) => prev.filter((section) => section.id !== id));
+  // };
 
   const handleCancel = () => {
     if (isDirty) {
@@ -165,8 +204,7 @@ export default function AjouterServiceForm() {
       navigate("/dashboard/services");
     }
   };
-
-  const handlePublish = () => {
+  const handlePublish = async () => {
     // Validate form
     const formData = {
       nom,
@@ -178,22 +216,26 @@ export default function AjouterServiceForm() {
       })),
     };
 
-    const validationErrors = validateForm(formData);
-    console.log(validationErrors);
+    const validationErrors = validateForm(
+      formData,
+      editingSectionId,
+      isAddingSectionOpen,
+    );
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
     try {
-      setIsDirty(false);
       setErrors({});
-
-      addService(formData);
-      navigate("/dashboard/services");
+      await addService({ formData, abortControllerRef });
+      setIsDirty(false);
+      // Either add a small delay before navigation
+      setTimeout(() => navigate("/dashboard/services"), 0);
     } catch (error) {
       setIsDirty(true);
-      toast.error("Failed to submit the form. Please try again.", {
+      if (error.message === "signal is aborted without reason") return;
+      toast.error("Échec de l'envoi du formulaire. Veuillez réessayer.", {
         description: error.message,
       });
     }
@@ -224,20 +266,11 @@ export default function AjouterServiceForm() {
     setEditingSectionId(section.id);
   };
 
-  const handleSaveSection = (updatedSection, newImageFiles = []) => {
+  const handleSaveSection = (updatedSection) => {
     try {
       const originalSection = sections.find((s) => s.id === updatedSection.id);
 
       if (!originalSection) return;
-      // updateSection({
-      //   originalSection,
-      //   updatedSection: {
-      //     ...updatedSection,
-      //     eventId: initialEvent.id,
-      //   },
-      //   newImageFiles,
-      // });
-
       setSections((prev) =>
         prev.map((section) =>
           section.id === updatedSection.id ? updatedSection : section,
@@ -260,13 +293,13 @@ export default function AjouterServiceForm() {
 
       <div className="mb-6 flex justify-end space-x-4">
         <Button variant="outline" onClick={handleCancel}>
-          Cancel
+          Fermer et Quitter
         </Button>
         <Button onClick={handlePublish} disabled={isAddingService}>
           {isAddingService ? (
             <>
-              <span className="loading loading-spinner loading-sm mr-2"></span>
-              Publishing...
+              <Spinner className="flex text-white"></Spinner>
+              Publication en cours...
             </>
           ) : (
             "Publier le Service"
@@ -381,9 +414,9 @@ export default function AjouterServiceForm() {
                 />
               ) : (
                 <SectionItem
-                  section={section}
-                  onEdit={handleUpdateSection}
-                  onDelete={handleDeleteSection}
+                  section={section} // the currrent section as it is rn
+                  onEdit={handleUpdateSection} // opens edit form for this section
+                  onDelete={handleDeleteSection} // starts deletion (opens a confirmation dialog...)
                 />
               )}
             </div>
@@ -500,10 +533,10 @@ export default function AjouterServiceForm() {
       <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogTitle>Quitter la Page</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes. Are you sure you want to leave this
-              page? All your progress will be lost.
+              Etes-vous sur de vouloir quitter la page sans enregistrer les
+              modifications? Toutes les données non enregistrées seront perdues.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -513,7 +546,7 @@ export default function AjouterServiceForm() {
                 setIsLeaving(false);
               }}
             >
-              Stay on Page
+              Rester sur la Page
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
@@ -521,7 +554,7 @@ export default function AjouterServiceForm() {
                 navigate("/dashboard/services");
               }}
             >
-              Leave Page
+              Quitter la Page
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

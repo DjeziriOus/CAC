@@ -1,36 +1,10 @@
-import { Suspense, useEffect, useState } from "react";
-import {
-  Await,
-  Navigate,
-  NavLink,
-  useLoaderData,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Question from "../../../components/ui/Question";
 
 import SkeletonLoader from "@/components/ui/SkeletonQuestion";
 
 import { EmptyMyQuestions } from "@/components/ui/EmptyMyQuestions";
-import { EmptyQuestions } from "@/components/ui/EmptyQuestions";
-import { toast } from "@/hooks/use-toast";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Skeleton } from "@/components/ui/skeleton";
-import LinkButton from "@/components/ui/LinkButton";
-
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { use } from "react";
-import Paginator from "@/components/paginator";
 
 import { useQuestions } from "@/features/dashboard/Questions/useQuestions";
 
@@ -39,9 +13,9 @@ import { ErrorQuestions } from "@/components/ui/ErrorQuestions";
 import { useUser } from "@/features/user/useUser";
 import { EmptyQuestionsNoAdd } from "@/components/ui/EmptyQuestionsNoAdd";
 import { useIsFetching } from "@tanstack/react-query";
+import Paginator from "@/components/paginator-v2";
 
 function RecentQuestions() {
-  const [loadingQuestions, setLoadingQuestions] = useState(false);
   const { user } = useUser();
   const questionsType = location.pathname.includes("patient")
     ? "patient"
@@ -75,25 +49,31 @@ function RecentQuestions() {
   // }, [searchParams, setSearchParams]);
   // const { questions } = useLoaderData();
   const { questions, isPending, error } = useQuestions();
-  const isFetchingQuestions = useIsFetching({ queryKey: ["questions"] });
-
   const { totalPages, isPending: isPendingTotalPages } =
     useTotalPagesRecentQuestions();
+  // const isFetchingQuestions = useIsFetching({ queryKey: ["questions"] });
+
+  // useTotalPagesRecentQuestions();
   return (
-    <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
-      {isPending || isFetchingQuestions ? (
-        <SkeletonLoader />
-      ) : error ? (
-        <ErrorQuestions />
-      ) : questions.length == 0 ? (
-        questionsType == user?.role ? (
-          <EmptyMyQuestions />
-        ) : (
-          <EmptyQuestionsNoAdd />
-        )
-      ) : (
-        questions.map((q) => <Question question={q} key={q.id} />)
-      )}
+    <div className="my-14 flex w-full flex-col items-center">
+      <div className="mb-10 w-full">
+        <div className="flex h-[25rem] w-full flex-col gap-8 overflow-y-scroll p-3">
+          {isPending ? (
+            <SkeletonLoader />
+          ) : error ? (
+            <ErrorQuestions />
+          ) : questions.length == 0 ? (
+            questionsType == user?.role ? (
+              <EmptyMyQuestions />
+            ) : (
+              <EmptyQuestionsNoAdd />
+            )
+          ) : (
+            questions.map((q) => <Question question={q} key={q.id} />)
+          )}
+        </div>
+      </div>
+      <Paginator totalPages={totalPages} isPending={isPendingTotalPages} />
     </div>
   );
 }

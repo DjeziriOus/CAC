@@ -16,16 +16,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { DialogTitle } from "@/components/ui/dialog";
-import { Router, useNavigate } from "react-router-dom";
 import { useLogin } from "./useLogin";
 import PasswordInput from "./PasswordInput";
 import FormInput from "./FormInput";
-import { useUser } from "./useUser";
 
 /**
  * Zod schema for the login form
@@ -52,11 +47,9 @@ const loginSchema = z.object({
 export default function LoginForm({ toggleForm, closeForm }) {
   // const { isConnecting, error, loginUser } = useLogin();
   const { isConnecting, error, hasAuthError, loginUser } = useLogin();
-  const { user } = useUser();
 
   // Show/hide password local state
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
   // RHF
   const form = useForm({
     resolver: zodResolver(loginSchema),

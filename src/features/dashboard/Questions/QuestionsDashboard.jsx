@@ -32,7 +32,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Paginator from "@/components/paginator";
+import Paginator from "@/components/paginator-v2";
 import { useSearchParams } from "react-router-dom";
 
 import { useQuestions } from "@/features/dashboard/Questions/useQuestions";
@@ -43,13 +43,7 @@ import { useUpdateResponse } from "./useUpdateResponse";
 import { useAnswerQuestion } from "./useAnswerQuestion";
 
 export default function QuestionsDashboard() {
-  const {
-    questions,
-    totalPages,
-    isPending,
-    error,
-    page: currentPage,
-  } = useQuestions();
+  const { questions, isPending, error, totalPages } = useQuestions();
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -106,11 +100,17 @@ export default function QuestionsDashboard() {
     setIsAnswering(false);
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (selectedQuestion.response) {
-      updateResponse({ id: selectedQuestion.id, response: data.response });
+      await updateResponse({
+        id: selectedQuestion.id,
+        response: data.response,
+      });
     } else {
-      answerQuestion({ id: selectedQuestion.id, response: data.response });
+      await answerQuestion({
+        id: selectedQuestion.id,
+        response: data.response,
+      });
     }
     setIsEditing(false);
   };
@@ -187,111 +187,134 @@ export default function QuestionsDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {isPending
-                    ? Array.from({ length: 5 }).map((_, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>
-                            <div className="h-5 w-full animate-pulse rounded-lg bg-gray-300" />
+                  {isPending ? (
+                    Array.from({ length: 5 }).map((_, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          <div className="h-5 w-full animate-pulse rounded-lg bg-gray-300" />
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-8 w-[15vw] animate-pulse rounded-lg bg-gray-300" />
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
+                        </TableCell>
+                        <TableCell>
+                          <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
+                        </TableCell>
+                        <TableCell className="flex h-16 items-center justify-center gap-2">
+                          <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                          <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                          <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : error ? (
+                    <TableRow>
+                      <td
+                        colSpan="6"
+                        className="p-4 py-10 text-center text-xl font-bold text-red-500"
+                      >
+                        Serveur indisponible
+                      </td>
+                    </TableRow>
+                  ) : !questions.length ? (
+                    <TableRow>
+                      <td
+                        colSpan="6"
+                        className="p-4 py-10 text-center text-xl font-bold text-gray-500"
+                      >
+                        Aucune question
+                      </td>
+                    </TableRow>
+                  ) : (
+                    questions.map((question) => {
+                      return (
+                        <TableRow key={question.id}>
+                          <TableCell>{question.id}</TableCell>
+                          <TableCell className="max-w-[14rem]">
+                            {question.object}
+                          </TableCell>
+                          <TableCell className="max-w-[28rem]">
+                            {question.content}
+                          </TableCell>
+
+                          <TableCell className="max-w-[28rem]">
+                            {question.response || "Aucune réponse"}
                           </TableCell>
                           <TableCell>
-                            <div className="h-8 w-[15vw] animate-pulse rounded-lg bg-gray-300" />
+                            {(question?.receiver &&
+                              question?.receiver?.nom +
+                                " " +
+                                question?.receiver?.prenom) ||
+                              "Aucun médecin"}
                           </TableCell>
-                          <TableCell>
-                            <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
-                          </TableCell>
-                          <TableCell>
-                            <div className="h-10 w-[20vw] animate-pulse rounded-xl bg-gray-300" />
-                          </TableCell>
-                          <TableCell className="flex h-16 items-center justify-center gap-2">
-                            <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
-                            <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
-                            <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-300" />
+
+                          <TableCell className="flex h-full items-center justify-center gap-2">
+                            {question.response ? (
+                              <>
+                                {user?.email === question.receiver.email && (
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => onEdit(question)}
+                                    >
+                                      <Edit2Icon className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="destructive"
+                                      size="icon"
+                                      onClick={() =>
+                                        onDeleteResponse(question.id)
+                                      }
+                                      disabled={isDeletingAnswer}
+                                    >
+                                      <DeleteIcon className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              !question.response &&
+                              (user?.role === "medecin" ||
+                                user?.role === "admin") && (
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => onEdit(question)}
+                                  disabled={isAnsweringQuestion}
+                                >
+                                  <MessageSquareReply className="h-4 w-4" />
+                                </Button>
+                              )
+                            )}
+                            {!question?.receiver?.email && (
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() =>
+                                  handleDeleteQuestion(question.id)
+                                }
+                                disabled={
+                                  isDeletingQuestion || isAnsweringQuestion
+                                }
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                           </TableCell>
                         </TableRow>
-                      ))
-                    : questions.map((question) => {
-                        return (
-                          <TableRow key={question.id}>
-                            <TableCell>{question.id}</TableCell>
-                            <TableCell className="max-w-[14rem]">
-                              {question.object}
-                            </TableCell>
-                            <TableCell className="max-w-[28rem]">
-                              {question.content}
-                            </TableCell>
-
-                            <TableCell className="max-w-[28rem]">
-                              {question.response || "Aucune réponse"}
-                            </TableCell>
-                            <TableCell>
-                              {(question?.receiver &&
-                                question?.receiver?.nom +
-                                  " " +
-                                  question?.receiver?.prenom) ||
-                                "Aucun médecin"}
-                            </TableCell>
-
-                            <TableCell className="flex h-full items-center justify-center gap-2">
-                              {question.response ? (
-                                <>
-                                  {user?.email === question.receiver.email && (
-                                    <>
-                                      <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => onEdit(question)}
-                                      >
-                                        <Edit2Icon className="h-4 w-4" />
-                                      </Button>
-                                      <Button
-                                        variant="destructive"
-                                        size="icon"
-                                        onClick={() =>
-                                          onDeleteResponse(question.id)
-                                        }
-                                        disabled={isDeletingAnswer}
-                                      >
-                                        <DeleteIcon className="h-4 w-4" />
-                                      </Button>
-                                    </>
-                                  )}
-                                </>
-                              ) : (
-                                !question.response &&
-                                (user?.role === "medecin" ||
-                                  user?.role === "admin") && (
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={() => onEdit(question)}
-                                  >
-                                    <MessageSquareReply className="h-4 w-4" />
-                                  </Button>
-                                )
-                              )}
-                              {!question?.receiver?.email && (
-                                <Button
-                                  variant="destructive"
-                                  size="icon"
-                                  onClick={() =>
-                                    handleDeleteQuestion(question.id)
-                                  }
-                                  disabled={isDeletingQuestion}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      );
+                    })
+                  )}
                 </TableBody>
               </Table>
             </div>
           </div>
           <div className="mt-auto">
             {/* <Paginator variant={questionType} /> */}
-            {<Paginator />}
+            {<Paginator totalPages={totalPages} isPending={isPending} />}
           </div>
         </div>
       </div>
@@ -338,10 +361,11 @@ export default function QuestionsDashboard() {
                 <Button
                   type="submit"
                   disabled={
-                    selectedQuestion?.response
+                    isUpdatingResponse ||
+                    (selectedQuestion?.response
                       ? selectedQuestion?.response ===
                         answerForm.getValues("response")
-                      : answerForm.getValues("response") === ""
+                      : answerForm.getValues("response") === "")
                   }
                 >
                   Enregistrer

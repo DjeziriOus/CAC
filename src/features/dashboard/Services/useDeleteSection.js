@@ -1,15 +1,16 @@
-import { deleteSectionAPI as deleteSectionAPI } from "@/services/apiQuestions";
+import { deleteSectionServiceAPI as deleteSectionAPI } from "@/services/apiQuestions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { refreshJwtExpiration } from "@/lib/utils";
 
 export function useDeleteSection() {
   const queryClient = useQueryClient();
-  const { eventId } = useParams();
+  const { serviceId } = useParams();
   const { isPending: isDeletingSection, mutate: deleteSection } = useMutation({
     mutationFn: (sectionId) => {
-      console.log(sectionId, eventId);
-      return deleteSectionAPI({ id: sectionId, eventId: eventId });
+      console.log(sectionId, serviceId);
+      return deleteSectionAPI({ id: sectionId, service: serviceId });
     }, // mutationFn: DeleteSectionAPI,
     onSuccess: () => {
       toast.success("Section supprimée", {
@@ -18,8 +19,10 @@ export function useDeleteSection() {
       queryClient.invalidateQueries({
         queryKey: ["event"],
       });
+      refreshJwtExpiration();
     },
     onError: (error) => {
+      refreshJwtExpiration();
       toast.error("Erreur lors de la suppression", {
         description: `${error.message} -- 
       Erreur lors de la suppression de la Section.`,

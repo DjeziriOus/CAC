@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 export default function TabsSkeleton() {
   return (
     <div className="py-4">

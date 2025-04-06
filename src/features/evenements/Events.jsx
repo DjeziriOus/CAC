@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -15,9 +15,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { API_URL } from "@/utils/constants";
+import { API_URL, EVENTS_PER_PAGE } from "@/utils/constants";
 
 import { useEvents } from "@/features/dashboard/Evenements/useEvents";
+import Paginator from "@/components/paginator-v2";
 
 const EventCard = ({ event }) => {
   const formattedDate = format(new Date(event.date), "dd MMMM yyyy", {
@@ -82,7 +83,8 @@ const EventCard = ({ event }) => {
 
 // Events List Component
 const EventsList = () => {
-  const { events, isPending, error } = useEvents();
+  const { events, isPending, error, total } = useEvents();
+
   if (isPending) {
     return (
       <div className="flex min-h-[60dvh] items-center justify-center">
@@ -108,16 +110,22 @@ const EventsList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-3">
-      {events.map((event) => (
-        <EventCard key={event.id} event={event} />
-      ))}
+    <div className="flex flex-col gap-10">
+      <div className="grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-3">
+        {events.map((event) => (
+          <EventCard key={event.id} event={event} />
+        ))}
+      </div>
+      <Paginator
+        totalPages={Math.ceil(total / EVENTS_PER_PAGE)}
+        isPending={isPending}
+      />
     </div>
   );
 };
 
 export default function Events() {
-  const [activeTab, setActiveTab] = useState("national");
+  // const [activeTab, setActiveTab] = useState("national");
   // const [searchParams, setSearchParams] = useSearchParams();
   // useEffect(() => {
   //   // setActiveTab(searchParams.get("type") || "national");
@@ -155,8 +163,8 @@ export default function Events() {
         defaultValue={searchParams.get("type") || "national"}
         className="w-full"
         onValueChange={(e) => {
-          setActiveTab(e);
           searchParams.set("type", e);
+          searchParams.set("page", 1);
           setSearchParams(searchParams);
           console.log(e);
         }}

@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Button } from "./button";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { Separator } from "./separator";
 import { useState, useRef } from "react";
 import moment from "moment";

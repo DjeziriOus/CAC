@@ -1,10 +1,7 @@
-import { Outlet, ScrollRestoration, useNavigation } from "react-router-dom";
+import { Outlet, useNavigation } from "react-router-dom";
 import Header from "./components/ui/Header";
 import Footer from "./components/ui/Footer";
 import Loader from "./components/ui/Loader";
-import { Toaster } from "@/components/ui/sonner";
-
-import { useEffect } from "react";
 
 function AppLayout() {
   // useEffect(() => {

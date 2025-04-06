@@ -10,7 +10,7 @@ import { NavLink, useSearchParams } from "react-router-dom";
 import PaginatorSkeleton from "./ui/PaginatorSkeleton";
 
 function Paginator({ totalPages, isPending }) {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
   // const currentType = location.pathname.includes("patient")
   //   ? "patient"
@@ -46,11 +46,17 @@ function Paginator({ totalPages, isPending }) {
             {page === "..." ? (
               <PaginationEllipsis />
             ) : (
-              <NavLink to={`?page=${page}`}>
-                <Button variant={page == currentPage ? "default" : "outline"}>
-                  {page}
-                </Button>
-              </NavLink>
+              // <NavLink to={`?page=${page}`}>
+              <Button
+                variant={page == currentPage ? "default" : "outline"}
+                onClick={() => {
+                  searchParams.set("page", page);
+                  setSearchParams(searchParams);
+                }}
+              >
+                {page}
+              </Button>
+              // </NavLink>
             )}
           </div>
         ))}
@@ -64,22 +70,29 @@ function Paginator({ totalPages, isPending }) {
         <Pagination>
           <PaginationContent>
             {/* Previous Button */}
-            <NavLink
+            {/* <NavLink
               to={currentPage > 1 ? `?page=${currentPage - 1}` : "#"}
               className={
                 currentPage === 1 ? "pointer-events-none opacity-50" : ""
               }
               aria-disabled={currentPage === 1}
               replace
+            > */}
+            <Button
+              variant="ghost"
+              disabled={currentPage === 1}
+              onClick={() => {
+                searchParams.set("page", currentPage - 1);
+                setSearchParams(searchParams);
+              }}
             >
-              <Button variant="ghost">
-                <ChevronLeft className="h-5 w-5" />
-                <span>Previous</span>
-              </Button>
-            </NavLink>
+              <ChevronLeft className="h-5 w-5" />
+              <span>Previous</span>
+            </Button>
+            {/* </NavLink> */}
             {renderPagination()}
             {/* next Button */}
-            <NavLink
+            {/* <NavLink
               to={currentPage < totalPages ? `?page=${currentPage + 1}` : "#"}
               className={`${
                 currentPage === totalPages
@@ -88,12 +101,19 @@ function Paginator({ totalPages, isPending }) {
               }`}
               aria-disabled={currentPage === totalPages}
               replace
+            > */}
+            <Button
+              variant="ghost"
+              disabled={currentPage === totalPages}
+              onClick={() => {
+                searchParams.set("page", currentPage + 1);
+                setSearchParams(searchParams);
+              }}
             >
-              <Button variant="ghost">
-                <span>Next</span>
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </NavLink>
+              <span>Next</span>
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+            {/* </NavLink> */}
           </PaginationContent>
         </Pagination>
       )}

@@ -20,7 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 function UserInfo() {
   const userData = useUser();
-  const { user, allowedTabs, error, isPending, isSuccess, isError } = userData;
+  const { user, error, isPending } = userData;
   const queryClient = useQueryClient();
   // If user info is still loading, render a skeleton
 

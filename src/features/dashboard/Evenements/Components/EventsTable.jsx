@@ -16,7 +16,7 @@ import { useUser } from "@/features/user/useUser";
 function EventsTable({ onEdit: handleEdit }) {
   const [searchParams, setSearchParams] = useSearchParams({
     page: "1",
-    type: "international",
+    type: "national",
   });
 
   useEffect(() => {
@@ -28,7 +28,7 @@ function EventsTable({ onEdit: handleEdit }) {
       updated = true;
     }
     if (!newParams.get("type")) {
-      newParams.set("type", "international");
+      newParams.set("type", "national");
       updated = true;
     }
 
@@ -41,7 +41,7 @@ function EventsTable({ onEdit: handleEdit }) {
   const {
     user,
     isPending: isPendingUser,
-    error: userError,
+    // error: userError,
     isSuccess,
   } = useUser();
   return (
@@ -64,15 +64,15 @@ function EventsTable({ onEdit: handleEdit }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isPending ? (
+          {isPending || isPendingUser ? (
             Array.from({ length: 5 }).map((_, idx) => (
               <UserRowSkeleton key={idx} />
             ))
           ) : error ? (
             <TableRow>
               <td
-                colSpan="5"
-                className="p-4 text-center font-medium text-gray-500"
+                colSpan="8"
+                className="p-4 py-10 text-center text-xl font-bold text-red-500"
               >
                 Serveur indisponible
               </td>
@@ -80,10 +80,10 @@ function EventsTable({ onEdit: handleEdit }) {
           ) : !events.length ? (
             <TableRow>
               <td
-                colSpan="5"
-                className="p-4 text-center font-medium text-gray-500"
+                colSpan="8"
+                className="p-4 py-10 text-center text-xl font-bold text-gray-500"
               >
-                Aucun événement disponible
+                Aucun événement
               </td>
             </TableRow>
           ) : (

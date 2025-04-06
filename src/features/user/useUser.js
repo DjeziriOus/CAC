@@ -2,7 +2,8 @@ import { getUser } from "@/services/apiQuestions";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { CalendarDays, Hospital, MailQuestion, Users } from "lucide-react";
-import { de } from "date-fns/locale";
+// import { de } from "date-fns/locale";
+import { refreshJwtExpiration } from "@/lib/utils";
 const fullTabs = [
   { name: "Mes Questions", link: "my" },
   { name: "Questions les plus récentes", link: "recents" },
@@ -79,6 +80,7 @@ export function useUser() {
       break;
     default:
       navSidebar = [];
+      refreshJwtExpiration();
       break;
   }
   const [searchParams] = useSearchParams();

@@ -158,7 +158,7 @@ function validateAndProcessImage(file, onImageSelect) {
   };
   reader.onerror = () => {
     // TODO:
-    alert("Error reading file. Please try again.");
+    // alert("Erreur lors de l'ajout de l'image, Veuillez reessayer.");
     toast.error("Erreur lors de l'ajout", {
       description: "Erreur lors de l'ajout de l'image. Veuillez reessayer.",
     });

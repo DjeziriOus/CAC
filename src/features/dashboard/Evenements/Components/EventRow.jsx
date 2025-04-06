@@ -21,7 +21,7 @@ function EventRow({ event }) {
     type,
     coverUrl,
 
-    medecin: { id: idMedecin, nom, prenom, email },
+    medecin: { nom, prenom, email },
   } = event;
   const { isDeletingEvent, deleteEvent } = useDeleteEvent();
   const handleDelete = (id) => {
@@ -31,7 +31,7 @@ function EventRow({ event }) {
   const onEdit = function () {
     navigate(`/dashboard/evenements/edit/${id}`);
   };
-  const { user, isPending, error } = useUser();
+  const { user } = useUser();
   return (
     <TableRow key={id}>
       <TableCell>{id}</TableCell>

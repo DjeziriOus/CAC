@@ -2,6 +2,7 @@ import { API_URL } from "@/utils/constants";
 import { QUESTIONS_PER_PAGE } from "@/utils/constants";
 import { toast } from "sonner";
 
+if (localStorage.getItem("token")) localStorage.clear();
 export async function getUsers() {
   const res = await fetch(`${API_URL}/user/getUsers`, {
     method: "GET",
@@ -155,9 +156,9 @@ export async function answerQuestionAPI(id, response) {
     });
     throw new Error("Failed to add doctor");
   }
-  toast.success("Réponse ajoutée", {
-    description: "La reponse a bien été ajoutée.",
-  });
+  // toast.success("Réponse ajoutée", {
+  //   description: "La reponse a bien été ajoutée.",
+  // });
   const data = await res.json();
   console.log(data);
   return data;
@@ -219,7 +220,7 @@ export async function deleteResponseAPI(id) {
   return data;
 }
 export async function getQuestionsAPI(type = "patient", page = 1) {
-  console.log(type);
+  console.log(type, page);
   const res = await fetch(
     `${API_URL}/FAQ/getQuestions?type=${type}&page=${page}`,
     {
@@ -245,12 +246,6 @@ export async function getQuestionsAPI(type = "patient", page = 1) {
 
 export async function getUser() {
   if (!localStorage.getItem("jwt")) {
-    console.log("no token");
-    // console.log(res);
-    // toast.info("Veuillez vous connecter", {
-    //   description:
-    //     "Veuillez vous connecter pour avoir accès a toutes les fonctionnalités.",
-    // });
     return {};
   }
   const res = await fetch(`${API_URL}/user/getUser`, {
@@ -259,7 +254,6 @@ export async function getUser() {
       Authorization: JSON.parse(localStorage.getItem("jwt")).token,
     },
   });
-  console.log(res);
 
   if (!res.ok) {
     const data = await res.json();
@@ -275,6 +269,7 @@ export async function getUser() {
 }
 export async function postLoginUser(credentials) {
   let res = null;
+
   try {
     res = await fetch(`${API_URL}/user/login`, {
       method: "POST",
@@ -291,7 +286,7 @@ export async function postLoginUser(credentials) {
     }
     const data = await res.json();
     return data;
-  } catch (_) {
+  } catch {
     if (res.status === 500) {
       console.log("res not ok");
       throw new Error("Problème serveur (ERREUR 500)");
@@ -371,13 +366,12 @@ export async function getEvents(page, type) {
     },
   );
   if (!res.ok) {
-    const data = await res.json();
+    await res.json();
     throw new Error("Failed getting events");
   }
   const data = await res.json();
-  console.log(data);
-  const { events } = data;
-  return events;
+  const { events, total } = data;
+  return { events, total };
 }
 
 export async function getEvent(id) {
@@ -447,7 +441,7 @@ function dataURLtoFile(dataUrl, filename) {
   return new File([u8arr], filename, { type: mime });
 }
 
-export async function addEvent(eventData) {
+export async function addEvent(eventData, signal) {
   // Create a new FormData instance
   const formData = new FormData();
 
@@ -493,6 +487,7 @@ export async function addEvent(eventData) {
         Authorization: JSON.parse(localStorage.getItem("jwt")).token,
       },
       // Note: Do not set Content-Type; the browser will add the correct multipart boundary.
+      signal: signal,
     });
     const result = await response.json();
     if (!response.ok) {
@@ -504,7 +499,7 @@ export async function addEvent(eventData) {
     throw error;
   }
 }
-export async function updateEvent(eventData) {
+export async function updateEvent(eventData, signal) {
   // Convert the date to a string the backend can parse:
   const dateValue =
     eventData.date instanceof Date
@@ -539,6 +534,7 @@ export async function updateEvent(eventData) {
         // Do NOT set Content-Type to multipart/form-data; fetch sets it automatically
       },
       body: formData,
+      signal: signal,
     });
     if (!response.ok) {
       const result = await response.json();
@@ -568,28 +564,49 @@ function base64ToBlob(base64) {
   const byteArray = new Uint8Array(byteNumbers);
   return new Blob([byteArray], { type: mime });
 }
-export async function updateSectionAPI(data) {
+export async function updateSectionAPI(data, type = "event", signal) {
   try {
-    const response = await fetch(`${API_URL}/event/updateSection`, {
+    console.log(type, {
+      serviceId: data.serviceId,
+      sectionId: data.id, // Adjusting to match API's expected field name
+      title: data.title,
+      paragraph: data.paragraph,
+    });
+    const response = await fetch(`${API_URL}/${type}/updateSection`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: JSON.parse(localStorage.getItem("jwt")).token,
       },
-      body: JSON.stringify({
-        eventId: data.eventId,
-        sectionId: data.id, // Adjusting to match API's expected field name
-        title: data.title,
-        paragraph: data.paragraph,
-      }),
+      body:
+        type === "service"
+          ? JSON.stringify({
+              serviceId: data.serviceId,
+              sectionId: data.id, // Adjusting to match API's expected field name
+              title: data.title,
+              paragraph: data.paragraph,
+            })
+          : JSON.stringify({
+              eventId: data.eventId,
+              sectionId: data.id, // Adjusting to match API's expected field name
+              title: data.title,
+              paragraph: data.paragraph,
+            }),
+      signal: signal,
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to update section");
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update section");
+      } catch {
+        throw new Error(`Failed to update section: ${response.statusText}`);
+      }
     }
 
-    return await response.json(); // { message: "Section updated" }
+    const dataReceived = await response.json(); // { message: "Section updated" }
+    console.log("updated the section", data);
+    return dataReceived;
   } catch (error) {
     console.error("Error updating section:", error);
     throw error;
@@ -622,6 +639,31 @@ export async function deleteSectionAPI(data) {
     throw error;
   }
 }
+export async function deleteSectionServiceAPI(data) {
+  try {
+    const response = await fetch(`${API_URL}/service/deleteSection`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${JSON.parse(localStorage.getItem("jwt")).token}`, // Adjust if needed
+      },
+      body: JSON.stringify({
+        serviceId: data.service,
+        sectionId: data.id, // Adjusting to match API's expected field name
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to delete section");
+    }
+
+    return await response.json(); // { message: "Section deleted successfully" }
+  } catch (error) {
+    console.error("Error deleting section:", error);
+    throw error;
+  }
+}
 export async function updateSectionImagesAPI(data) {
   console.log(data);
 }
@@ -631,7 +673,8 @@ function base64ToFile(base64, filename = "image.png") {
   return new File([blob], filename, { type: blob.type });
 }
 
-export async function addSectionAPI(data) {
+export async function addSectionAPI(data, signal, type = "event") {
+  console.log(JSON.parse(localStorage.getItem("jwt")).token, data);
   // Expected data shape:
   // {
   //   eventId: 2,
@@ -644,7 +687,11 @@ export async function addSectionAPI(data) {
   const formData = new FormData();
   formData.append("title", data.title);
   formData.append("paragraph", data.paragraph);
-  formData.append("eventId", data.eventId);
+  if (type === "event") {
+    formData.append("eventId", data.eventId);
+  } else {
+    formData.append("serviceId", data.serviceId);
+  }
 
   // Process each image in the data.images array.
   if (data.images && Array.isArray(data.images)) {
@@ -659,13 +706,15 @@ export async function addSectionAPI(data) {
   }
 
   try {
-    const response = await fetch(`${API_URL}/event/addSection`, {
+    const response = await fetch(`${API_URL}/${type}/addSection`, {
       method: "POST",
       // Do not set the Content-Type header manually when using FormData.
       headers: {
         Authorization: `${JSON.parse(localStorage.getItem("jwt")).token}`, // Adjust token retrieval if needed.
+        // "Content-Type": "multipart/form-data",
       },
       body: formData,
+      signal: signal,
     });
 
     if (!response.ok) {
@@ -699,7 +748,7 @@ const addSectionImages = async (sectionId, eventId, files) => {
   });
 
   if (!response.ok) {
-    toast.error("Echec de l'ajout des images de la section", {
+    toast.error("Échec de l'ajout des images de la section", {
       description: response.statusText,
     });
     const data = response.json();
@@ -727,7 +776,7 @@ const deleteSectionImages = async (sectionId, eventId, imgUrls) => {
   });
 
   if (!response.ok) {
-    toast.error("Echec de la suppression des images de la section", {
+    toast.error("Échec de la suppression des images de la section", {
       description: response.statusText,
     });
     const data = response.json();
@@ -737,7 +786,6 @@ const deleteSectionImages = async (sectionId, eventId, imgUrls) => {
 };
 
 const addSectionImagesService = async (sectionId, serviceId, files) => {
-  console.log(sectionId, serviceId, files);
   const formData = new FormData();
   formData.append("serviceId", serviceId);
   formData.append("sectionId", sectionId);
@@ -746,7 +794,6 @@ const addSectionImagesService = async (sectionId, serviceId, files) => {
     const file = base64ToFile(image, `image_${index}.png`);
     formData.append("files", file);
   });
-  console.log(formData, sectionId, serviceId, files);
   const response = await fetch(`${API_URL}/service/addImg`, {
     method: "POST",
     headers: {
@@ -755,15 +802,14 @@ const addSectionImagesService = async (sectionId, serviceId, files) => {
     body: formData,
   });
   if (!response.ok) {
-    toast.error("Echec de l'ajout des images de la section", {
+    toast.error("Échec de l'ajout des images de la section", {
       description: response.statusText,
     });
-    const data = response.json();
+    const data = await response.json();
     console.log(data, response);
     throw new Error("Failed to add section images");
   }
   const data = response.json();
-  console.log(data, response);
   return data;
 };
 
@@ -783,11 +829,13 @@ const deleteSectionImagesService = async (sectionId, serviceId, imgUrls) => {
   });
 
   if (!response.ok) {
-    toast.error("Echec de la suppression des images de la section", {
+    toast.error("Échec de la suppression des images de la section", {
       description: response.statusText,
     });
-    const data = response.json();
-    console.log(data, response);
+    const data = await response.json();
+    console.log(data, {
+      imgUrls,
+    });
     throw new Error("Failed to delete section images");
   }
 };
@@ -798,18 +846,34 @@ export const updateSection = async (
   updatedSection,
   newImageFiles = [],
   type = "event",
+  signal,
 ) => {
   // Update section text if it has changed
   if (
     originalSection.title !== updatedSection.title ||
     originalSection.paragraph !== updatedSection.paragraph
   ) {
-    updateSectionAPI({
-      id: updatedSection.id,
-      eventId: updatedSection.eventId,
-      title: updatedSection.title,
-      paragraph: updatedSection.paragraph,
-    });
+    type === "event"
+      ? await updateSectionAPI(
+          {
+            id: updatedSection.id,
+            eventId: updatedSection.eventId,
+            title: updatedSection.title,
+            paragraph: updatedSection.paragraph,
+          },
+          type,
+          signal,
+        )
+      : await updateSectionAPI(
+          {
+            id: updatedSection.id,
+            serviceId: updatedSection.serviceId,
+            title: updatedSection.title,
+            paragraph: updatedSection.paragraph,
+          },
+          type,
+          signal,
+        );
   }
 
   // Find images to delete (present in original but not in updated)
@@ -863,7 +927,6 @@ export const updateSection = async (
 };
 
 export async function getServices(page) {
-  console.log(page);
   const res = await fetch(`${API_URL}/service/getServices?page=${page}`, {
     method: "GET",
     headers: {
@@ -872,16 +935,16 @@ export async function getServices(page) {
     },
   });
   if (!res.ok) {
-    const data = await res.json();
+    await res.json();
     throw new Error("Failed getting services");
   }
   const data = await res.json();
-  const { services } = data;
-  console.log(services);
-  return services;
+  const { services, total } = data;
+  return { services, total };
 }
 
-export async function addService(serviceData) {
+// export async function addService(serviceData, abortControllerRef) {
+export async function addService(serviceData, signal) {
   // Create a new FormData instance
   const formData = new FormData();
   // Append the cover image file (field name "cover")
@@ -913,6 +976,9 @@ export async function addService(serviceData) {
     });
   });
 
+  // abortControllerRef.current = new AbortController();
+  // const signal = abortControllerRef.current.signal;
+
   // Post the FormData to the backend route
   try {
     const response = await fetch(`${API_URL}/service/addService`, {
@@ -921,7 +987,7 @@ export async function addService(serviceData) {
       headers: {
         Authorization: JSON.parse(localStorage.getItem("jwt")).token,
       },
-      // Note: Do not set Content-Type; the browser will add the correct multipart boundary.
+      signal: signal,
     });
     const result = await response.json();
     if (!response.ok) {
@@ -960,14 +1026,16 @@ export async function getService(id) {
   });
   if (!res.ok) {
     const data = await res.json();
-    console.log(data);
-    throw new Error("Failed getting service");
+    throw new Error(
+      "Failed getting service" + data?.message && ` ${data?.message}`,
+    );
   }
+
   const data = await res.json();
   return data;
 }
 
-export async function updateService(serviceData) {
+export async function updateService(serviceData, signal) {
   const formData = new FormData();
   formData.append("id", serviceData.id);
   formData.append("nom", serviceData.nom);
@@ -993,6 +1061,7 @@ export async function updateService(serviceData) {
         // Do NOT set Content-Type to multipart/form-data; fetch sets it automatically
       },
       body: formData,
+      signal: signal,
     });
     if (!response.ok) {
       const result = await response.json();

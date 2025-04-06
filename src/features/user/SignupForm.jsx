@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,16 +15,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 // shadcn radio group
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "./useUser";
+
 import { useSignup } from "./useSignup";
 import FormInput from "./FormInput";
 import PasswordInput from "./PasswordInput";
@@ -64,11 +64,11 @@ const signupSchema = z
  * - has show/hide for password & confirmPassword
  * - includes nom, prenom, role (radio group)
  */
-export default function SignupForm({ toggleForm, to = "#" }) {
+export default function SignupForm({ toggleForm }) {
   // const { user, isPending, error } = useUser();
   // Show/hide states for password + confirmPassword
   const [showPassword, setShowPassword] = useState(false);
-  const { signup, error, isSuccess, isSigningUp, isError } = useSignup();
+  const { signup, error, isSigningUp } = useSignup();
   const navigate = useNavigate();
   const form = useForm({
     resolver: zodResolver(signupSchema),

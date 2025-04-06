@@ -5,6 +5,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { refreshJwtExpiration } from "@/lib/utils";
 
 export function useUpdateSection() {
   const queryClient = useQueryClient();

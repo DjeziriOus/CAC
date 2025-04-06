@@ -1,6 +1,7 @@
 import { deleteService as deleteServiceAPI } from "@/services/apiQuestions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { refreshJwtExpiration } from "@/lib/utils";
 
 export function useDeleteService() {
   const queryClient = useQueryClient();
@@ -14,8 +15,10 @@ export function useDeleteService() {
       queryClient.invalidateQueries({
         queryKey: ["services"],
       });
+      refreshJwtExpiration();
     },
     onError: (error) => {
+      refreshJwtExpiration();
       toast.error("Erreur lors de la suppression", {
         description: `${error.message}, 
       Erreur lors de la suppression du Service.`,

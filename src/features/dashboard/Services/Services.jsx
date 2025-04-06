@@ -1,56 +1,47 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-
-import { useAddService } from "@/features/dashboard/Services/useAddService";
 import ServicesTable from "./Components/ServicesTable";
-import { NavLink, useSearchParams } from "react-router-dom";
-
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { NavLink } from "react-router-dom";
+import Paginator from "@/components/paginator-v2";
+import { useTotalPagesServices } from "./useTotalPagesServices";
 
 export default function Services() {
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isAddingServiceState, setIsAddingServiceState] = useState(false);
-  const { isAddingService, addService } = useAddService();
+  // const [searchParams, setSearchParams] = useSearchParams();
+  const { totalPages, isPending } = useTotalPagesServices();
+  // const [selectedUser, setSelectedUser] = useState(null);
+  // const [isEditing, setIsEditing] = useState(false);
+  // const { isAddingService, addService } = useAddService();
   // const dispatch = useDispatch(); // const { status } = useSelector((state) => state.users);
 
-  const addServiceForm = useForm({
-    defaultValues: {
-      nom: "",
-      prenom: "",
-      email: "",
-      password: "",
-    },
-    // Add validation rules
-    resolver: zodResolver(
-      z.object({
-        nom: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-        prenom: z
-          .string()
-          .min(2, "Le prénom doit contenir au moins 2 caractères"),
-        email: z.string().email("Email invalide"),
-        password: z
-          .string()
-          .min(3, "Le mot de passe doit contenir au moins 3 caractères"),
-      }),
-    ),
-  });
+  // const addServiceForm = useForm({
+  //   defaultValues: {
+  //     nom: "",
+  //     prenom: "",
+  //     email: "",
+  //     password: "",
+  //   },
+  //   // Add validation rules
+  //   resolver: zodResolver(
+  //     z.object({
+  //       nom: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  //       prenom: z
+  //         .string()
+  //         .min(2, "Le prénom doit contenir au moins 2 caractères"),
+  //       email: z.string().email("Email invalide"),
+  //       password: z
+  //         .string()
+  //         .min(3, "Le mot de passe doit contenir au moins 3 caractères"),
+  //     }),
+  //   ),
+  // });
 
   return (
     <div className="flex h-full">
-      <div
-        className={`flex-1 space-y-4 p-8 pt-6 transition-all duration-300 ${
-          isEditing || isAddingServiceState ? "pr-[400px]" : ""
-        }`}
-      >
+      <div className={`flex-1 space-y-4 p-8 pt-6 transition-all duration-300`}>
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Services</h2>
           <NavLink to="/dashboard/services/ajouter">
@@ -60,8 +51,12 @@ export default function Services() {
             </Button>
           </NavLink>
         </div>
-
-        <ServicesTable />
+        <div className="flex-1 overflow-auto">
+          <ServicesTable />
+        </div>
+        <div className="mt-auto">
+          {<Paginator totalPages={totalPages} isPending={isPending} />}
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { getMyQuestions, getRecentQuestions } from "@/services/apiQuestions";
 import { ArrowDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { Outlet, ScrollRestoration, useSearchParams } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import img from "/src/images/Patients.png";
 
 import { useUser } from "../user/useUser";

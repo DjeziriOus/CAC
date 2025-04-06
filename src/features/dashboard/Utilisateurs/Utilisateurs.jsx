@@ -24,9 +24,6 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { addDoctorAPI, getUsers } from "@/services/apiQuestions";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 import UsersTable from "@/components/ui/UsersTable";
 import { useAddDoctor } from "./useAddDoctor";

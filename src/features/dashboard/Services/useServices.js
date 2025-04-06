@@ -1,7 +1,7 @@
-import { getServices, getQuestionsAPI } from "@/services/apiQuestions";
-import { QUESTIONS_PER_PAGE } from "@/utils/constants";
+import { refreshJwtExpiration } from "@/lib/utils";
+import { getServices } from "@/services/apiQuestions";
+import { SERVICES_PER_PAGE } from "@/utils/constants";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export function useServices() {
@@ -15,26 +15,29 @@ export function useServices() {
 
   const {
     isPending,
-    data: services,
+    data: { services, total } = {},
     error,
   } = useQuery({
     queryKey: ["services", page],
-    queryFn: () => getServices(page),
+    queryFn: async () => {
+      refreshJwtExpiration();
+      return await getServices(page);
+    },
   });
 
-  // const totalPages = Math.ceil(totalQuestions / QUESTIONS_PER_PAGE);
-  // const nextPage = page + 1;
-  // const prevPage = page - 1;
-  // if (page < totalPages)
-  //   queryClient.prefetchQuery({
-  //     queryKey: ["questions", questionsType, nextPage],
-  //     queryFn: () => getQuestionsAPI(questionsType, nextPage),
-  //   });
+  const totalPages = Math.ceil(total / SERVICES_PER_PAGE);
+  const nextPage = page + 1;
+  const prevPage = page - 1;
+  if (page < totalPages)
+    queryClient.prefetchQuery({
+      queryKey: ["services", nextPage],
+      queryFn: () => getServices(nextPage),
+    });
 
-  // if (page > 1)
-  //   queryClient.prefetchQuery({
-  //     queryKey: ["questions", questionsType, prevPage],
-  //     queryFn: () => getQuestionsAPI(questionsType, prevPage),
-  //   });
-  return { services, isPending, error };
+  if (page > 1)
+    queryClient.prefetchQuery({
+      queryKey: ["services", prevPage],
+      queryFn: () => getServices(prevPage),
+    });
+  return { services, isPending, error, total };
 }

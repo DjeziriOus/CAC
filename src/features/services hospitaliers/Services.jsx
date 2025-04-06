@@ -1,21 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
+
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CalendarIcon, MapPinIcon } from "lucide-react";
-import { API_URL } from "@/utils/constants";
-import { use } from "react";
+
+import { API_URL, SERVICES_PER_PAGE } from "@/utils/constants";
 import { useServices } from "@/features/dashboard/Services/useServices";
+import Paginator from "@/components/paginator-v2";
 
 const ServiceCard = ({ service }) => {
   return (
@@ -52,7 +49,7 @@ const ServiceCard = ({ service }) => {
 
 // Services List Component
 const ServicesList = () => {
-  const { services, isPending, error } = useServices();
+  const { services, isPending, error, total } = useServices();
   if (isPending) {
     return (
       <div className="flex min-h-[60dvh] items-center justify-center">
@@ -78,26 +75,27 @@ const ServicesList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-3">
-      {services.map((service) => (
-        <ServiceCard key={service.id} service={service} />
-      ))}
+    <div className="flex flex-col gap-10">
+      <div className="grid grid-cols-1 gap-16 md:grid-cols-2 lg:grid-cols-3">
+        {services.map((service) => (
+          <ServiceCard key={service.id} service={service} />
+        ))}
+      </div>
+      <Paginator
+        totalPages={Math.ceil(total / SERVICES_PER_PAGE)}
+        isPending={isPending}
+      />
     </div>
   );
 };
 
 export default function Services() {
-  const [activeTab, setActiveTab] = useState("national");
   // const [searchParams, setSearchParams] = useSearchParams();
   // useEffect(() => {
   //   // setActiveTab(searchParams.get("type") || "national");
   //   searchParams.get("type") || searchParams.set("type", "national");
   //   setSearchParams(searchParams);
   // }, [searchParams, setSearchParams]);
-  const [searchParams, setSearchParams] = useSearchParams({
-    page: "1",
-    type: "national",
-  });
 
   // useEffect(() => {
   //   const newParams = new URLSearchParams(searchParams);

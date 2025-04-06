@@ -36,7 +36,7 @@ export function useLogin() {
         "jwt",
         JSON.stringify({ token: token, exp: expirationTime }),
       );
-      queryClient.refetchQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       window.location.reload();
       setAuthError(null); // Clear any previous errors
     },

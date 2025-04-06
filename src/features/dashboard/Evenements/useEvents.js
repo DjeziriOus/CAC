@@ -1,41 +1,40 @@
-import { getEvents, getQuestionsAPI } from "@/services/apiQuestions";
-import { QUESTIONS_PER_PAGE } from "@/utils/constants";
+import { getEvents } from "@/services/apiQuestions";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-
+import { refreshJwtExpiration } from "@/lib/utils";
+import { EVENTS_PER_PAGE } from "@/utils/constants";
 export function useEvents() {
-  // useEffect(() => {
-
-  // }, []);
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
 
   const page = Number(searchParams.get("page")) || 1;
-  const type = searchParams.get("type") || "international";
+  const type = searchParams.get("type") || "national";
 
   const {
     isPending,
-    data: events,
+    data: { total, events } = {},
     error,
   } = useQuery({
-    queryKey: ["events", page, type],
-    queryFn: () => getEvents(page, type),
+    queryKey: ["events", type, page],
+    queryFn: async () => {
+      refreshJwtExpiration();
+      return await getEvents(page, type);
+    },
   });
+  const totalPages = Math.ceil(total / EVENTS_PER_PAGE);
+  const nextPage = page + 1;
+  const prevPage = page - 1;
+  if (page < totalPages)
+    queryClient.prefetchQuery({
+      queryKey: ["events", type, nextPage],
+      queryFn: () => getEvents(nextPage, type),
+    });
 
-  // const totalPages = Math.ceil(totalQuestions / QUESTIONS_PER_PAGE);
-  // const nextPage = page + 1;
-  // const prevPage = page - 1;
-  // if (page < totalPages)
-  //   queryClient.prefetchQuery({
-  //     queryKey: ["questions", questionsType, nextPage],
-  //     queryFn: () => getQuestionsAPI(questionsType, nextPage),
-  //   });
-
-  // if (page > 1)
-  //   queryClient.prefetchQuery({
-  //     queryKey: ["questions", questionsType, prevPage],
-  //     queryFn: () => getQuestionsAPI(questionsType, prevPage),
-  //   });
-  return { events, isPending, error };
+  if (page > 1)
+    queryClient.prefetchQuery({
+      queryKey: ["events", type, prevPage],
+      queryFn: () => getEvents(prevPage, type),
+    });
+  return { events, isPending, error, total };
 }

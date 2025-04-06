@@ -1,88 +1,27 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-
-import { useAddDoctor } from "@/features/dashboard/Utilisateurs/useAddDoctor";
 import EventsTable from "./Components/EventsTable";
 import { NavLink, useSearchParams } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Paginator from "@/components/paginator-v2";
+import { useTotalPagesEvents } from "./useTotalPagesEvents";
 
 export default function Evenements() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isAddingDoctorState, setIsAddingDoctorState] = useState(false);
-  const { isAddingDoctor, addDoctor } = useAddDoctor();
-  // const dispatch = useDispatch(); // const { status } = useSelector((state) => state.users);
-
-  const addDoctorForm = useForm({
-    defaultValues: {
-      nom: "",
-      prenom: "",
-      email: "",
-      password: "",
-    },
-    // Add validation rules
-    resolver: zodResolver(
-      z.object({
-        nom: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-        prenom: z
-          .string()
-          .min(2, "Le prénom doit contenir au moins 2 caractères"),
-        email: z.string().email("Email invalide"),
-        password: z
-          .string()
-          .min(3, "Le mot de passe doit contenir au moins 3 caractères"),
-      }),
-    ),
-  });
-
-  const onEditSubmit = (data) => {
-    console.log("Updated user:", { ...selectedUser, ...data });
-    // TODO: using react-query dispatch(fetchUsers());
-    setIsEditing(false);
-  };
-
-  const onAddDoctorSubmit = async (data) => {
-    try {
-      addDoctor(data);
-
-      addDoctorForm.reset();
-      setIsAddingDoctorState(false);
-    } catch (error) {
-      console.error("Failed to add doctor:", error);
-      addDoctorForm.setError("email", {
-        type: "server",
-        message: error.message || "Email déjà utilisé",
-      });
-    }
-  };
-
+  const { totalPages, isPending } = useTotalPagesEvents();
   return (
     <div className="flex h-full">
       <div
-        className={`flex-1 space-y-4 p-8 pt-6 transition-all duration-300 ${
-          isEditing || isAddingDoctorState ? "pr-[400px]" : ""
-        }`}
+        className={`flex h-full flex-1 flex-col gap-5 space-y-4 p-8 pt-6 transition-all duration-300`}
       >
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Événements</h2>
-
-          {/* <NavLink to="/dashboard/evenements/ajouter">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Ajouter un événement
-            </Button>
-          </NavLink> */}
           <Tabs
-            defaultValue={searchParams.get("type") || "international"}
+            defaultValue={searchParams.get("type") || "national"}
             onValueChange={(e) => {
               searchParams.set("type", e);
               searchParams.set("page", 1);
@@ -90,12 +29,12 @@ export default function Evenements() {
             }}
             className="w-[400px]"
           >
-            <TabsList className="grid h-12 w-full grid-cols-2">
-              <TabsTrigger value="international" className="h-10">
-                Événements Internationaux
-              </TabsTrigger>
+            <TabsList className="grid h-12 w-[120%] grid-cols-2">
               <TabsTrigger value="national" className="h-10">
                 Événements Nationaux
+              </TabsTrigger>
+              <TabsTrigger value="international" className="h-10">
+                Événements Internationaux
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -106,8 +45,12 @@ export default function Evenements() {
             </Button>
           </NavLink>
         </div>
-
-        <EventsTable />
+        <div className="flex-1 overflow-auto">
+          <EventsTable />
+        </div>
+        <div className="mt-auto">
+          {<Paginator totalPages={totalPages} isPending={isPending} />}
+        </div>
       </div>
     </div>
   );

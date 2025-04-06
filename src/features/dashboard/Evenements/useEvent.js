@@ -1,8 +1,7 @@
 import { getEvent } from "@/services/apiQuestions";
-import { API_URL } from "@/utils/constants";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-
+import { refreshJwtExpiration } from "@/lib/utils";
 export function useEvent() {
   const { eventId } = useParams();
 
@@ -12,7 +11,10 @@ export function useEvent() {
     error,
   } = useQuery({
     queryKey: ["event", Number(eventId)],
-    queryFn: () => getEvent(eventId),
+    queryFn: async () => {
+      refreshJwtExpiration();
+      return await getEvent(eventId);
+    },
   });
   // console.log(event);
   return { event, isPending, error };

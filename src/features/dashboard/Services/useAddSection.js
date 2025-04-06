@@ -1,28 +1,35 @@
-import { addSectionAPI as addSectionAPI } from "@/services/apiQuestions";
+import { addSectionAPI } from "@/services/apiQuestions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { refreshJwtExpiration } from "@/lib/utils";
 
 export function useAddSection() {
   const queryClient = useQueryClient();
-  const { isPending: isAddingSection, mutate: addSection } = useMutation({
-    mutationFn: (Section) => addSectionAPI(Section), // mutationFn: addSectionAPI,
+  const { isPending: isAddingSection, mutateAsync: addSection } = useMutation({
+    mutationFn: async (Section) => {
+      const { abortControllerRef } = Section;
+      abortControllerRef.current = new AbortController();
+      const { signal } = abortControllerRef.current;
+      return await addSectionAPI(Section, signal, "service");
+    }, // mutationFn: addSectionAPI,
     onSuccess: () => {
-      toast.success("Section ajoutéé", {
+      toast.success("Section ajoutée", {
         description: "La section a bien été ajoutée.",
       });
       queryClient.invalidateQueries({
-        queryKey: ["event"],
+        queryKey: ["service"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["events"],
+        queryKey: ["services"],
       });
-      queryClient.refetchQueries(["event"]);
+      queryClient.refetchQueries(["service"]);
+      refreshJwtExpiration();
     },
     onError: (error) => {
+      refreshJwtExpiration();
       toast.error("Erreur lors de l'ajout", {
         description: `${error.message}, 
-      Erreur lors de l'ajout de l'événement.`,
+      Erreur lors de l'ajout de la section.`,
       });
     },
   });

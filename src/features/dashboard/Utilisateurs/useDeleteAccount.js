@@ -1,3 +1,4 @@
+import { refreshJwtExpiration } from "@/lib/utils";
 import { deleteAccountAPI } from "@/services/apiQuestions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,8 +15,10 @@ export function useDeleteAccount() {
       queryClient.invalidateQueries({
         queryKey: ["users"],
       });
+      refreshJwtExpiration();
     },
     onError: (error) => {
+      refreshJwtExpiration();
       toast.error("Erreur lors de la suppression", {
         description: `${error.message}, 
       Erreur lors de la suppression du compte.`,
