@@ -16,7 +16,7 @@ import {
 import { useBlocker, useNavigate } from "react-router-dom";
 import { useDeleteSection } from "./useDeleteSection";
 
-import { AlertCircle, Plus, Trash, Edit } from "lucide-react";
+import { AlertCircle, Plus, Trash, Edit, FileText } from "lucide-react";
 import ImageUpload from "@/features/dashboard/Evenements/ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,8 +77,8 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
               <AlertDialogHeader>
                 <AlertDialogTitle>Supprimer la section</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Êtes-vous sûr de vouloir supprimer cette section? Cette action
-                  ne peut pas être annulée.
+                  Êtes-vous sûr de vouloir supprimer cette section? Cette action
+                  ne peut pas être annulée.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -96,21 +96,39 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
         </div>
       </div>
       <p className="text-muted-foreground">{section.paragraph}</p>
-      {section.images && section.images.length > 0 && (
+
+      {/* Display section media (images and files) */}
+      {section.media && section.media.length > 0 && (
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {section.images.map((image, idx) => (
-            <div key={idx} className="group relative aspect-video">
-              <img
-                // src={`${API_URL}${image.imgUrl}`}
-                src={
-                  image.imgUrl.startsWith("data:image/")
-                    ? image.imgUrl
-                    : `${API_URL}${image.imgUrl}`
-                }
-                // src={`${image.imgUrl}`}
-                alt={`Section image ${idx + 1}`}
-                className="h-full w-full rounded-md object-cover"
-              />
+          {section.media.map((item, idx) => (
+            <div key={idx} className="group relative">
+              {item.type === "image" ? (
+                <div className="aspect-video">
+                  <img
+                    src={
+                      item.url.startsWith("data:image/")
+                        ? item.url
+                        : item.url.startsWith("http")
+                          ? item.url
+                          : `${API_URL}${item.url}`
+                    }
+                    alt={`Section image ${idx + 1}`}
+                    className="h-full w-full rounded-md object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <FileText className="h-10 w-10 text-muted-foreground" />
+                    <span className="text-sm font-medium">
+                      {item.name || `Document ${idx + 1}`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.type.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -131,44 +149,77 @@ const SectionEditForm = ({
 }) => {
   const [title, setTitle] = useState(section.title || "");
   const [paragraph, setParagraph] = useState(section.paragraph || "");
-  const [images, setImages] = useState(section.images || []);
-  const [newImageFiles, setNewImageFiles] = useState([]);
+  const [media, setMedia] = useState(section.media || []);
+  const [newMediaFiles, setNewMediaFiles] = useState([]);
   const [errors, setErrors] = useState({});
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+
   useEffect(() => {
-    // console.log(
-    //   title,
-    //   paragraph,
-    //   images,
-    //   section,
-    //   title !== section.title,
-    //   paragraph !== section.paragraph,
-    // );
     const hasDiffrentContent =
       title !== section.title ||
       paragraph !== section.paragraph ||
-      images.every((s, i) => s?.imgUrl !== section?.images[i]?.imgUrl);
+      media.length !== (section.media?.length || 0);
     setIsDirtySection(hasDiffrentContent);
-  }, [title, paragraph, images, section, setIsDirtySection, isDirtySection]);
+  }, [title, paragraph, media, section, setIsDirtySection, isDirtySection]);
 
-  const handleAddImage = (newImage) => {
-    if (newImage instanceof File) {
-      setNewImageFiles((prev) => [...prev, newImage]);
+  const handleAddMedia = (newFile) => {
+    if (newFile instanceof File) {
+      setNewMediaFiles((prev) => [...prev, newFile]);
+
+      // Determine file type
+      const fileType =
+        newFile.type.split("/")[0] === "image"
+          ? "image"
+          : newFile.type.includes("pdf")
+            ? "pdf"
+            : newFile.type.includes("presentation")
+              ? "ppt"
+              : "file";
+
       // Create a temporary URL for preview
-      setImages((prev) => [...prev, { imgUrl: URL.createObjectURL(newImage) }]);
+      const url = URL.createObjectURL(newFile);
+
+      setMedia((prev) => [
+        ...prev,
+        {
+          type: fileType,
+          url: url,
+          name: newFile.name,
+        },
+      ]);
     } else {
-      setNewImageFiles((prev) => [...prev, newImage]);
-      setImages((prev) => [...prev, { imgUrl: newImage }]);
+      setNewMediaFiles((prev) => [...prev, newFile]);
+      setMedia((prev) => [
+        ...prev,
+        {
+          type:
+            typeof newFile === "string" &&
+            newFile.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+              ? "image"
+              : "file",
+          url: newFile,
+          name: newFile.split("/").pop(),
+        },
+      ]);
     }
   };
 
-  const handleRemoveImage = (indexToRemove) => {
-    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
-    // If we're removing a new image, also remove it from newImageFiles
-    if (indexToRemove >= section.images.length) {
-      const newImageIndex = indexToRemove - section.images.length;
-      setNewImageFiles((prev) =>
-        prev.filter((_, index) => index !== newImageIndex),
+  const handleRemoveMedia = (indexToRemove) => {
+    setMedia((prev) => prev.filter((_, index) => index !== indexToRemove));
+    // If we're removing a new file, also remove it from newMediaFiles
+    if (indexToRemove >= (section.media?.length || 0)) {
+      const newMediaIndex = indexToRemove - (section.media?.length || 0);
+      setNewMediaFiles((prev) =>
+        prev.filter((_, index) => index !== newMediaIndex),
       );
+    }
+  };
+
+  const handlePreviewFile = (url, type) => {
+    if (type === "pdf") {
+      setPreviewUrl(url);
+      setShowPreview(true);
     }
   };
 
@@ -187,25 +238,24 @@ const SectionEditForm = ({
         ...section,
         title,
         paragraph,
-        images,
+        media,
       },
-      newImageFiles,
+      newMediaFiles,
     );
 
     setIsDirtySection(false);
-    // window.location.reload();
   };
 
   // Clean up object URLs on unmount
   useEffect(() => {
     return () => {
-      images.forEach((image) => {
-        if (image.imgUrl.startsWith("blob:")) {
-          URL.revokeObjectURL(image.imgUrl);
+      media.forEach((item) => {
+        if (item.url && item.url.startsWith("blob:")) {
+          URL.revokeObjectURL(item.url);
         }
       });
     };
-  }, [images]);
+  }, [media]);
 
   return (
     <div className="space-y-4 rounded-lg border border-primary bg-card p-6">
@@ -229,7 +279,7 @@ const SectionEditForm = ({
               setErrors(newErrors);
             }
           }}
-          placeholder="Définissez le titre de la section"
+          placeholder="Définissez le titre de la section"
           className={cn(errors.title && "border-destructive")}
         />
         {errors.title && (
@@ -258,7 +308,7 @@ const SectionEditForm = ({
               setErrors(newErrors);
             }
           }}
-          placeholder="Définissez le contenu de la section"
+          placeholder="Définissez le contenu de la section"
           rows={4}
           className={cn(errors.paragraph && "border-destructive")}
         />
@@ -271,36 +321,64 @@ const SectionEditForm = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Section Images</Label>
+        <Label>Fichiers de la Section</Label>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {images.map((image, index) => (
-            <div key={index} className="group relative aspect-video">
-              <img
-                // src={`${API_URL}${image.imgUrl}`}
-                src={
-                  image.imgUrl.startsWith("data:image/")
-                    ? image.imgUrl
-                    : `${API_URL}${image.imgUrl}`
-                }
-                alt={`Image de la section ${index + 1}`}
-                className="h-full w-full rounded-md object-cover"
-              />
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() => handleRemoveImage(index)}
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
+          {media.map((item, index) => (
+            <div key={index} className="group relative">
+              {item.type === "image" ? (
+                <div className="aspect-video">
+                  <img
+                    src={item.url || "/placeholder.svg"}
+                    alt={`Image de la section ${index + 1}`}
+                    className="h-full w-full rounded-md object-cover"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
+                    onClick={() => handleRemoveMedia(index)}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex aspect-video flex-col items-center justify-center rounded-md border border-border bg-muted/20 p-4">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <FileText className="h-10 w-10 text-muted-foreground" />
+                    <span className="max-w-full truncate text-sm font-medium">
+                      {item.name || `Document ${index + 1}`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.type.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex gap-2">
+                    {item.type === "pdf" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePreviewFile(item.url, item.type)}
+                      >
+                        Aperçu
+                      </Button>
+                    )}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRemoveMedia(index)}
+                    >
+                      <Trash className="mr-1 h-4 w-4" />
+                      Supprimer
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
           <div className="aspect-video">
-            <ImageUpload
-              inputId={`section-image-upload-${images.length}`}
-              currentImage={null}
-              onImageSelect={handleAddImage}
-              onImageRemove={() => {}}
+            <FileUpload
+              inputId={`section-file-upload-${media.length}`}
+              onFileSelect={handleAddMedia}
               height="h-full"
               className="h-full"
             />
@@ -328,6 +406,162 @@ const SectionEditForm = ({
           )}
         </Button>
       </div>
+
+      {/* PDF Preview Dialog */}
+      <AlertDialog open={showPreview} onOpenChange={setShowPreview}>
+        <AlertDialogContent className="h-[80vh] max-w-4xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Aperçu du document</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="flex-1 overflow-hidden rounded-md">
+            <iframe
+              src={previewUrl}
+              className="h-full w-full"
+              title="Document Preview"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Fermer</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+// PDF Upload component
+const PdfUpload = ({
+  inputId,
+  currentPdf,
+  onPdfSelect,
+  onPdfRemove,
+  loading = false,
+}) => {
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === "application/pdf") {
+      onPdfSelect(file);
+    } else if (file) {
+      alert("Please select a PDF file");
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="space-y-2">
+      <input
+        type="file"
+        id={inputId}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="application/pdf"
+        className="hidden"
+      />
+
+      {currentPdf ? (
+        <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
+          <div className="flex items-center space-x-2">
+            <div className="rounded-md bg-primary/10 p-2">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium">
+                {typeof currentPdf === "string"
+                  ? currentPdf.split("/").pop()
+                  : currentPdf.name || "Document.pdf"}
+              </p>
+              <p className="text-sm text-muted-foreground">PDF Document</p>
+            </div>
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClick}
+              disabled={loading}
+            >
+              Change
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPdfRemove}
+              disabled={loading}
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={handleClick}
+          className="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border bg-background p-6 transition-colors hover:bg-accent/50"
+        >
+          <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
+          <p className="mb-1 font-medium">Click to upload PDF</p>
+          <p className="text-sm text-muted-foreground">
+            PDF files only (max 10MB)
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Create a new FileUpload component that supports multiple file types
+const FileUpload = ({
+  inputId,
+  onFileSelect,
+  height = "h-64",
+  className = "",
+  loading = false,
+}) => {
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      onFileSelect(file);
+    }
+  };
+
+  const handleClick = () => {
+    if (!loading) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      className={cn(
+        "flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border bg-background p-6 transition-colors hover:bg-accent/50",
+        height,
+        className,
+        loading && "cursor-not-allowed opacity-50",
+      )}
+    >
+      <input
+        type="file"
+        id={inputId}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+        className="hidden"
+        disabled={loading}
+      />
+      <div className="flex flex-col items-center gap-2 text-center">
+        <Plus className="h-8 w-8 text-muted-foreground" />
+        <p className="font-medium">Ajouter un fichier</p>
+        <p className="text-xs text-muted-foreground">
+          Images, PDF, PPT, DOC, XLS (max 10MB)
+        </p>
+      </div>
     </div>
   );
 };
@@ -351,6 +585,7 @@ export default function EditServiceForm({
   const [nom, setNom] = useState("");
   const [description, setDescription] = useState("");
   const [coverImage, setCoverImage] = useState(null);
+  const [pdfDocument, setPdfDocument] = useState(null);
   const [sections, setSections] = useState([]);
   const [isAddingSectionOpen, setIsAddingSectionOpen] = useState(false);
   const [editingSectionId, setEditingSectionId] = useState(null);
@@ -387,6 +622,7 @@ export default function EditServiceForm({
       setNom(initialService.nom);
       setDescription(initialService.description);
       setCoverImage(initialService.coverUrl);
+      setPdfDocument(initialService.pdfUrl || null);
       setSections(initialService.sections || []);
 
       // Store original values for dirty checking
@@ -394,6 +630,7 @@ export default function EditServiceForm({
         nom: initialService.nom,
         description: initialService.description,
         coverImage: initialService.coverUrl,
+        pdfDocument: initialService.pdfUrl || null,
         sections: initialService.sections || [],
       });
     }
@@ -407,12 +644,13 @@ export default function EditServiceForm({
       nom,
       description,
       coverImage,
+      pdfDocument,
       sections,
     };
 
     const hasChanges = !isEqual(currentValues, originalValues);
     setIsDirty(hasChanges);
-  }, [nom, description, coverImage, sections, originalValues]);
+  }, [nom, description, coverImage, pdfDocument, sections, originalValues]);
 
   // Handle beforeunload service
   useEffect(() => {
@@ -549,6 +787,7 @@ export default function EditServiceForm({
       nom,
       description,
       coverImage,
+      pdfDocument,
       sections,
       abortControllerRef,
     };
@@ -727,6 +966,25 @@ export default function EditServiceForm({
             loading={isUploading}
           />
           <ErrorMessage error={errors.coverImage} />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-2xl font-semibold text-primary">
+            Document PDF (Optionnel)
+          </Label>
+          <PdfUpload
+            inputId="pdf-document-upload"
+            currentPdf={pdfDocument}
+            onPdfSelect={(pdf) => {
+              setPdfDocument(pdf);
+            }}
+            onPdfRemove={() => setPdfDocument(null)}
+            loading={isUploading}
+          />
+          <p className="text-sm text-muted-foreground">
+            Ajoutez un document PDF pour fournir plus d&apos;informations sur ce
+            service
+          </p>
         </div>
       </div>
 

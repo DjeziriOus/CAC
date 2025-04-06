@@ -59,7 +59,9 @@ export default function ImageUpload({
               currentImage
                 ? currentImage?.startsWith("data:image")
                   ? currentImage
-                  : API_URL + currentImage
+                  : currentImage.startsWith("http")
+                    ? currentImage
+                    : API_URL + currentImage
                 : "placeholder.svg"
             }
             alt="Preview"
