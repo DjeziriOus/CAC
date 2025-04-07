@@ -48,16 +48,28 @@ export default function MultiFileUpload({
     const newFiles = selectedFiles.map((file) => {
       const fileType = file.type;
       let preview = "";
+      let type = "";
 
-      // Create preview URLs for images
+      // Determine file type and create preview URLs for images
       if (fileType.startsWith("image/")) {
         preview = URL.createObjectURL(file);
+        type = "image";
+      } else if (fileType.includes("pdf")) {
+        preview = URL.createObjectURL(file);
+        type = "pdf";
+      } else if (
+        fileType.includes("presentation") ||
+        fileType.includes("ppt")
+      ) {
+        type = "ppt";
+      } else {
+        type = "file";
       }
 
       return {
         file,
         preview,
-        type: fileType,
+        type,
       };
     });
 

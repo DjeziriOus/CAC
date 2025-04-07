@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileImage, FilePlus, Trash, Eye } from "lucide-react";
 import MultiFileUpload from "./multi-file-upload";
 import FilePreview from "./file-preview";
-import { API_URL } from "@/utils/constants";
 
 export default function SectionMediaManager({
   media = [],
@@ -27,14 +26,19 @@ export default function SectionMediaManager({
 
     // Create media items from the new files
     const newMediaItems = files.map((file) => {
-      const fileType =
-        file.type.split("/")[0] === "image"
-          ? "image"
-          : file.type.includes("pdf")
-            ? "pdf"
-            : file.type.includes("presentation")
-              ? "ppt"
-              : "file";
+      let fileType = "file";
+
+      // Determine file type based on MIME type
+      if (file.type.startsWith("image/")) {
+        fileType = "image";
+      } else if (file.type.includes("pdf")) {
+        fileType = "pdf";
+      } else if (
+        file.type.includes("presentation") ||
+        file.type.includes("ppt")
+      ) {
+        fileType = "ppt";
+      }
 
       return {
         type: fileType,
@@ -71,6 +75,10 @@ export default function SectionMediaManager({
     onMediaChange(updatedMedia);
   };
 
+  const handlePreviewFile = (item) => {
+    setPreviewItem(item);
+  };
+
   const filteredMedia =
     activeTab === "all"
       ? media
@@ -98,12 +106,7 @@ export default function SectionMediaManager({
                   {item.type === "image" ? (
                     <div className="h-12 w-12 overflow-hidden rounded-md">
                       <img
-                        src={
-                          item.url.startsWith("blob:") ||
-                          item.url.startsWith("http")
-                            ? item.url
-                            : API_URL + item.url || "/placeholder.svg"
-                        }
+                        src={item.url || "/placeholder.svg"}
                         alt={item.name}
                         className="h-full w-full object-cover"
                       />
@@ -126,7 +129,7 @@ export default function SectionMediaManager({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPreviewItem(item)}
+                      onClick={() => handlePreviewFile(item)}
                     >
                       <Eye className="mr-1 h-4 w-4" />
                       Aperçu
@@ -151,11 +154,7 @@ export default function SectionMediaManager({
             {filteredMedia.map((item, index) => (
               <div key={index} className="group relative aspect-video">
                 <img
-                  src={
-                    item.url.startsWith("blob:") || item.url.startsWith("http")
-                      ? item.url
-                      : API_URL + item.url || "/placeholder.svg"
-                  }
+                  src={item.url || "/placeholder.svg"}
                   alt={item.name}
                   className="h-full w-full rounded-md object-cover"
                 />
@@ -163,7 +162,7 @@ export default function SectionMediaManager({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPreviewItem(item)}
+                    onClick={() => handlePreviewFile(item)}
                   >
                     <Eye className="mr-1 h-4 w-4" />
                     Aperçu
@@ -203,7 +202,7 @@ export default function SectionMediaManager({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPreviewItem(item)}
+                    onClick={() => handlePreviewFile(item)}
                   >
                     <Eye className="mr-1 h-4 w-4" />
                     Aperçu
