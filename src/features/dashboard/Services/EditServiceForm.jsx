@@ -30,6 +30,8 @@ import { useAddSection } from "./useAddSection";
 import { Spinner } from "@/components/ui/Spinner";
 import SectionMediaManager from "./section-media-manager";
 
+// Define API_URL or import it from a config file
+
 // Validation helper
 const validateForm = (formData) => {
   const errors = {};
@@ -168,7 +170,7 @@ const SectionEditForm = ({
     if (section.images && section.images.length > 0) {
       return section.images.map((img) => ({
         type: "image",
-        url: img.imgUrl,
+        url: img.imgUrl.startsWith("http") ? img.imgUrl : API_URL + img.imgUrl,
         name: img.imgUrl.split("/").pop() || "Image",
       }));
     }
@@ -187,9 +189,7 @@ const SectionEditForm = ({
     setIsDirtySection(hasDiffrentContent);
   }, [title, paragraph, media, section, setIsDirtySection, isDirtySection]);
 
-  // Find the handleSaveSection function in the SectionEditForm component and replace it with this:
-
-  const handleSaveSection = async () => {
+  const handleSave = async () => {
     const errors = {};
     if (!title.trim()) errors.title = "Titre de la section est requis";
     if (!paragraph.trim())
@@ -200,22 +200,10 @@ const SectionEditForm = ({
       return;
     }
 
-    // Create a FormData object to send files
-    const formData = new FormData();
-
-    // Add section data
-    formData.append("id", section.id);
-    formData.append("sectionId", section.id);
-    formData.append("title", title);
-    formData.append("paragraph", paragraph);
-    formData.append("serviceId", section.serviceId);
-
-    // Add all files to upload
-    if (newMediaFiles && newMediaFiles.length > 0) {
-      newMediaFiles.forEach((file) => {
-        formData.append("files", file);
-      });
-    }
+    // Extract the actual File objects for upload
+    const filesToUpload = media
+      .filter((item) => item.file)
+      .map((item) => item.file);
 
     // Convert media back to images format if needed for API compatibility
     const updatedSection = {
@@ -229,7 +217,7 @@ const SectionEditForm = ({
         .map((img) => ({ imgUrl: img.url })),
     };
 
-    await onSave(updatedSection, formData);
+    await onSave(updatedSection, filesToUpload);
     setIsDirtySection(false);
   };
 
@@ -330,7 +318,7 @@ const SectionEditForm = ({
         </Button>
         <Button
           onClick={async () => {
-            await handleSaveSection();
+            await handleSave();
           }}
           disabled={isEditingSection || isDeletingSection || !isDirtySection}
         >
@@ -609,7 +597,7 @@ export default function EditServiceForm({
     }, [blocker, message]);
   }
   usePrompt(
-    "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+    "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
     isDirty || isDirtySection,
   );
 
@@ -1069,11 +1057,11 @@ export default function EditServiceForm({
       <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Changements non enregistrés</AlertDialogTitle>
+            <AlertDialogTitle>Changements non enregistrés</AlertDialogTitle>
             <AlertDialogDescription>
               {/* You have unsaved changes. Are you sure you want to leave this
               page? All your progress will be lost. */}
-              Vous avez des changements non enregistrés. Êtes-vous sûr de
+              Vous avez des changements non enregistrés. Êtes-vous sûr de
               vouloir quitter cette page? Tous vos progresses seront perdus.
             </AlertDialogDescription>
           </AlertDialogHeader>

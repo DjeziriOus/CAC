@@ -1,17 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import React from "react";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  FileImage,
-  FilePlus,
-  Trash,
-  Eye,
-  Upload,
-  FileText,
-  FileSpreadsheet,
-} from "lucide-react";
+import { FileImage, FilePlus, Trash, Eye, Upload } from "lucide-react";
 import FilePreview from "./file-preview";
 
 export default function SectionMediaManager({
@@ -22,9 +16,7 @@ export default function SectionMediaManager({
   const [activeTab, setActiveTab] = useState("all");
   const [previewItem, setPreviewItem] = useState(null);
   const [dragActive, setDragActive] = useState(false);
-  const fileInputRef = useRef(null);
-  // Keep track of all files that need to be uploaded
-  const [filesToUpload, setFilesToUpload] = useState([]);
+  const fileInputRef = React.useRef(null);
 
   const handleFiles = (files) => {
     if (!files) return;
@@ -46,18 +38,6 @@ export default function SectionMediaManager({
         file.type.includes("ppt")
       ) {
         fileType = "ppt";
-      } else if (
-        file.type.includes("spreadsheet") ||
-        file.type.includes("excel") ||
-        file.type.includes("xls")
-      ) {
-        fileType = "spreadsheet";
-      } else if (
-        file.type.includes("document") ||
-        file.type.includes("word") ||
-        file.type.includes("doc")
-      ) {
-        fileType = "document";
       }
 
       newMediaItems.push({
@@ -65,43 +45,17 @@ export default function SectionMediaManager({
         url: URL.createObjectURL(file),
         name: file.name,
         file: file, // Store the file for upload
-        size: file.size,
       });
 
       newFiles.push(file);
     });
 
-    // Keep all existing media items and add new ones
-    // Only filter out blob URLs that are no longer needed
-    const existingBlobUrls = media
-      .filter((item) => item.url.startsWith("blob:"))
-      .map((item) => item.url);
-
-    const newBlobUrls = newMediaItems.map((item) => item.url);
-
-    // Revoke any blob URLs that are no longer needed
-    existingBlobUrls.forEach((url) => {
-      if (!newBlobUrls.includes(url)) {
-        URL.revokeObjectURL(url);
-      }
-    });
-
-    // Combine existing media with new media
-    // Keep all server items and add new blob items
-    const updatedMedia = [
-      ...media.filter(
-        (item) =>
-          !item.url.startsWith("blob:") || newBlobUrls.includes(item.url),
-      ),
-      ...newMediaItems,
-    ];
-
-    // Update the files to upload list
-    const updatedFilesToUpload = [...filesToUpload, ...newFiles];
-    setFilesToUpload(updatedFilesToUpload);
+    // Update the media array with both existing and new items
+    const existingMedia = media.filter((item) => !item.url.startsWith("blob:"));
+    const updatedMedia = [...existingMedia, ...newMediaItems];
 
     onMediaChange(updatedMedia);
-    onNewFilesChange(updatedFilesToUpload);
+    onNewFilesChange(newFiles);
   };
 
   const handleDrag = (e) => {
@@ -144,61 +98,26 @@ export default function SectionMediaManager({
     // If it's a blob URL, revoke it
     if (removedItem.url.startsWith("blob:")) {
       URL.revokeObjectURL(removedItem.url);
-
-      // Also remove from filesToUpload if it's a new file
-      if (removedItem.file) {
-        const updatedFilesToUpload = filesToUpload.filter(
-          (file) =>
-            file.name !== removedItem.file?.name ||
-            file.size !== removedItem.file?.size,
-        );
-        setFilesToUpload(updatedFilesToUpload);
-        onNewFilesChange(updatedFilesToUpload);
-      }
     }
 
     onMediaChange(updatedMedia);
+
+    // Update the files list for upload
+    const filesToUpload = updatedMedia
+      .filter((item) => item.file)
+      .map((item) => item.file);
+
+    onNewFilesChange(filesToUpload);
   };
 
   const handlePreviewFile = (item) => {
     setPreviewItem(item);
   };
 
-  const getFileIcon = (type) => {
-    switch (type) {
-      case "pdf":
-        return <FileText className="h-8 w-8" />;
-      case "image":
-        return <FileImage className="h-8 w-8" />;
-      case "ppt":
-        return <FilePlus className="h-8 w-8" />;
-      case "spreadsheet":
-        return <FileSpreadsheet className="h-8 w-8" />;
-      default:
-        return <FilePlus className="h-8 w-8" />;
-    }
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return (
-      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-    );
-  };
-
   const filteredMedia =
     activeTab === "all"
       ? media
       : media.filter((item) => item.type === activeTab);
-
-  const handleNewFilesChange = (files) => {
-    // Update the files to upload list
-    setFilesToUpload(files);
-    onNewFilesChange(files);
-  };
 
   return (
     <div className="space-y-4">
@@ -237,26 +156,11 @@ export default function SectionMediaManager({
       {media.length > 0 && (
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="all">Tous ({media.length})</TabsTrigger>
-            <TabsTrigger value="image">
-              Images ({media.filter((item) => item.type === "image").length})
-            </TabsTrigger>
-            <TabsTrigger value="pdf">
-              PDF ({media.filter((item) => item.type === "pdf").length})
-            </TabsTrigger>
-            <TabsTrigger value="ppt">
-              Présentations (
-              {media.filter((item) => item.type === "ppt").length})
-            </TabsTrigger>
-            <TabsTrigger value="file">
-              Autres (
-              {
-                media.filter(
-                  (item) => !["image", "pdf", "ppt"].includes(item.type),
-                ).length
-              }
-              )
-            </TabsTrigger>
+            <TabsTrigger value="all">Tous</TabsTrigger>
+            <TabsTrigger value="image">Images</TabsTrigger>
+            <TabsTrigger value="pdf">PDF</TabsTrigger>
+            <TabsTrigger value="ppt">Présentations</TabsTrigger>
+            <TabsTrigger value="file">Autres</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-4">
@@ -267,14 +171,23 @@ export default function SectionMediaManager({
                   className="group relative rounded-md border border-border bg-card p-4"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted">
-                      {getFileIcon(item.type)}
-                    </div>
+                    {item.type === "image" ? (
+                      <div className="h-12 w-12 overflow-hidden rounded-md">
+                        <img
+                          src={item.url || "/placeholder.svg"}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted">
+                        <FileImage className="h-8 w-8" />
+                      </div>
+                    )}
                     <div className="flex-1 overflow-hidden">
                       <p className="truncate font-medium">{item.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {item.type.toUpperCase()}
-                        {item.size && ` • ${formatFileSize(item.size)}`}
                       </p>
                     </div>
                   </div>
@@ -345,14 +258,11 @@ export default function SectionMediaManager({
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted">
-                      <FileText className="h-8 w-8" />
+                      <FileImage className="h-8 w-8" />
                     </div>
                     <div className="flex-1 overflow-hidden">
                       <p className="truncate font-medium">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        PDF
-                        {item.size && ` • ${formatFileSize(item.size)}`}
-                      </p>
+                      <p className="text-xs text-muted-foreground">PDF</p>
                     </div>
                   </div>
 
@@ -394,7 +304,6 @@ export default function SectionMediaManager({
                       <p className="truncate font-medium">{item.name}</p>
                       <p className="text-xs text-muted-foreground">
                         Présentation
-                        {item.size && ` • ${formatFileSize(item.size)}`}
                       </p>
                     </div>
                   </div>
@@ -427,10 +336,7 @@ export default function SectionMediaManager({
                     </div>
                     <div className="flex-1 overflow-hidden">
                       <p className="truncate font-medium">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Fichier
-                        {item.size && ` • ${formatFileSize(item.size)}`}
-                      </p>
+                      <p className="text-xs text-muted-foreground">Fichier</p>
                     </div>
                   </div>
 
