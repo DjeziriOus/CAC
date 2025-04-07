@@ -1040,6 +1040,7 @@ export async function getService(id) {
 }
 
 export async function updateService(serviceData, signal) {
+  console.log(serviceData);
   const formData = new FormData();
   formData.append("id", serviceData.id);
   formData.append("nom", serviceData.nom);
@@ -1055,8 +1056,8 @@ export async function updateService(serviceData, signal) {
   }
 
   try {
-    // const json = JSON.stringify(Object.fromEntries(formData.entries()));
-    // console.log(json);
+    const json = JSON.stringify(Object.fromEntries(formData.entries()));
+    console.log(json);
     const response = await fetch(`${API_URL}/service/updateService`, {
       method: "PATCH",
       headers: {

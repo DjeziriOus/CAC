@@ -168,10 +168,10 @@ const SectionEditForm = ({
 
     // Convert old images format to new media format
     if (section.images && section.images.length > 0) {
-      return section.images.map((img) => ({
+      return section.images.map((img, idx) => ({
         type: "image",
         url: img.imgUrl.startsWith("http") ? img.imgUrl : API_URL + img.imgUrl,
-        name: img.imgUrl.split("/").pop() || "Image",
+        name: img.imgUrl.split("/").pop() || `Image-${idx + 1}`,
       }));
     }
 
@@ -240,6 +240,22 @@ const SectionEditForm = ({
       );
       return [...newMediaItems, ...prevMedia];
     });
+  };
+
+  const handleAddMedia = (newFiles) => {
+    setMedia((prevMedia) => [...prevMedia, ...newFiles]);
+    setNewMediaFiles((prevFiles) => [...prevFiles, ...newFiles]);
+  };
+
+  const handleRemoveMedia = (indexToRemove) => {
+    setMedia((prev) => prev.filter((_, index) => index !== indexToRemove));
+    // If we're removing a new image, also remove it from newMediaFiles
+    if (indexToRemove >= section.images.length) {
+      const newMediaIndex = indexToRemove - section.images.length;
+      setNewMediaFiles((prev) =>
+        prev.filter((_, index) => index !== newMediaIndex),
+      );
+    }
   };
 
   const handleNewFilesChange = (files) => {
@@ -315,6 +331,8 @@ const SectionEditForm = ({
           media={media}
           onMediaChange={handleMediaChange}
           onNewFilesChange={handleNewFilesChange}
+          onMediaAdd={handleAddMedia}
+          onMediaRemove={handleRemoveMedia}
         />
       </div>
 
@@ -498,7 +516,7 @@ export default function EditServiceForm({
   const [nom, setNom] = useState("");
   const [description, setDescription] = useState("");
   const [coverImage, setCoverImage] = useState(null);
-  const [pdfDocument, setPdfDocument] = useState(null);
+  // const [pdfDocument, setPdfDocument] = useState(null);
   const [sections, setSections] = useState([]);
   const [isAddingSectionOpen, setIsAddingSectionOpen] = useState(false);
   const [editingSectionId, setEditingSectionId] = useState(null);
@@ -535,7 +553,7 @@ export default function EditServiceForm({
       setNom(initialService.nom);
       setDescription(initialService.description);
       setCoverImage(initialService.coverUrl);
-      setPdfDocument(initialService.pdfUrl || null);
+      // setPdfDocument(initialService.pdfUrl || null);
       setSections(initialService.sections || []);
 
       // Store original values for dirty checking
@@ -557,13 +575,21 @@ export default function EditServiceForm({
       nom,
       description,
       coverImage,
-      pdfDocument,
+      // pdfDocument,
       sections,
     };
 
     const hasChanges = !isEqual(currentValues, originalValues);
     setIsDirty(hasChanges);
-  }, [nom, description, coverImage, pdfDocument, sections, originalValues]);
+  }, [
+    nom,
+    description,
+    coverImage,
+    // ,
+    // pdfDocument
+    sections,
+    originalValues,
+  ]);
 
   // Handle beforeunload service
   useEffect(() => {
@@ -700,7 +726,7 @@ export default function EditServiceForm({
       nom,
       description,
       coverImage,
-      pdfDocument,
+      // pdfDocument,
       sections,
       abortControllerRef,
     };
@@ -881,7 +907,7 @@ export default function EditServiceForm({
           <ErrorMessage error={errors.coverImage} />
         </div>
 
-        <div className="space-y-2">
+        {/*         <div className="space-y-2">
           <Label className="text-2xl font-semibold text-primary">
             Document PDF (Optionnel)
           </Label>
@@ -898,7 +924,7 @@ export default function EditServiceForm({
             Ajoutez un document PDF pour fournir plus d&apos;informations sur ce
             service
           </p>
-        </div>
+        </div> */}
       </div>
 
       <div
