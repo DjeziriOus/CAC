@@ -20,6 +20,7 @@ export function useUpdateSection() {
     }) => {
       abortControllerRef.current = new AbortController();
       const { signal } = abortControllerRef.current;
+      console.log(updateSection);
       return await updateSectionAPI(
         originalSection,
         updatedSection,

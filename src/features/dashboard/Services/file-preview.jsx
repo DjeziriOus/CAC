@@ -47,8 +47,6 @@ export default function FilePreview({
         }
         // If it's a relative path, prepend API_URL
         else {
-          // Assuming API_URL is imported or defined
-          // const apiUrl = window.API_URL || "";
           setPdfUrl(`${API_URL}${url}`);
         }
       }

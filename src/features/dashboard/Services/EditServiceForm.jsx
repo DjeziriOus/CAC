@@ -30,90 +30,6 @@ import { useAddSection } from "./useAddSection";
 import { Spinner } from "@/components/ui/Spinner";
 import SectionMediaManager from "./section-media-manager";
 
-// Define API_URL or import it from a config file
-// PDF Upload component
-const PdfUpload = ({
-  inputId,
-  currentPdf,
-  onPdfSelect,
-  onPdfRemove,
-  loading = false,
-}) => {
-  const fileInputRef = useRef(null);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === "application/pdf") {
-      onPdfSelect(file);
-    } else if (file) {
-      alert("Please select a PDF file");
-    }
-  };
-
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  return (
-    <div className="space-y-2">
-      <input
-        type="file"
-        id={inputId}
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept="application/pdf"
-        className="hidden"
-      />
-
-      {currentPdf ? (
-        <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
-          <div className="flex items-center space-x-2">
-            <div className="rounded-md bg-primary/10 p-2">
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium">
-                {typeof currentPdf === "string"
-                  ? currentPdf.split("/").pop()
-                  : currentPdf.name || "Document.pdf"}
-              </p>
-              <p className="text-sm text-muted-foreground">PDF Document</p>
-            </div>
-          </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleClick}
-              disabled={loading}
-            >
-              Change
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onPdfRemove}
-              disabled={loading}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div
-          onClick={handleClick}
-          className="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border bg-background p-6 transition-colors hover:bg-accent/50"
-        >
-          <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
-          <p className="mb-1 font-medium">Click to upload PDF</p>
-          <p className="text-sm text-muted-foreground">
-            PDF files only (max 10MB)
-          </p>
-        </div>
-      )}
-    </div>
-  );
-};
 // Validation helper
 const validateForm = (formData) => {
   const errors = {};
@@ -282,6 +198,11 @@ const SectionEditForm = ({
       return;
     }
 
+    // Extract the actual File objects for upload
+    const filesToUpload = media
+      .filter((item) => item.file)
+      .map((item) => item.file);
+
     // Convert media back to images format if needed for API compatibility
     const updatedSection = {
       ...section,
@@ -294,7 +215,7 @@ const SectionEditForm = ({
         .map((img) => ({ imgUrl: img.url })),
     };
 
-    await onSave(updatedSection, newMediaFiles);
+    await onSave(updatedSection, filesToUpload);
     setIsDirtySection(false);
   };
 
@@ -409,6 +330,90 @@ const SectionEditForm = ({
           )}
         </Button>
       </div>
+    </div>
+  );
+};
+
+// PDF Upload component
+const PdfUpload = ({
+  inputId,
+  currentPdf,
+  onPdfSelect,
+  onPdfRemove,
+  loading = false,
+}) => {
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === "application/pdf") {
+      onPdfSelect(file);
+    } else if (file) {
+      alert("Please select a PDF file");
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="space-y-2">
+      <input
+        type="file"
+        id={inputId}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="application/pdf"
+        className="hidden"
+      />
+
+      {currentPdf ? (
+        <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
+          <div className="flex items-center space-x-2">
+            <div className="rounded-md bg-primary/10 p-2">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium">
+                {typeof currentPdf === "string"
+                  ? currentPdf.split("/").pop()
+                  : currentPdf.name || "Document.pdf"}
+              </p>
+              <p className="text-sm text-muted-foreground">PDF Document</p>
+            </div>
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClick}
+              disabled={loading}
+            >
+              Change
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPdfRemove}
+              disabled={loading}
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={handleClick}
+          className="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border bg-background p-6 transition-colors hover:bg-accent/50"
+        >
+          <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
+          <p className="mb-1 font-medium">Click to upload PDF</p>
+          <p className="text-sm text-muted-foreground">
+            PDF files only (max 10MB)
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -590,7 +595,7 @@ export default function EditServiceForm({
     }, [blocker, message]);
   }
   usePrompt(
-    "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+    "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
     isDirty || isDirtySection,
   );
 
@@ -868,7 +873,7 @@ export default function EditServiceForm({
           <ErrorMessage error={errors.coverImage} />
         </div>
 
-        {/* <div className="space-y-2">
+        <div className="space-y-2">
           <Label className="text-2xl font-semibold text-primary">
             Document PDF (Optionnel)
           </Label>
@@ -885,7 +890,7 @@ export default function EditServiceForm({
             Ajoutez un document PDF pour fournir plus d&apos;informations sur ce
             service
           </p>
-        </div> */}
+        </div>
       </div>
 
       <div
@@ -1050,11 +1055,11 @@ export default function EditServiceForm({
       <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Changements non enregistrés</AlertDialogTitle>
+            <AlertDialogTitle>Changements non enregistrés</AlertDialogTitle>
             <AlertDialogDescription>
               {/* You have unsaved changes. Are you sure you want to leave this
               page? All your progress will be lost. */}
-              Vous avez des changements non enregistrés. Êtes-vous sûr de
+              Vous avez des changements non enregistrés. Êtes-vous sûr de
               vouloir quitter cette page? Tous vos progresses seront perdus.
             </AlertDialogDescription>
           </AlertDialogHeader>
