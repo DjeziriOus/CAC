@@ -28,407 +28,9 @@ import { useUpdateSection } from "./useUpdateSection";
 import { useUpdateService } from "./useUpdateService";
 import { useAddSection } from "./useAddSection";
 import { Spinner } from "@/components/ui/Spinner";
+import SectionMediaManager from "./section-media-manager";
 
 // Define API_URL or import it from a config file
-
-// Validation helper
-const validateForm = (formData) => {
-  const errors = {};
-
-  if (!formData.nom.trim()) {
-    errors.nom = "Titre du service est requis";
-  }
-
-  if (!formData.description.trim()) {
-    errors.description = "Service description is required";
-  }
-
-  if (!formData.coverImage) {
-    errors.coverImage = "Cover image is required";
-  }
-
-  return errors;
-};
-
-// Section component with edit and delete functionality
-const SectionItem = ({ section, onEdit, onDelete }) => {
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-  return (
-    <div className="space-y-4 rounded-lg border border-border p-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold">{section.title}</h3>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => onEdit(section)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Modifier
-          </Button>
-          <AlertDialog
-            open={showDeleteDialog}
-            onOpenChange={setShowDeleteDialog}
-          >
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm">
-                <Trash className="mr-2 h-4 w-4" />
-                Supprimer
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Supprimer la section</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Êtes-vous sûr de vouloir supprimer cette section? Cette action
-                  ne peut pas être annulée.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    return onDelete(section.id);
-                  }}
-                >
-                  Supprimer
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-      <p className="text-muted-foreground">{section.paragraph}</p>
-
-      {/* Display section media (images and files) */}
-      {section.media && section.media.length > 0 && (
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {section.media.map((item, idx) => (
-            <div key={idx} className="group relative">
-              {item.type === "image" ? (
-                <div className="aspect-video">
-                  <img
-                    src={
-                      item.url.startsWith("data:image/")
-                        ? item.url
-                        : item.url.startsWith("http")
-                          ? item.url
-                          : `${API_URL}${item.url}`
-                    }
-                    alt={`Section image ${idx + 1}`}
-                    className="h-full w-full rounded-md object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4">
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <FileText className="h-10 w-10 text-muted-foreground" />
-                    <span className="text-sm font-medium">
-                      {item.name || `Document ${idx + 1}`}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {item.type.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Section edit form with multiple image support
-const SectionEditForm = ({
-  section, //backend's pov of the section
-  onSave,
-  onCancel,
-  isEditingSection,
-  isDeletingSection,
-  setIsDirtySection,
-  isDirtySection,
-}) => {
-  const [title, setTitle] = useState(section.title || "");
-  const [paragraph, setParagraph] = useState(section.paragraph || "");
-  const [media, setMedia] = useState(section.media || []);
-  const [newMediaFiles, setNewMediaFiles] = useState([]);
-  const [errors, setErrors] = useState({});
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
-
-  useEffect(() => {
-    const hasDiffrentContent =
-      title !== section.title ||
-      paragraph !== section.paragraph ||
-      media.length !== (section.media?.length || 0);
-    setIsDirtySection(hasDiffrentContent);
-  }, [title, paragraph, media, section, setIsDirtySection, isDirtySection]);
-
-  const handleAddMedia = (newFile) => {
-    if (newFile instanceof File) {
-      setNewMediaFiles((prev) => [...prev, newFile]);
-
-      // Determine file type
-      const fileType =
-        newFile.type.split("/")[0] === "image"
-          ? "image"
-          : newFile.type.includes("pdf")
-            ? "pdf"
-            : newFile.type.includes("presentation")
-              ? "ppt"
-              : "file";
-
-      // Create a temporary URL for preview
-      const url = URL.createObjectURL(newFile);
-
-      setMedia((prev) => [
-        ...prev,
-        {
-          type: fileType,
-          url: url,
-          name: newFile.name,
-        },
-      ]);
-    } else {
-      setNewMediaFiles((prev) => [...prev, newFile]);
-      setMedia((prev) => [
-        ...prev,
-        {
-          type:
-            typeof newFile === "string" &&
-            newFile.match(/\.(jpg|jpeg|png|gif|webp)$/i)
-              ? "image"
-              : "file",
-          url: newFile,
-          name: newFile.split("/").pop(),
-        },
-      ]);
-    }
-  };
-
-  const handleRemoveMedia = (indexToRemove) => {
-    setMedia((prev) => prev.filter((_, index) => index !== indexToRemove));
-    // If we're removing a new file, also remove it from newMediaFiles
-    if (indexToRemove >= (section.media?.length || 0)) {
-      const newMediaIndex = indexToRemove - (section.media?.length || 0);
-      setNewMediaFiles((prev) =>
-        prev.filter((_, index) => index !== newMediaIndex),
-      );
-    }
-  };
-
-  const handlePreviewFile = (url, type) => {
-    if (type === "pdf") {
-      setPreviewUrl(url);
-      setShowPreview(true);
-    }
-  };
-
-  const handleSave = async () => {
-    const errors = {};
-    if (!title.trim()) errors.title = "Titre de la section est requis";
-    if (!paragraph.trim())
-      errors.paragraph = "Contenu de la section est requis";
-
-    if (Object.keys(errors).length > 0) {
-      setErrors(errors);
-      return;
-    }
-    await onSave(
-      {
-        ...section,
-        title,
-        paragraph,
-        media,
-      },
-      newMediaFiles,
-    );
-
-    setIsDirtySection(false);
-  };
-
-  // Clean up object URLs on unmount
-  useEffect(() => {
-    return () => {
-      media.forEach((item) => {
-        if (item.url && item.url.startsWith("blob:")) {
-          URL.revokeObjectURL(item.url);
-        }
-      });
-    };
-  }, [media]);
-
-  return (
-    <div className="space-y-4 rounded-lg border border-primary bg-card p-6">
-      <h3 className="text-lg font-medium">Modifier la Section</h3>
-
-      <div className="space-y-2">
-        <Label
-          htmlFor="section-title"
-          className={cn(errors.title && "text-destructive")}
-        >
-          Titre de la Section *
-        </Label>
-        <Input
-          id="section-title"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            if (errors.title) {
-              const newErrors = { ...errors };
-              delete newErrors.title;
-              setErrors(newErrors);
-            }
-          }}
-          placeholder="Définissez le titre de la section"
-          className={cn(errors.title && "border-destructive")}
-        />
-        {errors.title && (
-          <div className="flex items-center gap-2 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4" />
-            <span>{errors.title}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label
-          htmlFor="section-paragraph"
-          className={cn(errors.paragraph && "text-destructive")}
-        >
-          Contenu de la Section *
-        </Label>
-        <Textarea
-          id="section-paragraph"
-          value={paragraph}
-          onChange={(e) => {
-            setParagraph(e.target.value);
-            if (errors.paragraph) {
-              const newErrors = { ...errors };
-              delete newErrors.paragraph;
-              setErrors(newErrors);
-            }
-          }}
-          placeholder="Définissez le contenu de la section"
-          rows={4}
-          className={cn(errors.paragraph && "border-destructive")}
-        />
-        {errors.paragraph && (
-          <div className="flex items-center gap-2 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4" />
-            <span>{errors.paragraph}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label>Fichiers de la Section</Label>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {media.map((item, index) => (
-            <div key={index} className="group relative">
-              {item.type === "image" ? (
-                <div className="aspect-video">
-                  <img
-                    src={item.url || "/placeholder.svg"}
-                    alt={`Image de la section ${index + 1}`}
-                    className="h-full w-full rounded-md object-cover"
-                  />
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
-                    onClick={() => handleRemoveMedia(index)}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex aspect-video flex-col items-center justify-center rounded-md border border-border bg-muted/20 p-4">
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <FileText className="h-10 w-10 text-muted-foreground" />
-                    <span className="max-w-full truncate text-sm font-medium">
-                      {item.name || `Document ${index + 1}`}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {item.type.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="mt-2 flex gap-2">
-                    {item.type === "pdf" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePreviewFile(item.url, item.type)}
-                      >
-                        Aperçu
-                      </Button>
-                    )}
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleRemoveMedia(index)}
-                    >
-                      <Trash className="mr-1 h-4 w-4" />
-                      Supprimer
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-          <div className="aspect-video">
-            <FileUpload
-              inputId={`section-file-upload-${media.length}`}
-              onFileSelect={handleAddMedia}
-              height="h-full"
-              className="h-full"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 flex justify-end space-x-2">
-        <Button variant="outline" onClick={onCancel}>
-          Annuler
-        </Button>
-        <Button
-          onClick={async () => {
-            await handleSave();
-          }}
-          disabled={isEditingSection || isDeletingSection || !isDirtySection}
-        >
-          {isEditingSection || isDeletingSection ? (
-            <>
-              <Spinner className="flex text-white"></Spinner>
-              Sauvegarde en cours...
-            </>
-          ) : (
-            "Sauvegarder"
-          )}
-        </Button>
-      </div>
-
-      {/* PDF Preview Dialog */}
-      <AlertDialog open={showPreview} onOpenChange={setShowPreview}>
-        <AlertDialogContent className="h-[80vh] max-w-4xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Aperçu du document</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div className="flex-1 overflow-hidden rounded-md">
-            <iframe
-              src={previewUrl}
-              className="h-full w-full"
-              title="Document Preview"
-            />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Fermer</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-};
-
 // PDF Upload component
 const PdfUpload = ({
   inputId,
@@ -509,6 +111,304 @@ const PdfUpload = ({
           </p>
         </div>
       )}
+    </div>
+  );
+};
+// Validation helper
+const validateForm = (formData) => {
+  const errors = {};
+
+  if (!formData.nom.trim()) {
+    errors.nom = "Titre du service est requis";
+  }
+
+  if (!formData.description.trim()) {
+    errors.description = "Service description is required";
+  }
+
+  if (!formData.coverImage) {
+    errors.coverImage = "Cover image is required";
+  }
+
+  return errors;
+};
+
+// Section component with edit and delete functionality
+const SectionItem = ({ section, onEdit, onDelete }) => {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // Convert legacy images to media format if needed
+  const sectionMedia =
+    section.media ||
+    (section.images && section.images.length > 0
+      ? section.images.map((img) => ({
+          type: "image",
+          url: img.imgUrl,
+          name: img.imgUrl.split("/").pop() || "Image",
+        }))
+      : []);
+
+  return (
+    <div className="space-y-4 rounded-lg border border-border p-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-semibold">{section.title}</h3>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => onEdit(section)}>
+            <Edit className="mr-2 h-4 w-4" />
+            Modifier
+          </Button>
+          <AlertDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+          >
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm">
+                <Trash className="mr-2 h-4 w-4" />
+                Supprimer
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer la section</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Êtes-vous sûr de vouloir supprimer cette section? Cette action
+                  ne peut pas être annulée.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    return onDelete(section.id);
+                  }}
+                >
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+      <p className="text-muted-foreground">{section.paragraph}</p>
+
+      {/* Display section media (images and files) */}
+      {sectionMedia && sectionMedia.length > 0 && (
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sectionMedia.map((item, idx) => (
+            <div key={idx} className="group relative">
+              {item.type === "image" ? (
+                <div className="aspect-video">
+                  <img
+                    src={
+                      item.url.startsWith("data:image/")
+                        ? item.url
+                        : item.url.startsWith("http")
+                          ? item.url
+                          : `${API_URL}${item.url}`
+                    }
+                    alt={`Section image ${idx + 1}`}
+                    className="h-full w-full rounded-md object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <FileText className="h-10 w-10 text-muted-foreground" />
+                    <span className="text-sm font-medium">
+                      {item.name || `Document ${idx + 1}`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.type.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Section edit form with multiple file support
+const SectionEditForm = ({
+  section, //backend's pov of the section
+  onSave,
+  onCancel,
+  isEditingSection,
+  isDeletingSection,
+  setIsDirtySection,
+  isDirtySection,
+}) => {
+  const [title, setTitle] = useState(section.title || "");
+  const [paragraph, setParagraph] = useState(section.paragraph || "");
+
+  // Convert legacy images array to media format if needed
+  const [media, setMedia] = useState(() => {
+    if (section.media) return section.media;
+
+    // Convert old images format to new media format
+    if (section.images && section.images.length > 0) {
+      return section.images.map((img) => ({
+        type: "image",
+        url: img.imgUrl,
+        name: img.imgUrl.split("/").pop() || "Image",
+      }));
+    }
+
+    return [];
+  });
+
+  const [newMediaFiles, setNewMediaFiles] = useState([]);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const hasDiffrentContent =
+      title !== section.title ||
+      paragraph !== section.paragraph ||
+      media.length !== (section.media?.length || section.images?.length || 0);
+    setIsDirtySection(hasDiffrentContent);
+  }, [title, paragraph, media, section, setIsDirtySection, isDirtySection]);
+
+  const handleSave = async () => {
+    const errors = {};
+    if (!title.trim()) errors.title = "Titre de la section est requis";
+    if (!paragraph.trim())
+      errors.paragraph = "Contenu de la section est requis";
+
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      return;
+    }
+
+    // Convert media back to images format if needed for API compatibility
+    const updatedSection = {
+      ...section,
+      title,
+      paragraph,
+      media,
+      // Keep images for backward compatibility
+      images: media
+        .filter((item) => item.type === "image")
+        .map((img) => ({ imgUrl: img.url })),
+    };
+
+    await onSave(updatedSection, newMediaFiles);
+    setIsDirtySection(false);
+  };
+
+  // Clean up object URLs on unmount
+  useEffect(() => {
+    return () => {
+      media.forEach((item) => {
+        if (item.url && item.url.startsWith("blob:")) {
+          URL.revokeObjectURL(item.url);
+        }
+      });
+    };
+  }, [media]);
+
+  const handleMediaChange = (updatedMedia) => {
+    setMedia(updatedMedia);
+  };
+
+  const handleNewFilesChange = (files) => {
+    setNewMediaFiles(files);
+  };
+
+  return (
+    <div className="space-y-4 rounded-lg border border-primary bg-card p-6">
+      <h3 className="text-lg font-medium">Modifier la Section</h3>
+
+      <div className="space-y-2">
+        <Label
+          htmlFor="section-title"
+          className={cn(errors.title && "text-destructive")}
+        >
+          Titre de la Section *
+        </Label>
+        <Input
+          id="section-title"
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            if (errors.title) {
+              const newErrors = { ...errors };
+              delete newErrors.title;
+              setErrors(newErrors);
+            }
+          }}
+          placeholder="Définissez le titre de la section"
+          className={cn(errors.title && "border-destructive")}
+        />
+        {errors.title && (
+          <div className="flex items-center gap-2 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span>{errors.title}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label
+          htmlFor="section-paragraph"
+          className={cn(errors.paragraph && "text-destructive")}
+        >
+          Contenu de la Section *
+        </Label>
+        <Textarea
+          id="section-paragraph"
+          value={paragraph}
+          onChange={(e) => {
+            setParagraph(e.target.value);
+            if (errors.paragraph) {
+              const newErrors = { ...errors };
+              delete newErrors.paragraph;
+              setErrors(newErrors);
+            }
+          }}
+          placeholder="Définissez le contenu de la section"
+          rows={4}
+          className={cn(errors.paragraph && "border-destructive")}
+        />
+        {errors.paragraph && (
+          <div className="flex items-center gap-2 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span>{errors.paragraph}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label>Fichiers de la Section</Label>
+        <SectionMediaManager
+          media={media}
+          onMediaChange={handleMediaChange}
+          onNewFilesChange={handleNewFilesChange}
+        />
+      </div>
+
+      <div className="mt-4 flex justify-end space-x-2">
+        <Button variant="outline" onClick={onCancel}>
+          Annuler
+        </Button>
+        <Button
+          onClick={async () => {
+            await handleSave();
+          }}
+          disabled={isEditingSection || isDeletingSection || !isDirtySection}
+        >
+          {isEditingSection || isDeletingSection ? (
+            <>
+              <Spinner className="flex text-white"></Spinner>
+              Sauvegarde en cours...
+            </>
+          ) : (
+            "Sauvegarder"
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
@@ -968,7 +868,7 @@ export default function EditServiceForm({
           <ErrorMessage error={errors.coverImage} />
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label className="text-2xl font-semibold text-primary">
             Document PDF (Optionnel)
           </Label>
@@ -985,7 +885,7 @@ export default function EditServiceForm({
             Ajoutez un document PDF pour fournir plus d&apos;informations sur ce
             service
           </p>
-        </div>
+        </div> */}
       </div>
 
       <div

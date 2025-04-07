@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileImage, FilePlus, Trash, Eye } from "lucide-react";
 import MultiFileUpload from "./multi-file-upload";
 import FilePreview from "./file-preview";
+import { API_URL } from "@/utils/constants";
 
 export default function SectionMediaManager({
   media = [],
@@ -97,7 +98,12 @@ export default function SectionMediaManager({
                   {item.type === "image" ? (
                     <div className="h-12 w-12 overflow-hidden rounded-md">
                       <img
-                        src={item.url || "/placeholder.svg"}
+                        src={
+                          item.url.startsWith("blob:") ||
+                          item.url.startsWith("http")
+                            ? item.url
+                            : API_URL + item.url || "/placeholder.svg"
+                        }
                         alt={item.name}
                         className="h-full w-full object-cover"
                       />
@@ -145,7 +151,11 @@ export default function SectionMediaManager({
             {filteredMedia.map((item, index) => (
               <div key={index} className="group relative aspect-video">
                 <img
-                  src={item.url || "/placeholder.svg"}
+                  src={
+                    item.url.startsWith("blob:") || item.url.startsWith("http")
+                      ? item.url
+                      : API_URL + item.url || "/placeholder.svg"
+                  }
                   alt={item.name}
                   className="h-full w-full rounded-md object-cover"
                 />

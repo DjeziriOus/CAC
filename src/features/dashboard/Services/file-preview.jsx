@@ -17,6 +17,7 @@ import {
   FileSpreadsheet,
   FileQuestion,
 } from "lucide-react";
+import { API_URL } from "@/utils/constants";
 
 export default function FilePreview({
   url,
@@ -27,13 +28,32 @@ export default function FilePreview({
 }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
       setError(null);
+
+      // For PDFs, ensure we have a valid URL that can be used in an iframe
+      if (fileType.includes("pdf")) {
+        // If it's a File object URL (blob:), we need to use it directly
+        if (url.startsWith("blob:")) {
+          setPdfUrl(url);
+        }
+        // If it's a server URL, make sure it's properly formatted
+        else if (url.startsWith("http")) {
+          setPdfUrl(url);
+        }
+        // If it's a relative path, prepend API_URL
+        else {
+          // Assuming API_URL is imported or defined
+          // const apiUrl = window.API_URL || "";
+          setPdfUrl(`${API_URL}${url}`);
+        }
+      }
     }
-  }, [isOpen, url]);
+  }, [isOpen, url, fileType]);
 
   const getFileIcon = () => {
     if (fileType.includes("pdf"))
@@ -89,7 +109,7 @@ export default function FilePreview({
 
           {fileType.includes("pdf") ? (
             <iframe
-              src={url}
+              src={pdfUrl}
               className="h-full w-full"
               title="PDF Preview"
               onLoad={handleLoad}
