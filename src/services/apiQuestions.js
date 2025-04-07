@@ -566,12 +566,12 @@ function base64ToBlob(base64) {
 }
 export async function updateSectionAPI(data, type = "event", signal) {
   try {
-    console.log(type, {
-      serviceId: data.serviceId,
-      sectionId: data.id, // Adjusting to match API's expected field name
-      title: data.title,
-      paragraph: data.paragraph,
-    });
+    // console.log(type, {
+    //   serviceId: data.serviceId,
+    //   sectionId: data.id, // Adjusting to match API's expected field name
+    //   title: data.title,
+    //   paragraph: data.paragraph,
+    // });
     const response = await fetch(`${API_URL}/${type}/updateSection`, {
       method: "PATCH",
       headers: {
@@ -790,9 +790,13 @@ const addSectionImagesService = async (sectionId, serviceId, files) => {
   formData.append("serviceId", serviceId);
   formData.append("sectionId", sectionId);
 
-  files.forEach((image, index) => {
-    const file = base64ToFile(image, `image_${index}.png`);
-    formData.append("files", file);
+  // files.forEach((image, index) => {
+  //   const file = base64ToFile(image, `image_${index}.png`);
+  //   formData.append("files", file);
+  // });
+  files.forEach((media, index) => {
+    console.log(media);
+    formData.append("files", media.url);
   });
   const response = await fetch(`${API_URL}/service/addImg`, {
     method: "POST",
@@ -844,7 +848,7 @@ const deleteSectionImagesService = async (sectionId, serviceId, imgUrls) => {
 export const updateSection = async (
   originalSection,
   updatedSection,
-  newImageFiles = [],
+  newMediaFiles = [],
   type = "event",
   signal,
 ) => {
@@ -896,11 +900,11 @@ export const updateSection = async (
     }
 
     // Add new images if any
-    if (newImageFiles.length > 0) {
+    if (newMediaFiles.length > 0) {
       await addSectionImages(
         updatedSection.id,
         updatedSection.eventId,
-        newImageFiles,
+        newMediaFiles,
       );
     }
   } else if (type == "service") {
@@ -913,11 +917,11 @@ export const updateSection = async (
     }
 
     // Add new images if any
-    if (newImageFiles.length > 0) {
+    if (newMediaFiles.length > 0) {
       await addSectionImagesService(
         updatedSection.id,
         updatedSection.serviceId,
-        newImageFiles,
+        newMediaFiles,
       );
     }
   }

@@ -15,16 +15,15 @@ export function useUpdateSection() {
     mutationFn: async ({
       originalSection,
       updatedSection,
-      newImageFiles,
+      newMediaFiles,
       abortControllerRef,
     }) => {
       abortControllerRef.current = new AbortController();
       const { signal } = abortControllerRef.current;
-      console.log(updateSection);
       return await updateSectionAPI(
         originalSection,
         updatedSection,
-        newImageFiles,
+        newMediaFiles,
         "service",
         signal,
       );

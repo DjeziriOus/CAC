@@ -14,21 +14,6 @@ import {
 } from "lucide-react";
 import FilePreview from "./file-preview";
 
-// interface MediaItem {
-//   id?: string
-//   type: string
-//   url: string
-//   name: string
-//   file?: File // Store the actual File object for uploads
-//   size?: number // Store file size for display
-// }
-
-// interface SectionMediaManagerProps {
-//   media: MediaItem[]
-//   onMediaChange: (media: MediaItem[]) => void
-//   onNewFilesChange: (files: File[]) => void
-// }
-
 export default function SectionMediaManager({
   media = [],
   onMediaChange,
@@ -208,6 +193,12 @@ export default function SectionMediaManager({
     activeTab === "all"
       ? media
       : media.filter((item) => item.type === activeTab);
+
+  const handleNewFilesChange = (files) => {
+    // Update the files to upload list
+    setFilesToUpload(files);
+    onNewFilesChange(files);
+  };
 
   return (
     <div className="space-y-4">

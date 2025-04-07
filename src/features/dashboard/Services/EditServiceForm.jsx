@@ -187,7 +187,9 @@ const SectionEditForm = ({
     setIsDirtySection(hasDiffrentContent);
   }, [title, paragraph, media, section, setIsDirtySection, isDirtySection]);
 
-  const handleSave = async () => {
+  // Find the handleSaveSection function in the SectionEditForm component and replace it with this:
+
+  const handleSaveSection = async () => {
     const errors = {};
     if (!title.trim()) errors.title = "Titre de la section est requis";
     if (!paragraph.trim())
@@ -198,10 +200,22 @@ const SectionEditForm = ({
       return;
     }
 
-    // Extract the actual File objects for upload
-    const filesToUpload = media
-      .filter((item) => item.file)
-      .map((item) => item.file);
+    // Create a FormData object to send files
+    const formData = new FormData();
+
+    // Add section data
+    formData.append("id", section.id);
+    formData.append("sectionId", section.id);
+    formData.append("title", title);
+    formData.append("paragraph", paragraph);
+    formData.append("serviceId", section.serviceId);
+
+    // Add all files to upload
+    if (newMediaFiles && newMediaFiles.length > 0) {
+      newMediaFiles.forEach((file) => {
+        formData.append("files", file);
+      });
+    }
 
     // Convert media back to images format if needed for API compatibility
     const updatedSection = {
@@ -215,7 +229,7 @@ const SectionEditForm = ({
         .map((img) => ({ imgUrl: img.url })),
     };
 
-    await onSave(updatedSection, filesToUpload);
+    await onSave(updatedSection, formData);
     setIsDirtySection(false);
   };
 
@@ -316,7 +330,7 @@ const SectionEditForm = ({
         </Button>
         <Button
           onClick={async () => {
-            await handleSave();
+            await handleSaveSection();
           }}
           disabled={isEditingSection || isDeletingSection || !isDirtySection}
         >
