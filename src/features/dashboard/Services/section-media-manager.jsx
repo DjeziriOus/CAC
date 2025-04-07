@@ -73,7 +73,7 @@ export default function SectionMediaManager({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
+    console.log(e);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFiles(e.dataTransfer.files);
     }

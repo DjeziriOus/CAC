@@ -233,7 +233,13 @@ const SectionEditForm = ({
   }, [media]);
 
   const handleMediaChange = (updatedMedia) => {
-    setMedia(updatedMedia);
+    setMedia((prevMedia) => {
+      const existingNames = new Set(prevMedia.map((item) => item.name));
+      const newMediaItems = updatedMedia.filter(
+        (item) => !existingNames.has(item.name),
+      );
+      return [...newMediaItems, ...prevMedia];
+    });
   };
 
   const handleNewFilesChange = (files) => {
