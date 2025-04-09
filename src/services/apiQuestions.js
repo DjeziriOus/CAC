@@ -1036,7 +1036,59 @@ export async function getService(id) {
   }
 
   const data = await res.json();
-  return data;
+  // console.log(
+  //   data.service.sections.map((section) => {
+  //     return {
+  //       ...section,
+  //       images: section.images.map((img) => {
+  //         return { data: img.imgUrl };
+  //       }),
+  //     };
+  //   }),
+  // );
+  console.log(data);
+  console.log({
+    ...data,
+    service: {
+      ...data.service,
+      coverUrl: data.service.coverUrl.startsWith("/")
+        ? API_URL + data.service.coverUrl
+        : data.service.coverUrl,
+      sections: data.service.sections.map((section) => {
+        return {
+          ...section,
+          images: section.images.map((image) => {
+            const { imgUrl, ...rest } = image;
+            return {
+              data: imgUrl,
+              ...rest,
+            };
+          }),
+        };
+      }),
+    },
+  });
+  return {
+    ...data,
+    service: {
+      ...data.service,
+      coverUrl: data.service.coverUrl.startsWith("/")
+        ? API_URL + data.service.coverUrl
+        : data.service.coverUrl,
+      sections: data.service.sections.map((section) => {
+        return {
+          ...section,
+          images: section.images.map((image) => {
+            const { imgUrl, ...rest } = image;
+            return {
+              data: imgUrl,
+              ...rest,
+            };
+          }),
+        };
+      }),
+    },
+  };
 }
 
 export async function updateService(serviceData, signal) {
@@ -1078,7 +1130,7 @@ export async function updateService(serviceData, signal) {
     const result = await response.json();
     return result;
   } catch (error) {
-    console.log("Error updating service:", error);
+    console.error("Error updating service:", error);
     throw error;
   }
 }

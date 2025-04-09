@@ -61,8 +61,8 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
     (section.images && section.images.length > 0
       ? section.images.map((img) => ({
           type: "image",
-          url: img.imgUrl,
-          name: img.imgUrl.split("/").pop() || "Image",
+          url: img.data,
+          name: img.data.split("/").pop() || "Image",
         }))
       : []);
 
@@ -170,8 +170,9 @@ const SectionEditForm = ({
     if (section.images && section.images.length > 0) {
       return section.images.map((img, idx) => ({
         type: "image",
-        url: img.imgUrl.startsWith("http") ? img.imgUrl : API_URL + img.imgUrl,
-        name: img.imgUrl.split("/").pop() || `Image-${idx + 1}`,
+        // url: img.imgUrl.startsWith("http") ? img.imgUrl : API_URL + img.imgUrl,
+        url: img.data,
+        name: img.data.split("/").pop() || `Image-${idx + 1}`,
       }));
     }
 
