@@ -203,14 +203,14 @@ function validateAndProcessFiles(files, onFileSelect, options = {}) {
     ) {
       return "doc";
       //TODO: add this case in tabs
-      // } else if (
-      //   mimeType === "application/vnd.ms-excel" ||
-      //   mimeType ===
-      //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-      //   extension === "xls" ||
-      //   extension === "xlsx"
-      // ) {
-      //   return "xls";
+    } else if (
+      mimeType === "application/vnd.ms-excel" ||
+      mimeType ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      extension === "xls" ||
+      extension === "xlsx"
+    ) {
+      return "spreadsheet";
     } else {
       return "file";
     }
@@ -331,7 +331,6 @@ export default function SectionMediaManager({
 
       const files = e.dataTransfer.files;
       if (files) {
-        console.log(files);
         validateAndProcessFiles(files, onMediaAdd);
       }
     },
@@ -351,7 +350,6 @@ export default function SectionMediaManager({
   const handleChange = useCallback(
     (e) => {
       const files = e.target.files;
-      console.log(files, files.length, Array.from(files));
       if (files) {
         validateAndProcessFiles(files, onMediaAdd);
       }
@@ -406,7 +404,6 @@ export default function SectionMediaManager({
       ? media
       : media.filter((item) => item.type === activeTab);
   console.log(filteredMedia);
-
   return (
     <div className="space-y-4">
       {media.length > 0 && (
@@ -430,7 +427,13 @@ export default function SectionMediaManager({
                     {item.type === "image" ? (
                       <div className="h-12 w-12 overflow-hidden rounded-md">
                         <img
-                          src={item.data || "/placeholder.svg"}
+                          src={
+                            item?.data
+                              ? item?.data
+                              : item?.url
+                                ? item.url
+                                : "/placeholder.svg"
+                          }
                           alt={item.name}
                           className="h-full w-full object-cover"
                         />
@@ -452,7 +455,7 @@ export default function SectionMediaManager({
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Derniere modifcation :{" "}
-                        {item.lastModified &&
+                        {item.lastModified !== "" &&
                           `${moment(item.lastModified).format("DD/MM/YYYY - h:mm A")}`}
                       </p>
                     </div>
@@ -489,7 +492,13 @@ export default function SectionMediaManager({
               {filteredMedia.map((item, index) => (
                 <div key={index} className="group relative aspect-video">
                   <img
-                    src={item.data || "/placeholder.svg"}
+                    src={
+                      item?.data
+                        ? item?.data
+                        : item?.url
+                          ? item.url
+                          : "/placeholder.svg"
+                    }
                     alt={item.name}
                     className="h-full w-full rounded-md object-cover"
                   />
@@ -525,7 +534,7 @@ export default function SectionMediaManager({
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted">
-                      <FileImage className="h-8 w-8" />
+                      <FileText className="h-8 w-8" />
                     </div>
                     <div className="flex-1 overflow-hidden">
                       <p className="truncate font-medium">{item.name}</p>
@@ -659,7 +668,13 @@ export default function SectionMediaManager({
 
       {previewItem && (
         <FilePreview
-          url={previewItem.data}
+          url={
+            previewItem?.data
+              ? previewItem?.data
+              : previewItem?.url
+                ? previewItem.url
+                : "/placeholder.svg"
+          }
           fileName={previewItem.name}
           fileType={previewItem.type}
           isOpen={!!previewItem}

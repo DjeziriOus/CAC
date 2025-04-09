@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogFooter,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   FileText,
@@ -192,15 +192,12 @@ export default function FilePreview({
     actualFileType === "pdf" && isBase64 ? createBlobUrl() || fileUrl : fileUrl;
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="h-[80vh] max-w-4xl">
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            {fileName || "Aperçu du document"}
-          </AlertDialogTitle>
-        </AlertDialogHeader>
-
-        <div className="flex-1 overflow-hidden rounded-md bg-muted/10">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="h-[95vh] max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{fileName || "Aperçu du document"}</DialogTitle>
+        </DialogHeader>
+        <div className="h-[80dvh] flex-1 overflow-hidden rounded-md bg-muted/10">
           {loading && (
             <div className="flex h-full w-full items-center justify-center">
               <div className="flex flex-col items-center gap-4">
@@ -245,7 +242,7 @@ export default function FilePreview({
               <img
                 src={fileUrl || "/placeholder.svg"}
                 alt={fileName || "Image preview"}
-                className="max-h-full max-w-full object-contain"
+                className="max-h-full max-w-full overflow-hidden rounded-md object-contain"
                 onLoad={handleLoad}
                 onError={handleError}
                 style={{ display: loading || error ? "none" : "block" }}
@@ -277,11 +274,12 @@ export default function FilePreview({
             </div>
           )}
         </div>
-
-        <AlertDialogFooter>
-          <AlertDialogCancel>Fermer</AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        <DialogFooter>
+          <DialogClose>
+            <Button variant="outline">Fermer</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

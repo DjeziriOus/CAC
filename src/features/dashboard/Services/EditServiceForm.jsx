@@ -182,10 +182,17 @@ const SectionEditForm = ({
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    0;
+    console.log("media", media);
+    console.log("section.images", section.images);
     const hasDiffrentContent =
       title !== section.title ||
       paragraph !== section.paragraph ||
-      media.length !== (section.media?.length || section.images?.length || 0);
+      media.length !== (section.images?.length || 0) ||
+      media.some((item, idx) => {
+        const sectionImage = section.images?.[idx];
+        return !sectionImage || item?.url !== sectionImage.imgUrl;
+      });
     setIsDirtySection(hasDiffrentContent);
   }, [title, paragraph, media, section, setIsDirtySection, isDirtySection]);
 
@@ -201,9 +208,10 @@ const SectionEditForm = ({
     }
 
     // Extract the actual File objects for upload
-    const filesToUpload = media
-      .filter((item) => item.file)
-      .map((item) => item.file);
+    // const filesToUpload = media
+    //   .filter((item) => item.file)
+    //   .map((item) => item.file);
+    const filesToUpload = newMediaFiles.map((item) => item.data);
 
     // Convert media back to images format if needed for API compatibility
     const updatedSection = {
@@ -212,9 +220,7 @@ const SectionEditForm = ({
       paragraph,
       media,
       // Keep images for backward compatibility
-      images: media
-        .filter((item) => item.type === "image")
-        .map((img) => ({ imgUrl: img.url })),
+      images: media.map((img) => ({ imgUrl: img.data })),
     };
 
     await onSave(updatedSection, filesToUpload);
@@ -329,8 +335,8 @@ const SectionEditForm = ({
         <Label>Fichiers de la Section</Label>
         <SectionMediaManager
           media={media}
-          onMediaChange={handleMediaChange}
-          onNewFilesChange={handleNewFilesChange}
+          // onMediaChange={handleMediaChange}
+          // onNewFilesChange={handleNewFilesChange}
           onMediaAdd={handleAddMedia}
           onMediaRemove={handleRemoveMedia}
         />
@@ -684,7 +690,7 @@ export default function EditServiceForm({
     setEditingSectionId(section.id);
   };
 
-  const handleSaveSection = async (updatedSection, newImageFiles = []) => {
+  const handleSaveSection = async (updatedSection, newMediaFiles = []) => {
     try {
       const originalSection = sections.find((s) => s.id === updatedSection.id);
       if (!originalSection) return;
@@ -694,7 +700,7 @@ export default function EditServiceForm({
           ...updatedSection,
           serviceId: initialService.id,
         },
-        newImageFiles,
+        newMediaFiles,
         abortControllerRef,
       });
       setEditingSectionId(null);

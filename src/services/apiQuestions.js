@@ -260,6 +260,7 @@ export async function getUser() {
     toast.error("Erreur", {
       description: `${data.message}, Erreur lors de la récupération de l'utilisateur.`,
     });
+    localStorage.removeItem("jwt");
     throw new Error("Failed getting user");
   }
   const data = await res.json();
@@ -790,14 +791,14 @@ const addSectionImagesService = async (sectionId, serviceId, files) => {
   formData.append("serviceId", serviceId);
   formData.append("sectionId", sectionId);
 
-  // files.forEach((image, index) => {
-  //   const file = base64ToFile(image, `image_${index}.png`);
-  //   formData.append("files", file);
-  // });
-  files.forEach((media, index) => {
-    console.log(media);
-    formData.append("files", media.url);
+  files.forEach((image, index) => {
+    const file = base64ToFile(image, `image_${index}.png`);
+    formData.append("files", file);
   });
+  // files.forEach((media, index) => {
+  //   console.log(media);
+  //   formData.append("files", media.data);
+  // });
   const response = await fetch(`${API_URL}/service/addImg`, {
     method: "POST",
     headers: {
@@ -915,7 +916,6 @@ export const updateSection = async (
         imagesToDelete,
       );
     }
-
     // Add new images if any
     if (newMediaFiles.length > 0) {
       await addSectionImagesService(
