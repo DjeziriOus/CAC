@@ -22,7 +22,8 @@ export function ImageCarousel({ images, onImageClick }) {
           [index]: img.width > img.height ? "landscape" : "portrait",
         }));
       };
-      img.src = image.imgUrl;
+      console.log(image.url);
+      image.src = image.url;
     });
   }, [images]);
 
@@ -82,10 +83,10 @@ export function ImageCarousel({ images, onImageClick }) {
           <div
             key={index}
             className={`relative flex-none cursor-pointer overflow-hidden rounded-md ${imageOrientations[index] === "portrait" ? "aspect-[3/4] w-[200px]" : "aspect-[4/3] w-[280px]"} `}
-            onClick={() => onImageClick(image.imgUrl)}
+            onClick={() => onImageClick(image.url)}
           >
             <img
-              src={API_URL + image.imgUrl || "/placeholder.svg"}
+              src={image.url || "/placeholder.svg"}
               alt={`Gallery image ${index + 1}`}
               className="h-full w-full object-cover transition-transform hover:scale-105"
               onError={(e) => {

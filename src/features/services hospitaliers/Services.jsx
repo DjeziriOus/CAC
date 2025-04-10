@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { API_URL, SERVICES_PER_PAGE } from "@/utils/constants";
+import { SERVICES_PER_PAGE } from "@/utils/constants";
 import { useServices } from "@/features/dashboard/Services/useServices";
 import Paginator from "@/components/paginator-v2";
 
@@ -19,7 +19,7 @@ const ServiceCard = ({ service }) => {
     <Card className="flex flex-col overflow-hidden">
       <div className="relative h-48 w-full overflow-hidden">
         <img
-          src={API_URL + service.coverUrl || "/placeholder.svg"}
+          src={service.coverUrl || "/placeholder.svg"}
           alt={service.nom}
           className="h-full w-full object-cover"
           onError={(e) => {

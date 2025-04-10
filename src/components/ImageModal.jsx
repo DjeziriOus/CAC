@@ -68,7 +68,7 @@ export function ImageModal({ isOpen, onClose, imageUrl }) {
           )}
 
           <img
-            src={imageUrl ? API_URL + imageUrl : "/placeholder.svg"}
+            src={imageUrl ? imageUrl : "/placeholder.svg"}
             alt="Full size view"
             className={`rounded-lg ${imageOrientation === "portrait" ? "max-h-[90vh] w-auto" : "h-auto max-h-[90vh] max-w-[90vw]"} `}
             style={{

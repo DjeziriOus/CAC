@@ -10,6 +10,7 @@ import { ImageModal } from "@/components/ImageModal";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { API_URL } from "@/utils/constants";
 import { useService } from "@/features/dashboard/Services/useService";
+import { Spinner } from "@/components/ui/Spinner";
 
 // Sample service data (same as before)
 // const serviceData = {
@@ -67,23 +68,25 @@ export default function ServiceDetails() {
 
   // Collect all images from the service including cover and section images
   const allImages = useMemo(() => {
-    const images = service?.coverUrl ? [{ imgUrl: service.coverUrl }] : [];
+    const images = service?.coverUrl ? [{ url: service.coverUrl }] : [];
     service?.sections.forEach((section) => {
       images.push(...section.images);
     });
     return images;
   }, [service]);
   if (isPending || error) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background py-16">
+        <Spinner size="large" />
+      </div>
+    );
   }
   return (
-    <article className="min-h-screen bg-background">
+    <article className="min-h-screen bg-background py-16">
       {/* Hero Section */}
       <div className="relative h-[40vh] min-h-[400px] w-full overflow-hidden">
         <img
-          src={
-            service.coverUrl ? API_URL + service.coverUrl : "/placeholder.svg"
-          }
+          src={service.coverUrl ? service.coverUrl : "/placeholder.svg"}
           alt={service.nom}
           className="h-full w-full cursor-pointer object-cover"
           onClick={() => setSelectedImage(service.coverUrl)}
@@ -135,14 +138,10 @@ export default function ServiceDetails() {
                         <div
                           key={imageIndex}
                           className="relative aspect-video cursor-pointer overflow-hidden rounded-lg"
-                          onClick={() => setSelectedImage(image.imgUrl)}
+                          onClick={() => setSelectedImage(image.url)}
                         >
                           <img
-                            src={
-                              image.imgUrl
-                                ? API_URL + image.imgUrl
-                                : "/placeholder.svg"
-                            }
+                            src={image.url ? image.url : "/placeholder.svg"}
                             alt={`Image ${imageIndex + 1} for ${section.title}`}
                             className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                             onError={(e) => {

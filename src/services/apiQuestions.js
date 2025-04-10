@@ -1047,57 +1047,7 @@ export async function getService(id) {
   }
 
   const data = await res.json();
-  // console.log(
-  //   data.service.sections.map((section) => {
-  //     return {
-  //       ...section,
-  //       images: section.images.map((img) => {
-  //         return { data: img.imgUrl };
-  //       }),
-  //     };
-  //   }),
-  // );
 
-  console.log({
-    ...data,
-    service: {
-      ...data.service,
-      coverUrl: data.service.coverUrl.startsWith("/")
-        ? API_URL + data.service.coverUrl
-        : data.service.coverUrl,
-      sections: data.service.sections.map((section) => {
-        return {
-          ...section,
-          images: section.images.map((img, idx) => {
-            const url = img.imgUrl;
-            const fileName = url.split("/").pop() || `Image-${idx + 1}`;
-
-            // Determine file type based on extension in the URL
-            let type = "unknown";
-
-            // Check for common file extensions
-            if (/\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(url)) {
-              type = "image";
-            } else if (/\.(pdf)$/i.test(url)) {
-              type = "pdf";
-            } else if (/\.(docx?|xlsx?|pptx?|txt|csv)$/i.test(url)) {
-              type = "document";
-            } else if (/\.(mp4|webm|mov|avi|wmv)$/i.test(url)) {
-              type = "video";
-            } else if (/\.(mp3|wav|ogg|aac)$/i.test(url)) {
-              type = "audio";
-            }
-
-            return {
-              type,
-              url: url,
-              name: fileName,
-            };
-          }),
-        };
-      }),
-    },
-  });
   return {
     ...data,
     service: {
@@ -1109,7 +1059,9 @@ export async function getService(id) {
         return {
           ...section,
           images: section.images.map((img, idx) => {
-            const url = img.imgUrl;
+            const url = img.imgUrl.startsWith("/")
+              ? API_URL + img.imgUrl
+              : img.imgUrl;
             const fileName = url.split("/").pop() || `Image-${idx + 1}`;
 
             // Determine file type based on extension in the URL
