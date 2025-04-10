@@ -141,6 +141,7 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
             <div key={index} className="group relative aspect-video">
               <img
                 // src={`${API_URL}${image.imgUrl}`}
+                //TODO:
                 src={
                   image.imgUrl
                     ? image.imgUrl.startsWith("data:image/")

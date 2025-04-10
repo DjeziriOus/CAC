@@ -1,3 +1,4 @@
+import { dataURLtoFilev2 } from "@/lib/utils";
 import { API_URL } from "@/utils/constants";
 import { QUESTIONS_PER_PAGE } from "@/utils/constants";
 import { toast } from "sonner";
@@ -792,12 +793,12 @@ const addSectionImagesService = async (sectionId, serviceId, files) => {
   formData.append("sectionId", sectionId);
 
   files.forEach((image, index) => {
-    const file = base64ToFile(image, `image_${index}.png`);
+    const file = dataURLtoFilev2(image, `media_${index}`);
     formData.append("files", file);
   });
   // files.forEach((media, index) => {
   //   console.log(media);
-  //   formData.append("files", media.data);
+  //   formData.append("files", media.url);
   // });
   const response = await fetch(`${API_URL}/service/addImg`, {
     method: "POST",
@@ -853,6 +854,7 @@ export const updateSection = async (
   type = "event",
   signal,
 ) => {
+  console.log(originalSection.images, updatedSection.images);
   // Update section text if it has changed
   if (
     originalSection.title !== updatedSection.title ||
@@ -886,10 +888,11 @@ export const updateSection = async (
     .filter(
       (originalImg) =>
         !updatedSection.images.some(
-          (updatedImg) => updatedImg.imgUrl === originalImg.imgUrl,
+          (updatedImg) => updatedImg.url === originalImg.url,
         ),
     )
-    .map((img) => img.imgUrl);
+    .map((img) => img.url);
+  console.log(imagesToDelete);
   if (type == "event") {
     // Delete removed images if any
     if (imagesToDelete.length > 0) {
@@ -943,7 +946,15 @@ export async function getServices(page) {
     throw new Error("Failed getting services");
   }
   const data = await res.json();
-  const { services, total } = data;
+  const { total } = data;
+  const services = data.services.map((service) => {
+    return {
+      ...service,
+      coverUrl: service.coverUrl.startsWith("/")
+        ? API_URL + service.coverUrl
+        : service.coverUrl,
+    };
+  });
   return { services, total };
 }
 
@@ -1046,7 +1057,7 @@ export async function getService(id) {
   //     };
   //   }),
   // );
-  console.log(data);
+
   console.log({
     ...data,
     service: {
@@ -1057,11 +1068,30 @@ export async function getService(id) {
       sections: data.service.sections.map((section) => {
         return {
           ...section,
-          images: section.images.map((image) => {
-            const { imgUrl, ...rest } = image;
+          images: section.images.map((img, idx) => {
+            const url = img.imgUrl;
+            const fileName = url.split("/").pop() || `Image-${idx + 1}`;
+
+            // Determine file type based on extension in the URL
+            let type = "unknown";
+
+            // Check for common file extensions
+            if (/\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(url)) {
+              type = "image";
+            } else if (/\.(pdf)$/i.test(url)) {
+              type = "pdf";
+            } else if (/\.(docx?|xlsx?|pptx?|txt|csv)$/i.test(url)) {
+              type = "document";
+            } else if (/\.(mp4|webm|mov|avi|wmv)$/i.test(url)) {
+              type = "video";
+            } else if (/\.(mp3|wav|ogg|aac)$/i.test(url)) {
+              type = "audio";
+            }
+
             return {
-              data: imgUrl,
-              ...rest,
+              type,
+              url: url,
+              name: fileName,
             };
           }),
         };
@@ -1078,11 +1108,30 @@ export async function getService(id) {
       sections: data.service.sections.map((section) => {
         return {
           ...section,
-          images: section.images.map((image) => {
-            const { imgUrl, ...rest } = image;
+          images: section.images.map((img, idx) => {
+            const url = img.imgUrl;
+            const fileName = url.split("/").pop() || `Image-${idx + 1}`;
+
+            // Determine file type based on extension in the URL
+            let type = "unknown";
+
+            // Check for common file extensions
+            if (/\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(url)) {
+              type = "image";
+            } else if (/\.(pdf)$/i.test(url)) {
+              type = "pdf";
+            } else if (/\.(docx?|xlsx?|pptx?|txt|csv)$/i.test(url)) {
+              type = "document";
+            } else if (/\.(mp4|webm|mov|avi|wmv)$/i.test(url)) {
+              type = "video";
+            } else if (/\.(mp3|wav|ogg|aac)$/i.test(url)) {
+              type = "audio";
+            }
+
             return {
-              data: imgUrl,
-              ...rest,
+              type,
+              url: url,
+              name: fileName,
             };
           }),
         };

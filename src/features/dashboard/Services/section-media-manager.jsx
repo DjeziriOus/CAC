@@ -403,7 +403,6 @@ export default function SectionMediaManager({
     activeTab === "all"
       ? media
       : media.filter((item) => item.type === activeTab);
-  console.log(filteredMedia);
   return (
     <div className="space-y-4">
       {media.length > 0 && (

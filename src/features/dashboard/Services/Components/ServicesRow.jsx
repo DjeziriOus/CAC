@@ -30,8 +30,8 @@ function ServiceRow({ service }) {
       </TableCell>
       <TableCell>
         <img
-          src={`${API_URL}${coverUrl}`}
-          alt="image de l'evenement"
+          src={`${coverUrl}`}
+          alt="image du service"
           className="h-10 w-28 object-cover"
         />
       </TableCell>

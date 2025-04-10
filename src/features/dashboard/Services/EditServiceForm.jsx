@@ -54,17 +54,10 @@ const validateForm = (formData) => {
 // Section component with edit and delete functionality
 const SectionItem = ({ section, onEdit, onDelete }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
   // Convert legacy images to media format if needed
   const sectionMedia =
     section.media ||
-    (section.images && section.images.length > 0
-      ? section.images.map((img) => ({
-          type: "image",
-          url: img.data,
-          name: img.data.split("/").pop() || "Image",
-        }))
-      : []);
+    (section.images && section.images.length > 0 ? section.images : []);
 
   return (
     <div className="space-y-4 rounded-lg border border-border p-6">
@@ -166,14 +159,9 @@ const SectionEditForm = ({
   const [media, setMedia] = useState(() => {
     if (section.media) return section.media;
 
-    // Convert old images format to new media format
+    // Convert backend's images format to new media format
     if (section.images && section.images.length > 0) {
-      return section.images.map((img, idx) => ({
-        type: "image",
-        // url: img.imgUrl.startsWith("http") ? img.imgUrl : API_URL + img.imgUrl,
-        url: img.data,
-        name: img.data.split("/").pop() || `Image-${idx + 1}`,
-      }));
+      return section.images;
     }
 
     return [];
@@ -183,9 +171,6 @@ const SectionEditForm = ({
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    0;
-    console.log("media", media);
-    console.log("section.images", section.images);
     const hasDiffrentContent =
       title !== section.title ||
       paragraph !== section.paragraph ||
@@ -221,9 +206,10 @@ const SectionEditForm = ({
       paragraph,
       media,
       // Keep images for backward compatibility
-      images: media.map((img) => ({ imgUrl: img.data })),
+      images: media.map((img) => {
+        return { url: img.url };
+      }),
     };
-
     await onSave(updatedSection, filesToUpload);
     setIsDirtySection(false);
   };
@@ -367,143 +353,6 @@ const SectionEditForm = ({
   );
 };
 
-// PDF Upload component
-const PdfUpload = ({
-  inputId,
-  currentPdf,
-  onPdfSelect,
-  onPdfRemove,
-  loading = false,
-}) => {
-  const fileInputRef = useRef(null);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === "application/pdf") {
-      onPdfSelect(file);
-    } else if (file) {
-      alert("Please select a PDF file");
-    }
-  };
-
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  return (
-    <div className="space-y-2">
-      <input
-        type="file"
-        id={inputId}
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept="application/pdf"
-        className="hidden"
-      />
-
-      {currentPdf ? (
-        <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
-          <div className="flex items-center space-x-2">
-            <div className="rounded-md bg-primary/10 p-2">
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium">
-                {typeof currentPdf === "string"
-                  ? currentPdf.split("/").pop()
-                  : currentPdf.name || "Document.pdf"}
-              </p>
-              <p className="text-sm text-muted-foreground">PDF Document</p>
-            </div>
-          </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleClick}
-              disabled={loading}
-            >
-              Change
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onPdfRemove}
-              disabled={loading}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div
-          onClick={handleClick}
-          className="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border bg-background p-6 transition-colors hover:bg-accent/50"
-        >
-          <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
-          <p className="mb-1 font-medium">Click to upload PDF</p>
-          <p className="text-sm text-muted-foreground">
-            PDF files only (max 10MB)
-          </p>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Create a new FileUpload component that supports multiple file types
-const FileUpload = ({
-  inputId,
-  onFileSelect,
-  height = "h-64",
-  className = "",
-  loading = false,
-}) => {
-  const fileInputRef = useRef(null);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      onFileSelect(file);
-    }
-  };
-
-  const handleClick = () => {
-    if (!loading) {
-      fileInputRef.current?.click();
-    }
-  };
-
-  return (
-    <div
-      onClick={handleClick}
-      className={cn(
-        "flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border bg-background p-6 transition-colors hover:bg-accent/50",
-        height,
-        className,
-        loading && "cursor-not-allowed opacity-50",
-      )}
-    >
-      <input
-        type="file"
-        id={inputId}
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
-        className="hidden"
-        disabled={loading}
-      />
-      <div className="flex flex-col items-center gap-2 text-center">
-        <Plus className="h-8 w-8 text-muted-foreground" />
-        <p className="font-medium">Ajouter un fichier</p>
-        <p className="text-xs text-muted-foreground">
-          Images, PDF, PPT, DOC, XLS (max 10MB)
-        </p>
-      </div>
-    </div>
-  );
-};
-
 export default function EditServiceForm({
   initialService = null,
   isLoadingService = false,
@@ -568,7 +417,7 @@ export default function EditServiceForm({
         nom: initialService.nom,
         description: initialService.description,
         coverImage: initialService.coverUrl,
-        pdfDocument: initialService.pdfUrl || null,
+        // pdfDocument: initialService.pdfUrl || null,
         sections: initialService.sections || [],
       });
     }
@@ -582,21 +431,12 @@ export default function EditServiceForm({
       nom,
       description,
       coverImage,
-      // pdfDocument,
       sections,
     };
 
     const hasChanges = !isEqual(currentValues, originalValues);
     setIsDirty(hasChanges);
-  }, [
-    nom,
-    description,
-    coverImage,
-    // ,
-    // pdfDocument
-    sections,
-    originalValues,
-  ]);
+  }, [nom, description, coverImage, sections, originalValues]);
 
   // Handle beforeunload service
   useEffect(() => {
@@ -1127,3 +967,141 @@ export default function EditServiceForm({
     </div>
   );
 }
+
+/*// PDF Upload component
+const PdfUpload = ({
+  inputId,
+  currentPdf,
+  onPdfSelect,
+  onPdfRemove,
+  loading = false,
+}) => {
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === "application/pdf") {
+      onPdfSelect(file);
+    } else if (file) {
+      alert("Please select a PDF file");
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="space-y-2">
+      <input
+        type="file"
+        id={inputId}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="application/pdf"
+        className="hidden"
+      />
+
+      {currentPdf ? (
+        <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
+          <div className="flex items-center space-x-2">
+            <div className="rounded-md bg-primary/10 p-2">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium">
+                {typeof currentPdf === "string"
+                  ? currentPdf.split("/").pop()
+                  : currentPdf.name || "Document.pdf"}
+              </p>
+              <p className="text-sm text-muted-foreground">PDF Document</p>
+            </div>
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClick}
+              disabled={loading}
+            >
+              Change
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPdfRemove}
+              disabled={loading}
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={handleClick}
+          className="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border bg-background p-6 transition-colors hover:bg-accent/50"
+        >
+          <FileText className="mb-2 h-8 w-8 text-muted-foreground" />
+          <p className="mb-1 font-medium">Click to upload PDF</p>
+          <p className="text-sm text-muted-foreground">
+            PDF files only (max 10MB)
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Create a new FileUpload component that supports multiple file types
+const FileUpload = ({
+  inputId,
+  onFileSelect,
+  height = "h-64",
+  className = "",
+  loading = false,
+}) => {
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      onFileSelect(file);
+    }
+  };
+
+  const handleClick = () => {
+    if (!loading) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      className={cn(
+        "flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border bg-background p-6 transition-colors hover:bg-accent/50",
+        height,
+        className,
+        loading && "cursor-not-allowed opacity-50",
+      )}
+    >
+      <input
+        type="file"
+        id={inputId}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"
+        className="hidden"
+        disabled={loading}
+      />
+      <div className="flex flex-col items-center gap-2 text-center">
+        <Plus className="h-8 w-8 text-muted-foreground" />
+        <p className="font-medium">Ajouter un fichier</p>
+        <p className="text-xs text-muted-foreground">
+          Images, PDF, PPT, DOC, XLS (max 10MB)
+        </p>
+      </div>
+    </div>
+  );
+};
+ */
