@@ -177,7 +177,7 @@ const SectionEditForm = ({
       media.length !== (section.images?.length || 0) ||
       media.some((item, idx) => {
         const sectionImage = section.images?.[idx];
-        return !sectionImage || item?.url !== sectionImage.imgUrl;
+        return !sectionImage || item?.url !== sectionImage.url;
       });
     setIsDirtySection(hasDiffrentContent);
   }, [title, paragraph, media, section, setIsDirtySection, isDirtySection]);
