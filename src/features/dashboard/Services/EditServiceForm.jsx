@@ -33,7 +33,7 @@ import SectionMediaManager from "./section-media-manager";
 // Define API_URL or import it from a config file
 
 // Validation helper
-const validateForm = (formData) => {
+const validateForm = (formData, editingSectionId, isAddingSectionOpen) => {
   const errors = {};
 
   if (!formData.nom.trim()) {
@@ -46,6 +46,15 @@ const validateForm = (formData) => {
 
   if (!formData.coverImage) {
     errors.coverImage = "Cover image is required";
+  }
+
+  if (editingSectionId !== null) {
+    errors.sections =
+      "Une section n'est pas encore validée, Veuilliez valider (ajouter) la section que vous êtes entrain de modifier";
+  }
+  if (isAddingSectionOpen) {
+    errors.sections =
+      "Une section n'est pas encore validée, Veuilliez valider (ajouter) la section que vous êtes entrain d'introduire";
   }
 
   if (!formData.sections.length) {
@@ -595,7 +604,11 @@ export default function EditServiceForm({
       abortControllerRef,
     };
 
-    const validationErrors = validateForm(formData);
+    const validationErrors = validateForm(
+      formData,
+      editingSectionId,
+      isAddingSectionOpen,
+    );
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);

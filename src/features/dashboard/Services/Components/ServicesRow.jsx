@@ -32,7 +32,7 @@ function ServiceRow({ service }) {
         <img
           src={`${coverUrl}`}
           alt="image du service"
-          className="h-10 w-28 object-cover"
+          className="h-10 w-28 object-cover rounded-sm bg-slate-200"
         />
       </TableCell>
 

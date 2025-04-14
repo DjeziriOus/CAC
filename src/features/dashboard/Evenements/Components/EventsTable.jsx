@@ -50,15 +50,16 @@ function EventsTable({ onEdit: handleEdit }) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[1%]">ID</TableHead>
-            <TableHead className="w-[30%]">Title</TableHead>
+            <TableHead className="w-[30%]">Titre</TableHead>
             {/* <TableHead className="w-[20%]">Description</TableHead> */}
             <TableHead className="w-[5%]">Endroit</TableHead>
             <TableHead className="w-[20%]">Date</TableHead>
             <TableHead className="w-[13%]">Type</TableHead>
             <TableHead className="w-[13%]">Couverture</TableHead>
             <TableHead className="w-[10%]">Medecin</TableHead>
-            <TableHead className="w-[20%]">Medecin Email</TableHead>
-            {isSuccess && events?.some((event) => event?.id === user?.id) ? (
+            <TableHead className="w-[20%]">Email du Medecin</TableHead>
+            {isSuccess &&
+            events?.some((event) => event?.medecinId === user?.id) ? (
               <TableHead className="w-[20%]">Actions</TableHead>
             ) : null}
           </TableRow>

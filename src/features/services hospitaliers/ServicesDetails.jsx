@@ -146,7 +146,6 @@ export default function ServiceDetails() {
                     {section.media.length > 0 && (
                       <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
                         {section.media.map((image, imageIndex) => {
-                          console.log(image);
                           if (image.type == "image")
                             return (
                               <div
@@ -222,25 +221,25 @@ export default function ServiceDetails() {
           {/* Sidebar */}
           <aside className="lg:col-span-4">
             <div className="sticky top-8 space-y-6">
-              {/* Author Card */}
-
               {/* Table of Contents */}
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="mb-4 text-lg font-semibold">Contenu</h2>
-                  <nav className="space-y-2">
-                    {service.sections.map((section, index) => (
-                      <a
-                        key={section.id}
-                        href={`#section-${section.id}`}
-                        className="block text-sm text-muted-foreground transition-colors hover:text-primary"
-                      >
-                        {index + 1}. {section.title}
-                      </a>
-                    ))}
-                  </nav>
-                </CardContent>
-              </Card>
+              {service.sections.length > 0 && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="mb-4 text-lg font-semibold">Contenu</h2>
+                    <nav className="space-y-2">
+                      {service.sections.map((section, index) => (
+                        <a
+                          key={section.id}
+                          href={`#section-${section.id}`}
+                          className="block text-sm text-muted-foreground transition-colors hover:text-primary"
+                        >
+                          {index + 1}. {section.title}
+                        </a>
+                      ))}
+                    </nav>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </aside>
         </div>

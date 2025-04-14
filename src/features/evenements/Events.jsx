@@ -29,7 +29,7 @@ const EventCard = ({ event }) => {
     <Card className="flex flex-col overflow-hidden">
       <div className="relative h-48 w-full overflow-hidden">
         <img
-          src={API_URL + event.coverUrl || "/placeholder.svg"}
+          src={event.coverUrl || "/placeholder.svg"}
           alt={event.title}
           className="h-full w-full object-cover"
           onError={(e) => {

@@ -35,7 +35,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import SectionMediaManager from "../Services/section-media-manager";
 
 // Validation helper
-const validateForm = (formData) => {
+const validateForm = (formData, editingSectionId, isAddingSectionOpen) => {
   const errors = {};
 
   if (!formData.title.trim()) {
@@ -58,8 +58,17 @@ const validateForm = (formData) => {
     errors.coverImage = "Image de couverture est requise";
   }
 
+  if (editingSectionId !== null) {
+    errors.sections =
+      "Une section n'est pas encore validée, Veuilliez valider (ajouter) la section que vous êtes entrain de modifier";
+  }
+  if (isAddingSectionOpen) {
+    errors.sections =
+      "Une section n'est pas encore validée, Veuilliez valider (ajouter) la section que vous êtes entrain d'introduire";
+  }
+
   if (!formData.sections.length) {
-    errors.sections = "Au moins une section est requise";
+    // errors.sections = "Au moins une section est requise";
   } else {
     const sectionErrors = formData.sections.map((section) => {
       const sectionError = {};
@@ -230,7 +239,11 @@ export default function AjouterEvenementForm() {
       })),
     };
 
-    const validationErrors = validateForm(formData);
+    const validationErrors = validateForm(
+      formData,
+      editingSectionId,
+      isAddingSectionOpen,
+    );
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -511,7 +524,7 @@ export default function AjouterEvenementForm() {
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-center text-2xl font-semibold text-primary">
-            les Sections de l&apos;Événement *
+            Sections de l&apos;Événement
           </h2>
           {typeof errors.sections === "string" && (
             <ErrorMessage error={errors.sections} />

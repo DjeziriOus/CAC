@@ -848,11 +848,11 @@ const addSectionImages = async (sectionId, eventId, files) => {
     toast.error("Échec de l'ajout des images de la section", {
       description: response.statusText,
     });
-    const data = response.json();
+    const data = await response.json();
     console.log(data, response);
     throw new Error("Failed to add section images");
   }
-  const data = response.json();
+  const data = await response.json();
   console.log(data, response);
   return data;
 };

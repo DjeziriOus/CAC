@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { API_URL } from "@/utils/constants";
-import { Edit, Trash } from "lucide-react";
+import { Edit, FileText, Trash } from "lucide-react";
 import { useState } from "react";
 
 // Section component with edit and delete functionality
@@ -62,23 +62,36 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
       <p className="text-muted-foreground">{section.paragraph}</p>
       {section.media && section.media.length > 0 && (
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {section.media.map((file, idx) => {
+          {section.media.map((item, idx) => {
             return (
-              <div key={idx} className="group relative aspect-video">
-                <img
-                  // src={`${API_URL}${image.imgUrl}`}
-                  src={
-                    // file.data
-                    //   ? file.data.startsWith("data:image/")
-                    //     ? file.data
-                    //     : `${file.url}`
-                    //   : file
-                    file.data
-                  }
-                  // src={`${image.imgUrl}`}
-                  alt={`Image de Section ${idx + 1}`}
-                  className="h-full w-full rounded-md object-cover"
-                />
+              <div key={idx} className="group relative">
+                {item.type === "image" ? (
+                  <div className="aspect-video">
+                    <img
+                      src={
+                        item.data.startsWith("data:image/")
+                          ? item.data
+                          : item.data.startsWith("http")
+                            ? item.data
+                            : `${API_URL}${item.data}`
+                      }
+                      alt={`Section image ${idx + 1}`}
+                      className="h-full w-full rounded-md bg-slate-300 object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4">
+                    <div className="flex flex-col items-center gap-2 text-center">
+                      <FileText className="h-10 w-10 text-muted-foreground" />
+                      <span className="text-sm font-medium">
+                        {item.name || `Document ${idx + 1}`}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {item.type.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
