@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ImageModal } from "@/components/ImageModal";
@@ -11,6 +11,7 @@ import { ImageCarousel } from "@/components/ImageCarousel";
 import { API_URL } from "@/utils/constants";
 import { useService } from "@/features/dashboard/Services/useService";
 import { Spinner } from "@/components/ui/Spinner";
+import { NavLink } from "react-router-dom";
 
 // Sample service data (same as before)
 // const serviceData = {
@@ -70,7 +71,7 @@ export default function ServiceDetails() {
   const allImages = useMemo(() => {
     const images = service?.coverUrl ? [{ url: service.coverUrl }] : [];
     service?.sections.forEach((section) => {
-      images.push(...section.images);
+      images.push(...section.media.filter((item) => item.type == "image"));
     });
     return images;
   }, [service]);
@@ -122,41 +123,86 @@ export default function ServiceDetails() {
 
             {/* Service Sections */}
             <div className="space-y-16">
-              {service.sections.map((section, index) => (
-                <section
-                  key={section.id}
-                  className="scroll-mt-16"
-                  id={`section-${section.id}`}
-                >
-                  <h2 className="mb-6 text-2xl font-bold">{section.title}</h2>
-                  <div className="prose prose-lg mb-8 max-w-none">
-                    <p>{section.paragraph}</p>
-                  </div>
-                  {section.images.length > 0 && (
-                    <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-                      {section.images.map((image, imageIndex) => (
-                        <div
-                          key={imageIndex}
-                          className="relative aspect-video cursor-pointer overflow-hidden rounded-lg"
-                          onClick={() => setSelectedImage(image.url)}
-                        >
-                          <img
-                            src={image.url ? image.url : "/placeholder.svg"}
-                            alt={`Image ${imageIndex + 1} for ${section.title}`}
-                            className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-                            onError={(e) => {
-                              e.target.src = "https://placehold.co/800x450/png";
-                            }}
-                          />
-                        </div>
-                      ))}
+              {service.sections.map((section, index) => {
+                section.media.sort((a, b) => {
+                  if (a.type === "image" && b.type !== "image") {
+                    return -1; // a comes before b
+                  } else if (a.type !== "image" && b.type === "image") {
+                    return 1; // b comes before a
+                  } else {
+                    return 0; // keep original order for items of the same category
+                  }
+                });
+                return (
+                  <section
+                    key={section.id}
+                    className="scroll-mt-16"
+                    id={`section-${section.id}`}
+                  >
+                    <h2 className="mb-6 text-2xl font-bold">{section.title}</h2>
+                    <div className="prose prose-lg mb-8 max-w-none">
+                      <p>{section.paragraph}</p>
                     </div>
-                  )}
-                  {index < service.sections.length - 1 && (
-                    <Separator className="mt-16" />
-                  )}
-                </section>
-              ))}
+                    {section.media.length > 0 && (
+                      <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+                        {section.media.map((image, imageIndex) => {
+                          console.log(image);
+                          if (image.type == "image")
+                            return (
+                              <div
+                                key={imageIndex}
+                                className="relative aspect-video cursor-pointer overflow-hidden rounded-lg"
+                                onClick={() => setSelectedImage(image.url)}
+                              >
+                                <img
+                                  src={
+                                    image.url ? image.url : "/placeholder.svg"
+                                  }
+                                  alt={`Image ${imageIndex + 1} for ${section.title}`}
+                                  className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                                  onError={(e) => {
+                                    e.target.src =
+                                      "https://placehold.co/800x450/png";
+                                  }}
+                                />
+                              </div>
+                            );
+                          else
+                            return (
+                              <NavLink
+                                className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4"
+                                key={imageIndex}
+                                target="_blank"
+                                to={image.url}
+                              >
+                                <div className="flex h-full w-full items-center justify-center transition-transform duration-300 hover:scale-105">
+                                  <div className="flex flex-col items-center gap-2 text-center">
+                                    <FileText className="h-10 w-10 text-muted-foreground" />
+                                    <span className="flex items-center gap-1 text-sm font-medium">
+                                      {image.name ||
+                                        `Document ${imageIndex + 1}`}
+                                      <ExternalLink
+                                        // absoluteStrokeWidth={true}
+                                        // stroke="3"
+                                        className="h-4 w-4 font-bold"
+                                      />
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {image.type.toUpperCase()}
+                                    </span>
+                                  </div>
+                                </div>
+                              </NavLink>
+                            );
+                        })}
+                      </div>
+                    )}
+                    {index < service.sections.length - 1 && (
+                      <Separator className="mt-16" />
+                    )}
+                  </section>
+                );
+              })}
             </div>
 
             {/* Image Gallery Carousel */}

@@ -17,7 +17,14 @@ import {
 import { useBlocker, useNavigate } from "react-router-dom";
 import { useDeleteSection } from "./useDeleteSection";
 
-import { AlertCircle, CalendarIcon, Plus, Trash, Edit } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarIcon,
+  Plus,
+  Trash,
+  Edit,
+  FileText,
+} from "lucide-react";
 import ImageUpload from "./ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,6 +43,7 @@ import { useUpdateSection } from "./useUpdateSection";
 import { useUpdateEvent } from "./useUpdateEvent";
 import { useAddSection } from "./useAddSection";
 import { Spinner } from "@/components/ui/Spinner";
+import SectionMediaManager from "../Services/section-media-manager";
 // Define API_URL or import it from a config file
 
 // Validation helper
@@ -62,13 +70,34 @@ const validateForm = (formData) => {
     errors.coverImage = "Cover image is required";
   }
 
+  if (!formData.sections.length) {
+    errors.sections = "Au moins une section de description est requise";
+  } else {
+    const sectionErrors = formData.sections.map((section) => {
+      const sectionError = {};
+      if (!section.title.trim())
+        sectionError.title = "Titre de la section est requis";
+      if (!section.paragraph.trim())
+        sectionError.paragraph = "Contenu de la section est requis";
+      if (!section.media?.length)
+        sectionError.media = "Au moins une image est requise";
+      return Object.keys(sectionError).length ? sectionError : null;
+    });
+
+    if (sectionErrors.some((error) => error !== null)) {
+      errors.sections = sectionErrors;
+    }
+  }
+
   return errors;
 };
 
 // Section component with edit and delete functionality
 const SectionItem = ({ section, onEdit, onDelete }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
+  const sectionMedia =
+    section.media ||
+    (section.images && section.images.length > 0 ? section.images : []);
   return (
     <div className="space-y-4 rounded-lg border border-border p-6">
       <div className="flex items-center justify-between">
@@ -111,21 +140,38 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
         </div>
       </div>
       <p className="text-muted-foreground">{section.paragraph}</p>
-      {section.images && section.images.length > 0 && (
+      {sectionMedia && sectionMedia.length > 0 && (
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {section.images.map((image, idx) => (
-            <div key={idx} className="group relative aspect-video">
-              <img
-                // src={`${API_URL}${image.imgUrl}`}
-                src={
-                  image.imgUrl.startsWith("data:image/")
-                    ? image.imgUrl
-                    : `${API_URL}${image.imgUrl}`
-                }
-                // src={`${image.imgUrl}`}
-                alt={`Section image ${idx + 1}`}
-                className="h-full w-full rounded-md object-cover"
-              />
+          {sectionMedia.map((item, idx) => (
+            <div key={idx} className="group relative">
+              {/* TODO: make display */}
+              {item.type === "image" ? (
+                <div className="aspect-video">
+                  <img
+                    src={
+                      item.url.startsWith("data:image/")
+                        ? item.url
+                        : item.url.startsWith("http")
+                          ? item.url
+                          : `${API_URL}${item.url}`
+                    }
+                    alt={`Section image ${idx + 1}`}
+                    className="h-full w-full rounded-md object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <FileText className="h-10 w-10 text-muted-foreground" />
+                    <span className="text-sm font-medium">
+                      {item.name || `Document ${idx + 1}`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.type.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -146,81 +192,90 @@ const SectionEditForm = ({
 }) => {
   const [title, setTitle] = useState(section.title || "");
   const [paragraph, setParagraph] = useState(section.paragraph || "");
-  const [images, setImages] = useState(section.images || []);
-  const [newImageFiles, setNewImageFiles] = useState([]);
+  const [media, setMedia] = useState(() => {
+    if (section.media) return section.media;
+
+    // Convert backend's images format to new media format
+    if (section.images && section.images.length > 0) {
+      return section.images;
+    }
+
+    return [];
+  });
+
+  const [newMediaFiles, setNewMediaFiles] = useState([]);
   const [errors, setErrors] = useState({});
+
   useEffect(() => {
-    // console.log(
-    //   title,
-    //   paragraph,
-    //   images,
-    //   section,
-    //   title !== section.title,
-    //   paragraph !== section.paragraph,
-    // );
     const hasDiffrentContent =
       title !== section.title ||
       paragraph !== section.paragraph ||
-      images.every((s, i) => s.imgUrl !== section.images[i].imgUrl);
+      media.length !== (section.media?.length || 0) ||
+      media.some((item, idx) => {
+        const sectionImage = section.media?.[idx];
+        return !sectionImage || item?.url !== sectionImage.url;
+      });
     setIsDirtySection(hasDiffrentContent);
-  }, [title, paragraph, images, section, setIsDirtySection, isDirtySection]);
-
-  const handleAddImage = (newImage) => {
-    if (newImage instanceof File) {
-      setNewImageFiles((prev) => [...prev, newImage]);
-      // Create a temporary URL for preview
-      setImages((prev) => [...prev, { imgUrl: URL.createObjectURL(newImage) }]);
-    } else {
-      setNewImageFiles((prev) => [...prev, newImage]);
-      setImages((prev) => [...prev, { imgUrl: newImage }]);
-    }
-  };
-
-  const handleRemoveImage = (indexToRemove) => {
-    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
-    // If we're removing a new image, also remove it from newImageFiles
-    if (indexToRemove >= section.images.length) {
-      const newImageIndex = indexToRemove - section.images.length;
-      setNewImageFiles((prev) =>
-        prev.filter((_, index) => index !== newImageIndex),
-      );
-    }
-  };
+  }, [title, paragraph, media, section, setIsDirtySection, isDirtySection]);
 
   const handleSave = async () => {
     const errors = {};
-    if (!title.trim()) errors.title = "Section title is required";
-    if (!paragraph.trim()) errors.paragraph = "Section content is required";
+    if (!title.trim()) errors.title = "Titre de la section est requis";
+    if (!paragraph.trim())
+      errors.paragraph = "Contenu de la section est requis";
 
     if (Object.keys(errors).length > 0) {
       setErrors(errors);
       return;
     }
 
-    await onSave(
-      {
-        ...section,
-        title,
-        paragraph,
-        images,
-      },
-      newImageFiles,
-    );
+    // Extract the actual File objects for upload
+    // const filesToUpload = media
+    //   .filter((item) => item.file)
+    //   .map((item) => item.file);
+    const filesToUpload = newMediaFiles.map((item) => item.data);
 
+    // Convert media back to images format if needed for API compatibility
+    const updatedSection = {
+      ...section,
+      title,
+      paragraph,
+      media,
+      // Keep images for backward compatibility
+      images: media.map((img) => {
+        return { url: img.url };
+      }),
+    };
+    await onSave(updatedSection, filesToUpload);
     setIsDirtySection(false);
-    // window.location.reload();
   };
 
   // Clean up object URLs on unmount
   useEffect(() => {
     return () => {
-      images.forEach((image) => {
-        if (image.imgUrl.startsWith("blob:")) {
-          URL.revokeObjectURL(image.imgUrl);
+      media.forEach((item) => {
+        if (item.url && item.url.startsWith("blob:")) {
+          URL.revokeObjectURL(item.url);
         }
       });
     };
-  }, [images]);
+  }, [media]);
+
+  const handleAddMedia = (newFiles) => {
+    setMedia((prevMedia) => [...prevMedia, ...newFiles]);
+    setNewMediaFiles((prevFiles) => [...prevFiles, ...newFiles]);
+  };
+
+  const handleRemoveMedia = (indexToRemove) => {
+    setMedia((prev) => prev.filter((_, index) => index !== indexToRemove));
+    // If we're removing a new image, also remove it from newMediaFiles
+    if (indexToRemove >= section.media.length) {
+      const newMediaIndex = indexToRemove - section.media.length;
+      setNewMediaFiles((prev) =>
+        prev.filter((_, index) => index !== newMediaIndex),
+      );
+    }
+  };
 
   return (
     <div className="space-y-4 rounded-lg border border-primary bg-card p-6">
@@ -286,41 +341,12 @@ const SectionEditForm = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Section Images</Label>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {images.map((image, index) => (
-            <div key={index} className="group relative aspect-video">
-              <img
-                // src={`${API_URL}${image.imgUrl}`}
-                src={
-                  image.imgUrl.startsWith("data:image/")
-                    ? image.imgUrl
-                    : `${API_URL}${image.imgUrl}`
-                }
-                alt={`Section image ${index + 1}`}
-                className="h-full w-full rounded-md object-cover"
-              />
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() => handleRemoveImage(index)}
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-          <div className="aspect-video">
-            <ImageUpload
-              inputId={`section-image-upload-${images.length}`}
-              currentImage={null}
-              onImageSelect={handleAddImage}
-              onImageRemove={() => {}}
-              height="h-full"
-              className="h-full"
-            />
-          </div>
-        </div>
+        <Label>Fichiers de la Section</Label>
+        <SectionMediaManager
+          media={media}
+          onMediaAdd={handleAddMedia}
+          onMediaRemove={handleRemoveMedia}
+        />
       </div>
 
       <div className="mt-4 flex justify-end space-x-2">
@@ -375,7 +401,7 @@ export default function EditEvenementForm({
   const [newSection, setNewSection] = useState({
     title: "",
     paragraph: "",
-    images: [],
+    media: [],
   });
 
   // UI state
@@ -511,16 +537,14 @@ export default function EditEvenementForm({
       eventId: initialEvent?.id,
       title: newSection.title,
       paragraph: newSection.paragraph,
-      images: newSection.images.map((img) =>
-        typeof img === "string" ? { imgUrl: img } : img,
-      ),
+      media: newSection.media,
       abortControllerRef,
     });
 
     setNewSection({
       title: "",
       paragraph: "",
-      images: [],
+      media: [],
     });
 
     setIsAddingSectionOpen(false);
@@ -543,7 +567,7 @@ export default function EditEvenementForm({
     setEditingSectionId(section.id);
   };
 
-  const handleSaveSection = async (updatedSection, newImageFiles = []) => {
+  const handleSaveSection = async (updatedSection, newMediaFiles = []) => {
     try {
       const originalSection = sections.find((s) => s.id === updatedSection.id);
       if (!originalSection) return;
@@ -553,7 +577,7 @@ export default function EditEvenementForm({
           ...updatedSection,
           eventId: initialEvent.id,
         },
-        newImageFiles,
+        newMediaFiles,
         abortControllerRef,
       });
       setEditingSectionId(null);
@@ -948,50 +972,21 @@ export default function EditEvenementForm({
 
             <div className="space-y-2">
               <Label>Images de la Section</Label>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {newSection.images.map((image, index) => (
-                  <div key={index} className="group relative aspect-video">
-                    <img
-                      src={
-                        typeof image === "string"
-                          ? image
-                          : // : `${API_URL}${image.imgUrl}`
-                            `${image.imgUrl}`
-                      }
-                      alt={`New section image ${index + 1}`}
-                      className="h-full w-full rounded-md object-cover"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
-                      onClick={() => {
-                        setNewSection((prev) => ({
-                          ...prev,
-                          images: prev.images.filter((_, i) => i !== index),
-                        }));
-                      }}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <div className="aspect-video">
-                  <ImageUpload
-                    inputId={`new-section-image-upload-${newSection.images.length}`}
-                    currentImage={null}
-                    onImageSelect={(image) =>
-                      setNewSection((prev) => ({
-                        ...prev,
-                        images: [...prev.images, image],
-                      }))
-                    }
-                    onImageRemove={() => {}}
-                    height="h-full"
-                    className="h-full"
-                  />
-                </div>
-              </div>
+              <SectionMediaManager
+                media={newSection.media}
+                onMediaAdd={(files) => {
+                  setNewSection((prev) => ({
+                    ...prev,
+                    media: [...prev.media, ...files],
+                  }));
+                }}
+                onMediaRemove={(index) => {
+                  setNewSection((prev) => ({
+                    ...prev,
+                    media: prev.media.filter((_, i) => i !== index),
+                  }));
+                }}
+              />
             </div>
 
             <div className="mt-4 flex justify-end space-x-2">
@@ -1000,7 +995,7 @@ export default function EditEvenementForm({
                 onClick={() => {
                   cancelUpload();
                   setIsAddingSectionOpen(false);
-                  setNewSection({ title: "", paragraph: "", images: [] });
+                  setNewSection({ title: "", paragraph: "", media: [] });
                 }}
               >
                 Annuler

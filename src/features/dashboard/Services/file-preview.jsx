@@ -27,6 +27,7 @@ export default function FilePreview({
   isOpen,
   onClose,
 }) {
+  console.log(url);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fileUrl, setFileUrl] = useState("");

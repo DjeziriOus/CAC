@@ -26,8 +26,8 @@ const content = [
 
 function Stats() {
   return (
-    <div className="flex h-[11rem] w-full items-center justify-center gap-10 bg-blk py-5">
-      {content.map((item, index) => (
+    <div className="flex h-[3rem] w-full items-center justify-center gap-10 bg-blk">
+      {/* {content.map((item, index) => (
         <React.Fragment key={item.id}>
           <div className="flex flex-col text-center">
             <span className="text-center text-[2.7rem] font-extrabold tracking-wider text-white">
@@ -42,7 +42,7 @@ function Stats() {
             />
           )}
         </React.Fragment>
-      ))}
+      ))} */}
     </div>
   );
 }

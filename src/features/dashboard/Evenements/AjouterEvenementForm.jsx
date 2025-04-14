@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import SectionItem from "./SectionItem";
 import SectionEditForm from "./SectionEditForm";
 import { Spinner } from "@/components/ui/Spinner";
+import SectionMediaManager from "../Services/section-media-manager";
 
 // Validation helper
 const validateForm = (formData) => {
@@ -66,6 +67,8 @@ const validateForm = (formData) => {
         sectionError.title = "Titre de la section est requis";
       if (!section.paragraph.trim())
         sectionError.paragraph = "Contenu de la section est requis";
+      if (!section.media?.length)
+        sectionError.media = "Au moins une image est requise";
       return Object.keys(sectionError).length ? sectionError : null;
     });
 
@@ -94,7 +97,7 @@ export default function AjouterEvenementForm() {
   const [newSection, setNewSection] = useState({
     title: "",
     paragraph: "",
-    images: [],
+    media: [],
   });
 
   // UI state
@@ -128,7 +131,7 @@ export default function AjouterEvenementForm() {
       sections.length > 0 ||
       newSection.title !== "" ||
       newSection.paragraph !== "" ||
-      newSection.images.length > 0;
+      newSection.media.length > 0;
 
     setIsDirty(hasContent);
   }, [title, description, location, date, coverImage, sections, newSection]);
@@ -189,7 +192,7 @@ export default function AjouterEvenementForm() {
     setNewSection({
       title: "",
       paragraph: "",
-      images: [],
+      media: [],
     });
 
     setIsAddingSectionOpen(false);
@@ -571,50 +574,21 @@ export default function AjouterEvenementForm() {
 
             <div className="space-y-2">
               <Label>Images de la Section</Label>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {newSection.images.map((image, index) => (
-                  <div key={index} className="group relative aspect-video">
-                    <img
-                      src={
-                        typeof image === "string"
-                          ? image
-                          : // : `${API_URL}${image.imgUrl}`
-                            `${image.imgUrl}`
-                      }
-                      alt={`New section image ${index + 1}`}
-                      className="h-full w-full rounded-md object-cover"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
-                      onClick={() => {
-                        setNewSection((prev) => ({
-                          ...prev,
-                          images: prev.images.filter((_, i) => i !== index),
-                        }));
-                      }}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <div className="aspect-video">
-                  <ImageUpload
-                    inputId={`new-section-image-upload-${newSection.images.length}`}
-                    currentImage={null}
-                    onImageSelect={(image) =>
-                      setNewSection((prev) => ({
-                        ...prev,
-                        images: [...prev.images, image],
-                      }))
-                    }
-                    onImageRemove={() => {}}
-                    height="h-full"
-                    className="h-full"
-                  />
-                </div>
-              </div>
+              <SectionMediaManager
+                media={newSection.media}
+                onMediaAdd={(files) => {
+                  setNewSection((prev) => ({
+                    ...prev,
+                    media: [...prev.media, ...files],
+                  }));
+                }}
+                onMediaRemove={(index) => {
+                  setNewSection((prev) => ({
+                    ...prev,
+                    media: prev.media.filter((_, i) => i !== index),
+                  }));
+                }}
+              />
             </div>
 
             <div className="mt-4 flex justify-end space-x-2">
@@ -622,12 +596,12 @@ export default function AjouterEvenementForm() {
                 variant="outline"
                 onClick={() => {
                   setIsAddingSectionOpen(false);
-                  setNewSection({ title: "", paragraph: "", images: [] });
+                  setNewSection({ title: "", paragraph: "", media: [] });
                 }}
               >
                 Annuler
               </Button>
-              <Button onClick={addSection}>Add Section</Button>
+              <Button onClick={addSection}>Ajouter la Section</Button>
             </div>
           </div>
         ) : (

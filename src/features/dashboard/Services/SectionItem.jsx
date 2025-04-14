@@ -11,12 +11,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { API_URL } from "@/utils/constants";
-import { Edit, Trash } from "lucide-react";
+import { Edit, FileText, Trash } from "lucide-react";
 import { useState } from "react";
 
-// Section component with edit and delete functionality
 const SectionItem = ({ section, onEdit, onDelete }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  // Convert legacy images to media format if needed
+  const sectionMedia =
+    section.media ||
+    (section.images && section.images.length > 0 ? section.images : []);
 
   return (
     <div className="space-y-4 rounded-lg border border-border p-6">
@@ -41,8 +44,8 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
               <AlertDialogHeader>
                 <AlertDialogTitle>Supprimer la section</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Êtes-vous sûr de vouloir supprimer cette section? Cette action
-                  ne peut pas être annulée.
+                  Êtes-vous sûr de vouloir supprimer cette section? Cette action
+                  ne peut pas être annulée.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -60,32 +63,44 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
         </div>
       </div>
       <p className="text-muted-foreground">{section.paragraph}</p>
-      {section.media && section.media.length > 0 && (
+
+      {/* Display section media (images and files) */}
+      {sectionMedia && sectionMedia.length > 0 && (
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {section.media.map((file, idx) => {
-            return (
-              <div key={idx} className="group relative aspect-video">
-                <img
-                  // src={`${API_URL}${image.imgUrl}`}
-                  src={
-                    // file.data
-                    //   ? file.data.startsWith("data:image/")
-                    //     ? file.data
-                    //     : `${file.url}`
-                    //   : file
-                    file.data
-                  }
-                  // src={`${image.imgUrl}`}
-                  alt={`Image de Section ${idx + 1}`}
-                  className="h-full w-full rounded-md object-cover"
-                />
-              </div>
-            );
-          })}
+          {sectionMedia.map((item, idx) => (
+            <div key={idx} className="group relative">
+              {item.type === "image" ? (
+                <div className="aspect-video">
+                  <img
+                    src={
+                      item.url.startsWith("data:image/")
+                        ? item.url
+                        : item.url.startsWith("http")
+                          ? item.url
+                          : `${API_URL}${item.url}`
+                    }
+                    alt={`Section image ${idx + 1}`}
+                    className="h-full w-full rounded-md object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <FileText className="h-10 w-10 text-muted-foreground" />
+                    <span className="text-sm font-medium">
+                      {item.name || `Document ${idx + 1}`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.type.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 };
-
 export default SectionItem;

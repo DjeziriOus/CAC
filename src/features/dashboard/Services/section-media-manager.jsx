@@ -18,6 +18,7 @@ import FilePreview from "./file-preview";
 import { toast } from "sonner";
 import { formatDate } from "date-fns";
 import moment from "moment";
+import { MAX_FILE_SIZE_IN_MB } from "@/utils/constants";
 /**
  * Validates and processes multiple files of various types and returns enriched metadata
  *
@@ -31,7 +32,7 @@ import moment from "moment";
 function validateAndProcessFiles(files, onFileSelect, options = {}) {
   // Default options
   const config = {
-    maxSizeMB: options.maxSizeMB || 5,
+    maxSizeMB: options.maxSizeMB || MAX_FILE_SIZE_IN_MB,
     allowedTypes: options.allowedTypes || [
       // Images
       "image/jpeg",
@@ -461,7 +462,7 @@ export default function SectionMediaManager({
                   </div>
 
                   <div className="mt-3 flex justify-end gap-2">
-                    {(item.type === "image" || item.type === "pdf") && (
+                    {
                       <Button
                         variant="outline"
                         size="sm"
@@ -470,7 +471,7 @@ export default function SectionMediaManager({
                         <Eye className="mr-1 h-4 w-4" />
                         Aperçu
                       </Button>
-                    )}
+                    }
                     <Button
                       variant="destructive"
                       size="sm"

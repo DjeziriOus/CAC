@@ -389,7 +389,92 @@ export async function getEvent(id) {
     throw new Error("Failed getting event");
   }
   const data = await res.json();
-  return data;
+  console.log({
+    event: {
+      ...data.event,
+      coverUrl: data.event.coverUrl.startsWith("/")
+        ? API_URL + data.event.coverUrl
+        : data.event.coverUrl,
+      sections: data.event.sections.map((section) => {
+        const rewrittenSection = {
+          ...section,
+          media: section.images.map((img, idx) => {
+            const url = img.imgUrl.startsWith("/")
+              ? API_URL + img.imgUrl
+              : img.imgUrl;
+            const fileName = url.split("/").pop() || `File-${idx + 1}`;
+
+            // Determine file type based on extension in the URL
+            let type = "unknown";
+
+            // Check for common file extensions
+            if (/\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(url)) {
+              type = "image";
+            } else if (/\.(pdf)$/i.test(url)) {
+              type = "pdf";
+            } else if (/\.(docx?|xlsx?|pptx?|txt|csv)$/i.test(url)) {
+              type = "document";
+            } else if (/\.(mp4|webm|mov|avi|wmv)$/i.test(url)) {
+              type = "video";
+            } else if (/\.(mp3|wav|ogg|aac)$/i.test(url)) {
+              type = "audio";
+            }
+
+            return {
+              type,
+              url: url,
+              name: fileName,
+            };
+          }),
+        };
+        delete rewrittenSection.images;
+        return rewrittenSection;
+      }),
+    },
+  });
+  return {
+    event: {
+      ...data.event,
+      coverUrl: data.event.coverUrl.startsWith("/")
+        ? API_URL + data.event.coverUrl
+        : data.event.coverUrl,
+      sections: data.event.sections.map((section) => {
+        const rewrittenSection = {
+          ...section,
+          media: section.images.map((img, idx) => {
+            const url = img.imgUrl.startsWith("/")
+              ? API_URL + img.imgUrl
+              : img.imgUrl;
+            const fileName = url.split("/").pop() || `File-${idx + 1}`;
+
+            // Determine file type based on extension in the URL
+            let type = "unknown";
+
+            // Check for common file extensions
+            if (/\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(url)) {
+              type = "image";
+            } else if (/\.(pdf)$/i.test(url)) {
+              type = "pdf";
+            } else if (/\.(docx?|xlsx?|pptx?|txt|csv)$/i.test(url)) {
+              type = "document";
+            } else if (/\.(mp4|webm|mov|avi|wmv)$/i.test(url)) {
+              type = "video";
+            } else if (/\.(mp3|wav|ogg|aac)$/i.test(url)) {
+              type = "audio";
+            }
+
+            return {
+              type,
+              url: url,
+              name: fileName,
+            };
+          }),
+        };
+        delete rewrittenSection.images;
+        return rewrittenSection;
+      }),
+    },
+  };
 }
 
 // export async function addEvent(event) {
@@ -463,7 +548,7 @@ export async function addEvent(eventData, signal) {
     return {
       title: section.title,
       paragraph: section.paragraph,
-      imageCount: section.images.length,
+      imageCount: section.media.length,
     };
   });
   // Append sections as a JSON string
@@ -471,11 +556,11 @@ export async function addEvent(eventData, signal) {
 
   // Append all section images in order as "carousel"
   // The backend expects these files in the order defined by imageCount in sections.
-  eventData.sections.forEach((section, sectionIndex) => {
-    section.images.forEach((imgData, imageIndex) => {
+  eventData.sections.forEach((section) => {
+    section.media.forEach((fileObj) => {
       // Convert each base64 image to a File
-      const filename = `section-${sectionIndex}-img-${imageIndex}.png`;
-      const file = dataURLtoFile(imgData, filename);
+      const filename = fileObj.name;
+      const file = dataURLtoFile(fileObj.data, filename);
       formData.append("carousel", file);
     });
   });
@@ -676,7 +761,7 @@ function base64ToFile(base64, filename = "image.png") {
 }
 
 export async function addSectionAPI(data, signal, type = "event") {
-  console.log(JSON.parse(localStorage.getItem("jwt")).token, data);
+  console.log(data);
   // Expected data shape:
   // {
   //   eventId: 2,
@@ -691,23 +776,33 @@ export async function addSectionAPI(data, signal, type = "event") {
   formData.append("paragraph", data.paragraph);
   if (type === "event") {
     formData.append("eventId", data.eventId);
-  } else {
+  } else if (type === "service") {
     formData.append("serviceId", data.serviceId);
+  } else {
+    throw new Error("Invalid type");
   }
 
   // Process each image in the data.images array.
-  if (data.images && Array.isArray(data.images)) {
-    data.images.forEach((imgObj, index) => {
-      if (imgObj.imgUrl && imgObj.imgUrl.startsWith("data:image/")) {
+  if (data.media && Array.isArray(data.media)) {
+    data.media.forEach((fileObj, index) => {
+      if (fileObj.data && fileObj.data.startsWith("data:image/")) {
+        console.log("GOT HERE");
         // Convert the base64 string to a File object.
-        const file = base64ToFile(imgObj.imgUrl, `image_${index}.png`);
+        const file = base64ToFile(fileObj.data, `image_${index}.png`);
+        console.log(file);
         // Append the file to the FormData under the key "files".
         formData.append("files", file);
       }
     });
+    if (data.media.length === 0) {
+      formData.append("files", {});
+    }
   }
 
   try {
+    // console.log(formData);
+    const json = JSON.stringify(Object.fromEntries(formData.entries()));
+    console.log(json);
     const response = await fetch(`${API_URL}/${type}/addSection`, {
       method: "POST",
       // Do not set the Content-Type header manually when using FormData.
@@ -735,9 +830,9 @@ const addSectionImages = async (sectionId, eventId, files) => {
   const formData = new FormData();
   formData.append("eventId", eventId);
   formData.append("sectionId", sectionId);
-
+  console.log(files);
   files.forEach((image, index) => {
-    const file = base64ToFile(image, `image_${index}.png`);
+    const file = dataURLtoFilev2(image, `media_${index}`);
     formData.append("files", file);
   });
   console.log(formData, sectionId, eventId, files);
@@ -854,7 +949,6 @@ export const updateSection = async (
   type = "event",
   signal,
 ) => {
-  console.log(originalSection.images, updatedSection.images);
   // Update section text if it has changed
   if (
     originalSection.title !== updatedSection.title ||
@@ -884,15 +978,14 @@ export const updateSection = async (
   }
 
   // Find images to delete (present in original but not in updated)
-  const imagesToDelete = originalSection.images
+  const imagesToDelete = originalSection.media
     .filter(
       (originalImg) =>
-        !updatedSection.images.some(
+        !updatedSection.media.some(
           (updatedImg) => updatedImg.url === originalImg.url,
         ),
     )
     .map((img) => img.url);
-  console.log(imagesToDelete);
   if (type == "event") {
     // Delete removed images if any
     if (imagesToDelete.length > 0) {
@@ -902,7 +995,7 @@ export const updateSection = async (
         imagesToDelete,
       );
     }
-
+    console.log(newMediaFiles);
     // Add new images if any
     if (newMediaFiles.length > 0) {
       await addSectionImages(
@@ -974,7 +1067,7 @@ export async function addService(serviceData, signal) {
     return {
       title: section.title,
       paragraph: section.paragraph,
-      imageCount: section.images.length,
+      imageCount: section.media.length,
     };
   });
   // Append sections as a JSON string
@@ -983,10 +1076,10 @@ export async function addService(serviceData, signal) {
   // Append all section images in order as "carousel"
   // The backend expects these files in the order defined by imageCount in sections.
   serviceData.sections.forEach((section, sectionIndex) => {
-    section.images.forEach((imgData, imageIndex) => {
+    section.media.forEach((fileObj, fileIndex) => {
       // Convert each base64 image to a File
-      const filename = `section-${sectionIndex}-img-${imageIndex}.png`;
-      const file = dataURLtoFile(imgData, filename);
+      const filename = `section-${sectionIndex}-file-${fileIndex}.png`;
+      const file = dataURLtoFile(fileObj.data, filename);
       formData.append("carousel", file);
     });
   });
@@ -1047,7 +1140,7 @@ export async function getService(id) {
   }
 
   const data = await res.json();
-
+  delete data.images;
   return {
     ...data,
     service: {
@@ -1056,13 +1149,13 @@ export async function getService(id) {
         ? API_URL + data.service.coverUrl
         : data.service.coverUrl,
       sections: data.service.sections.map((section) => {
-        return {
+        const rewrittenSection = {
           ...section,
-          images: section.images.map((img, idx) => {
+          media: section.images.map((img, idx) => {
             const url = img.imgUrl.startsWith("/")
               ? API_URL + img.imgUrl
               : img.imgUrl;
-            const fileName = url.split("/").pop() || `Image-${idx + 1}`;
+            const fileName = url.split("/").pop() || `File-${idx + 1}`;
 
             // Determine file type based on extension in the URL
             let type = "unknown";
@@ -1087,6 +1180,8 @@ export async function getService(id) {
             };
           }),
         };
+        delete rewrittenSection.images;
+        return rewrittenSection;
       }),
     },
   };

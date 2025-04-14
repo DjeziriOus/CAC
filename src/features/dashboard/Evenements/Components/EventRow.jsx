@@ -53,9 +53,9 @@ function EventRow({ event }) {
       </TableCell>
       <TableCell>
         <img
-          src={`${API_URL}${coverUrl}`}
+          src={`${coverUrl}`}
           alt="image de l'evenement"
-          className="h-10 w-28 object-cover"
+          className="h-10 w-28 overflow-hidden rounded-sm bg-slate-200 object-cover"
         />
       </TableCell>
       <TableCell>{nom + " " + prenom}</TableCell>

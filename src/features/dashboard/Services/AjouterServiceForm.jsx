@@ -23,11 +23,11 @@ import { useAddService } from "./useAddService";
 import { useBlocker, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import SectionItem from "@/features/dashboard/Evenements/SectionItem";
-import SectionEditForm from "@/features/dashboard/Evenements/SectionEditForm";
+import SectionEditForm from "@/features/dashboard/Services/SectionEditForm";
 import { Spinner } from "@/components/ui/Spinner";
+import SectionMediaManager from "./section-media-manager";
 // Validation helper
 const validateForm = (formData, editingSectionId, isAddingSectionOpen) => {
-  console.log(formData);
   const errors = {};
 
   if (!formData.nom.trim()) {
@@ -52,7 +52,7 @@ const validateForm = (formData, editingSectionId, isAddingSectionOpen) => {
   }
 
   if (!formData.sections.length) {
-    errors.sections = "Au moins une section de description est requise";
+    // errors.sections = "Au moins une section de description est requise";
   } else {
     const sectionErrors = formData.sections.map((section) => {
       const sectionError = {};
@@ -60,8 +60,8 @@ const validateForm = (formData, editingSectionId, isAddingSectionOpen) => {
         sectionError.title = "Titre de la section est requis";
       if (!section.paragraph.trim())
         sectionError.paragraph = "Contenu de la section est requis";
-      // if (!section.images?.length)
-      //   sectionError.images = "Au moins une image est requise";
+      if (!section.media?.length)
+        sectionError.media = "Au moins un fichier est requis";
       return Object.keys(sectionError).length ? sectionError : null;
     });
 
@@ -88,7 +88,7 @@ export default function AjouterServiceForm() {
   const [newSection, setNewSection] = useState({
     title: "",
     paragraph: "",
-    images: [],
+    media: [],
   });
 
   // UI state
@@ -120,7 +120,7 @@ export default function AjouterServiceForm() {
       sections.length > 0 ||
       newSection.title !== "" ||
       newSection.paragraph !== "" ||
-      newSection.images.length > 0;
+      newSection.media.length > 0;
 
     setIsDirty(hasContent);
   }, [nom, description, coverImage, sections, newSection]);
@@ -170,6 +170,7 @@ export default function AjouterServiceForm() {
 
   const addSection = () => {
     if (newSection.title.trim() === "") return;
+    if (newSection.paragraph.trim() === "") return;
 
     setSections((prev) => [
       ...prev,
@@ -182,7 +183,7 @@ export default function AjouterServiceForm() {
     setNewSection({
       title: "",
       paragraph: "",
-      images: [],
+      media: [],
     });
 
     setIsAddingSectionOpen(false);
@@ -396,7 +397,7 @@ export default function AjouterServiceForm() {
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-center text-2xl font-semibold text-primary">
-            Sections de la description du Service*
+            Sections de la description du Service
           </h2>
           {typeof errors.sections === "string" && (
             <ErrorMessage error={errors.sections} />
@@ -455,54 +456,27 @@ export default function AjouterServiceForm() {
                 placeholder="Décrivez le contenu de la section"
                 rows={4}
               />
+              {/* className={cn(errors.nom && "border-destructive")}
+          /> */}
             </div>
 
             <div className="space-y-2">
               <Label>Images de la Section</Label>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {newSection.images.map((image, index) => (
-                  <div key={index} className="group relative aspect-video">
-                    <img
-                      src={
-                        typeof image === "string"
-                          ? image
-                          : // : `${API_URL}${image.imgUrl}`
-                            `${image.imgUrl}`
-                      }
-                      alt={`New section image ${index + 1}`}
-                      className="h-full w-full rounded-md object-cover"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
-                      onClick={() => {
-                        setNewSection((prev) => ({
-                          ...prev,
-                          images: prev.images.filter((_, i) => i !== index),
-                        }));
-                      }}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <div className="aspect-video">
-                  <ImageUpload
-                    inputId={`new-section-image-upload-${newSection.images.length}`}
-                    currentImage={null}
-                    onImageSelect={(image) =>
-                      setNewSection((prev) => ({
-                        ...prev,
-                        images: [...prev.images, image],
-                      }))
-                    }
-                    onImageRemove={() => {}}
-                    height="h-full"
-                    className="h-full"
-                  />
-                </div>
-              </div>
+              <SectionMediaManager
+                media={newSection.media}
+                onMediaAdd={(files) => {
+                  setNewSection((prev) => ({
+                    ...prev,
+                    media: [...prev.media, ...files],
+                  }));
+                }}
+                onMediaRemove={(index) => {
+                  setNewSection((prev) => ({
+                    ...prev,
+                    media: prev.media.filter((_, i) => i !== index),
+                  }));
+                }}
+              />
             </div>
 
             <div className="mt-4 flex justify-end space-x-2">
@@ -510,12 +484,12 @@ export default function AjouterServiceForm() {
                 variant="outline"
                 onClick={() => {
                   setIsAddingSectionOpen(false);
-                  setNewSection({ title: "", paragraph: "", images: [] });
+                  setNewSection({ title: "", paragraph: "", media: [] });
                 }}
               >
                 Annuler
               </Button>
-              <Button onClick={addSection}>Add Section</Button>
+              <Button onClick={addSection}>Ajouter la Section</Button>
             </div>
           </div>
         ) : (

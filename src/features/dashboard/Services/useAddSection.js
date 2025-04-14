@@ -6,11 +6,11 @@ import { refreshJwtExpiration } from "@/lib/utils";
 export function useAddSection() {
   const queryClient = useQueryClient();
   const { isPending: isAddingSection, mutateAsync: addSection } = useMutation({
-    mutationFn: async (Section) => {
-      const { abortControllerRef } = Section;
+    mutationFn: async (section) => {
+      const { abortControllerRef } = section;
       abortControllerRef.current = new AbortController();
       const { signal } = abortControllerRef.current;
-      return await addSectionAPI(Section, signal, "service");
+      return await addSectionAPI(section, signal, "service");
     }, // mutationFn: addSectionAPI,
     onSuccess: () => {
       toast.success("Section ajoutée", {
