@@ -6,14 +6,14 @@ import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import SectionMediaManager from "./section-media-manager";
-import { Spinner } from "@/components/ui/Spinner";
 
 const SectionEditForm = ({
   section, //backend's pov of the section
   onSave,
   onCancel,
+  errors: openMenuError,
+  setErrors: setOpenMenuError,
   // TODO:
-  // isEditingSection,
   // isDeletingSection,
   // setIsDirtySection,
   // isDirtySection,
@@ -64,6 +64,12 @@ const SectionEditForm = ({
     if (Object.keys(errors).length > 0) {
       setErrors(errors);
       return;
+    }
+
+    if (openMenuError.sections) {
+      const newErrors = { ...openMenuError };
+      delete newErrors.sections;
+      setOpenMenuError(newErrors);
     }
 
     // Extract the actual File objects for upload

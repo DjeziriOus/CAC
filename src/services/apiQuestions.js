@@ -389,6 +389,7 @@ export async function getEvent(id) {
     throw new Error("Failed getting event");
   }
   const data = await res.json();
+  console.log(data);
   console.log({
     event: {
       ...data.event,
@@ -774,22 +775,25 @@ export async function addSectionAPI(data, signal, type = "event") {
   const formData = new FormData();
   formData.append("title", data.title);
   formData.append("paragraph", data.paragraph);
+
   if (type === "event") {
+    console.log(data.eventId);
     formData.append("eventId", data.eventId);
   } else if (type === "service") {
     formData.append("serviceId", data.serviceId);
   } else {
     throw new Error("Invalid type");
   }
-
+  console.log(data.media);
   // Process each image in the data.images array.
   if (data.media && Array.isArray(data.media)) {
     data.media.forEach((fileObj, index) => {
-      if (fileObj.data && fileObj.data.startsWith("data:image/")) {
-        console.log("GOT HERE");
+      if (fileObj.data) {
         // Convert the base64 string to a File object.
-        const file = base64ToFile(fileObj.data, `image_${index}.png`);
-        console.log(file);
+        const file = base64ToFile(
+          fileObj.data,
+          `file_${index}.${fileObj.extension}`,
+        );
         // Append the file to the FormData under the key "files".
         formData.append("files", file);
       }
@@ -802,7 +806,7 @@ export async function addSectionAPI(data, signal, type = "event") {
   try {
     // console.log(formData);
     const json = JSON.stringify(Object.fromEntries(formData.entries()));
-    console.log(json);
+    console.log(json, type);
     const response = await fetch(`${API_URL}/${type}/addSection`, {
       method: "POST",
       // Do not set the Content-Type header manually when using FormData.

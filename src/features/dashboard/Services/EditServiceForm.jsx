@@ -16,7 +16,14 @@ import {
 import { useBlocker, useNavigate } from "react-router-dom";
 import { useDeleteSection } from "./useDeleteSection";
 
-import { AlertCircle, Plus, Trash, Edit, FileText } from "lucide-react";
+import {
+  AlertCircle,
+  Plus,
+  Trash,
+  Edit,
+  FileText,
+  ExternalLink,
+} from "lucide-react";
 import ImageUpload from "@/features/dashboard/Evenements/ImageUpload";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +36,7 @@ import { useUpdateService } from "./useUpdateService";
 import { useAddSection } from "./useAddSection";
 import { Spinner } from "@/components/ui/Spinner";
 import SectionMediaManager from "./section-media-manager";
+import { NavLink } from "react-router-dom";
 
 // Define API_URL or import it from a config file
 
@@ -60,19 +68,19 @@ const validateForm = (formData, editingSectionId, isAddingSectionOpen) => {
   if (!formData.sections.length) {
     // errors.sections = "Au moins une section de description est requise";
   } else {
-    const sectionErrors = formData.sections.map((section) => {
-      const sectionError = {};
-      if (!section.title.trim())
-        sectionError.title = "Titre de la section est requis";
-      if (!section.paragraph.trim())
-        sectionError.paragraph = "Contenu de la section est requis";
-      if (!section.media?.length)
-        sectionError.media = "Au moins un fichier est requis";
-      return Object.keys(sectionError).length ? sectionError : null;
+    const sectionsErrors = formData.sections.map((section) => {
+      const sectionsErrors = {};
+      if (!section?.title.trim())
+        sectionsErrors.title = "Titre de la section est requis";
+      if (!section?.paragraph.trim())
+        sectionsErrors.paragraph = "Contenu de la section est requis";
+      // if (!section.media?.length)
+      //   sectionError.media = "Au moins un fichier est requis";
+      return Object.keys(sectionsErrors).length ? sectionsErrors : null;
     });
 
-    if (sectionErrors.some((error) => error !== null)) {
-      errors.sections = sectionErrors;
+    if (sectionsErrors.some((error) => error !== null)) {
+      errors.sections = sectionsErrors;
     }
   }
 
@@ -135,33 +143,42 @@ const SectionItem = ({ section, onEdit, onDelete }) => {
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sectionMedia.map((item, idx) => (
             <div key={idx} className="group relative">
-              {/* TODO: make display */}
               {item.type === "image" ? (
-                <div className="aspect-video">
+                <NavLink
+                  className="flex aspect-video items-center justify-center overflow-hidden rounded-md border border-border bg-muted/20"
+                  key={idx}
+                  target="_blank"
+                  to={item.url}
+                >
                   <img
-                    src={
-                      item.url.startsWith("data:image/")
-                        ? item.url
-                        : item.url.startsWith("http")
-                          ? item.url
-                          : `${API_URL}${item.url}`
-                    }
-                    alt={`Section image ${idx + 1}`}
-                    className="h-full w-full rounded-md object-cover"
+                    src={item.url ? item.url : "/placeholder.svg"}
+                    alt={`Image ${idx + 1} for ${section.title}`}
+                    className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                    onError={(e) => {
+                      e.target.src = "https://placehold.co/800x450/png";
+                    }}
                   />
-                </div>
+                </NavLink>
               ) : (
-                <div className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4">
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <FileText className="h-10 w-10 text-muted-foreground" />
-                    <span className="text-sm font-medium">
-                      {item.name || `Document ${idx + 1}`}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {item.type.toUpperCase()}
-                    </span>
+                <NavLink
+                  className="flex aspect-video items-center justify-center rounded-md border border-border bg-muted/20 p-4"
+                  key={idx}
+                  target="_blank"
+                  to={item.url}
+                >
+                  <div className="flex h-full w-full items-center justify-center transition-transform duration-300 hover:scale-105">
+                    <div className="flex flex-col items-center gap-2 text-center">
+                      <FileText className="h-10 w-10 text-muted-foreground" />
+                      <span className="flex items-center gap-1 text-sm font-medium">
+                        {item.name || `Document ${idx + 1}`}
+                        <ExternalLink className="h-4 w-4 font-bold" />
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {item.type.toUpperCase()}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                </NavLink>
               )}
             </div>
           ))}
@@ -180,6 +197,8 @@ const SectionEditForm = ({
   isDeletingSection,
   setIsDirtySection,
   isDirtySection,
+  errors: openMenuError,
+  setErrors: setOpenMenuError,
 }) => {
   const [title, setTitle] = useState(section.title || "");
   const [paragraph, setParagraph] = useState(section.paragraph || "");
@@ -221,6 +240,12 @@ const SectionEditForm = ({
     if (Object.keys(errors).length > 0) {
       setErrors(errors);
       return;
+    }
+
+    if (openMenuError.sections) {
+      const newErrors = { ...openMenuError };
+      delete newErrors.sections;
+      setOpenMenuError(newErrors);
     }
 
     // Extract the actual File objects for upload
@@ -417,6 +442,7 @@ export default function EditServiceForm({
   const [isLeaving, setIsLeaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [newSectionErrors, setNewSectionErrors] = useState({});
 
   // Scroll to first error
   useEffect(() => {
@@ -510,7 +536,21 @@ export default function EditServiceForm({
 
   // Update the addSection function in the main component to handle multiple images
   const addSection = async () => {
-    if (newSection.title.trim() === "") return;
+    const errors = {};
+    if (newSection.title.trim() === "")
+      errors.title = "Titre de la section est requis";
+    if (newSection.paragraph.trim() === "")
+      errors.paragraph = "Contenu de la section est requis";
+    if (Object.keys(errors).length > 0) {
+      setNewSectionErrors(errors);
+      return;
+    }
+
+    if (errors.sections) {
+      const newErrors = { ...errors };
+      delete newErrors.sections;
+      setErrors(newErrors);
+    }
 
     // setSections((prev) => [
     //   ...prev,
@@ -693,7 +733,7 @@ export default function EditServiceForm({
             {isUpdatingService ? (
               <>
                 <Spinner className="flex text-white"></Spinner>
-                Saving...
+                Sauvegrade en cours...
               </>
             ) : (
               "Sauvegarder les Modifications"
@@ -811,11 +851,9 @@ export default function EditServiceForm({
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-center text-2xl font-semibold text-primary">
-            Sections de la Desc Service *
+            Sections de la description du Service
           </h2>
-          {typeof errors.sections === "string" && (
-            <ErrorMessage error={errors.sections} />
-          )}
+          {errors.sections && <ErrorMessage error={errors.sections} />}
         </div>
 
         <div className="space-y-4">
@@ -830,7 +868,14 @@ export default function EditServiceForm({
                   onCancel={() => {
                     setEditingSectionId(null);
                     cancelUpload();
+                    if (errors.sections) {
+                      const newErrors = { ...errors };
+                      delete newErrors.sections;
+                      setErrors(newErrors);
+                    }
                   }} // cancels editing
+                  errors={errors}
+                  setErrors={setErrors}
                   setIsDirty={setIsDirty}
                   setIsDirtySection={setIsDirtySection}
                   isDirtySection={isDirtySection}
@@ -853,31 +898,67 @@ export default function EditServiceForm({
             </h3>
 
             <div className="space-y-2">
-              <Label htmlFor="section-title">Titre de Section *</Label>
+              <Label
+                htmlFor="section-title"
+                className={cn(newSectionErrors?.title && "text-destructive")}
+              >
+                Titre de Section *
+              </Label>
               <Input
                 id="section-title"
                 value={newSection.title}
-                onChange={(e) =>
-                  setNewSection((prev) => ({ ...prev, title: e.target.value }))
-                }
+                onChange={(e) => {
+                  if (newSectionErrors.title) {
+                    const newErrors = { ...newSectionErrors };
+                    delete newErrors.title;
+                    setNewSectionErrors(newErrors);
+                  }
+                  setNewSection((prev) => ({ ...prev, title: e.target.value }));
+                }}
                 placeholder="Entrez le titre de la section"
+                className={cn(newSectionErrors?.title && "border-destructive")}
               />
+              {newSectionErrors.title && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{newSectionErrors.title}</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="section-paragraph">Contenu de Section *</Label>
+              <Label
+                htmlFor="section-paragraph"
+                className={cn(newSectionErrors.paragraph && "text-destructive")}
+              >
+                Contenu de Section *
+              </Label>
               <Textarea
                 id="section-paragraph"
                 value={newSection.paragraph}
-                onChange={(e) =>
+                onChange={(e) => {
                   setNewSection((prev) => ({
                     ...prev,
                     paragraph: e.target.value,
-                  }))
-                }
+                  }));
+                  if (newSectionErrors.paragraph) {
+                    const newErrors = { ...newSectionErrors };
+                    delete newErrors.paragraph;
+                    setNewSectionErrors(newErrors);
+                  }
+                }}
                 placeholder="Décrivez le contenu de la section"
                 rows={4}
+                className={cn(
+                  newSectionErrors?.paragraph && "border-destructive",
+                )}
               />
+              {newSectionErrors.paragraph && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{newSectionErrors.paragraph}</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -906,6 +987,11 @@ export default function EditServiceForm({
                   cancelUpload();
                   setIsAddingSectionOpen(false);
                   setNewSection({ title: "", paragraph: "", media: [] });
+                  if (errors.sections) {
+                    const newErrors = { ...errors };
+                    delete newErrors.sections;
+                    setErrors(newErrors);
+                  }
                 }}
               >
                 Annuler

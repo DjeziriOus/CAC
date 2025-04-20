@@ -11,13 +11,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { API_URL } from "@/utils/constants";
-import { Edit, FileText, Trash } from "lucide-react";
+import { Edit, ExternalLink, FileText, Trash } from "lucide-react";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 // Section component with edit and delete functionality
 const SectionItem = ({ section, onEdit, onDelete }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
+  console.log(section.media);
   return (
     <div className="space-y-4 rounded-lg border border-border p-6">
       <div className="flex items-center justify-between">

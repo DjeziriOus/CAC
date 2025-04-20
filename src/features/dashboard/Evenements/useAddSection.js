@@ -10,7 +10,7 @@ export function useAddSection() {
       const { abortControllerRef } = Section;
       abortControllerRef.current = new AbortController();
       const { signal } = abortControllerRef.current;
-      return await addSectionAPI(Section, signal, "service");
+      return await addSectionAPI(Section, signal, "event");
     }, // mutationFn: addSectionAPI,
     onSuccess: () => {
       toast.success("Section ajoutée", {

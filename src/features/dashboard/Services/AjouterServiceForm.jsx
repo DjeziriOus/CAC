@@ -54,19 +54,19 @@ const validateForm = (formData, editingSectionId, isAddingSectionOpen) => {
   if (!formData.sections.length) {
     // errors.sections = "Au moins une section de description est requise";
   } else {
-    const sectionErrors = formData.sections.map((section) => {
-      const sectionError = {};
+    const sectionsErrors = formData.sections.map((section) => {
+      const sectionErrors = {};
       if (!section.title.trim())
-        sectionError.title = "Titre de la section est requis";
+        sectionErrors.title = "Titre de la section est requis";
       if (!section.paragraph.trim())
-        sectionError.paragraph = "Contenu de la section est requis";
-      if (!section.media?.length)
-        sectionError.media = "Au moins un fichier est requis";
-      return Object.keys(sectionError).length ? sectionError : null;
+        sectionErrors.paragraph = "Contenu de la section est requis";
+      // if (!section.media?.length)
+      //   sectionError.media = "Au moins un fichier est requis";
+      return Object.keys(sectionErrors).length ? sectionErrors : null;
     });
 
-    if (sectionErrors.some((error) => error !== null)) {
-      errors.sections = sectionErrors;
+    if (sectionsErrors.some((error) => error !== null)) {
+      errors.sectionsErrors = sectionsErrors;
     }
   }
 
@@ -97,6 +97,7 @@ export default function AjouterServiceForm() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [newSectionErrors, setNewSectionErrors] = useState({});
 
   // Scroll to first error
   useEffect(() => {
@@ -169,8 +170,21 @@ export default function AjouterServiceForm() {
   );
 
   const addSection = () => {
-    if (newSection.title.trim() === "") return;
-    if (newSection.paragraph.trim() === "") return;
+    const errors = {};
+    if (newSection.title.trim() === "")
+      errors.title = "Titre de la section est requis";
+    if (newSection.paragraph.trim() === "")
+      errors.paragraph = "Contenu de la section est requis";
+    if (Object.keys(errors).length > 0) {
+      setNewSectionErrors(errors);
+      return;
+    }
+
+    if (errors.sections) {
+      const newErrors = { ...errors };
+      delete newErrors.sections;
+      setErrors(newErrors);
+    }
 
     setSections((prev) => [
       ...prev,
@@ -292,20 +306,23 @@ export default function AjouterServiceForm() {
         </div>
       )}
 
-      <div className="mb-6 flex justify-end space-x-4">
-        <Button variant="outline" onClick={handleCancel}>
-          Fermer et Quitter
-        </Button>
-        <Button onClick={handlePublish} disabled={isAddingService}>
-          {isAddingService ? (
-            <>
-              <Spinner className="flex text-white"></Spinner>
-              Publication en cours...
-            </>
-          ) : (
-            "Publier le Service"
-          )}
-        </Button>
+      <div className="mb-2 flex justify-between space-x-2">
+        <h1 className="mb-2 text-3xl font-bold">Ajouter un service</h1>
+        <div className="flex gap-5">
+          <Button variant="outline" onClick={handleCancel}>
+            Fermer et Quitter
+          </Button>
+          <Button onClick={handlePublish} disabled={isAddingService}>
+            {isAddingService ? (
+              <>
+                <Spinner className="flex text-white"></Spinner>
+                Publication en cours...
+              </>
+            ) : (
+              "Publier le Service"
+            )}
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-6 rounded-lg bg-card p-6 shadow-sm">
@@ -399,9 +416,7 @@ export default function AjouterServiceForm() {
           <h2 className="text-center text-2xl font-semibold text-primary">
             Sections de la description du Service
           </h2>
-          {typeof errors.sections === "string" && (
-            <ErrorMessage error={errors.sections} />
-          )}
+          {errors.sections && <ErrorMessage error={errors?.sections} />}
         </div>
 
         <div className="space-y-4">
@@ -411,7 +426,16 @@ export default function AjouterServiceForm() {
                 <SectionEditForm
                   section={section}
                   onSave={handleSaveSection}
-                  onCancel={() => setEditingSectionId(null)}
+                  onCancel={() => {
+                    setEditingSectionId(null);
+                    if (errors.sections) {
+                      const newErrors = { ...errors };
+                      delete newErrors.sections;
+                      setErrors(newErrors);
+                    }
+                  }}
+                  errors={errors}
+                  setErrors={setErrors}
                 />
               ) : (
                 <SectionItem
@@ -431,33 +455,70 @@ export default function AjouterServiceForm() {
             </h3>
 
             <div className="space-y-2">
-              <Label htmlFor="section-title">Titre de Section *</Label>
+              <Label
+                htmlFor="section-title"
+                className={cn(newSectionErrors?.title && "text-destructive")}
+              >
+                Titre de Section *
+              </Label>
               <Input
                 id="section-title"
                 value={newSection.title}
-                onChange={(e) =>
-                  setNewSection((prev) => ({ ...prev, title: e.target.value }))
-                }
+                onChange={(e) => {
+                  if (newSectionErrors.title) {
+                    const newErrors = { ...newSectionErrors };
+                    delete newErrors.title;
+                    setNewSectionErrors(newErrors);
+                  }
+                  setNewSection((prev) => ({
+                    ...prev,
+                    title: e.target.value,
+                  }));
+                }}
                 placeholder="Entrez le titre de la section"
+                className={cn(newSectionErrors?.title && "border-destructive")}
               />
+              {newSectionErrors.title && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{newSectionErrors.title}</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="section-paragraph">Contenu de Section *</Label>
+              <Label
+                htmlFor="section-paragraph"
+                className={cn(newSectionErrors.paragraph && "text-destructive")}
+              >
+                Contenu de Section *
+              </Label>
               <Textarea
                 id="section-paragraph"
                 value={newSection.paragraph}
-                onChange={(e) =>
+                onChange={(e) => {
                   setNewSection((prev) => ({
                     ...prev,
                     paragraph: e.target.value,
-                  }))
-                }
+                  }));
+                  if (newSectionErrors.paragraph) {
+                    const newErrors = { ...newSectionErrors };
+                    delete newErrors.paragraph;
+                    setNewSectionErrors(newErrors);
+                  }
+                }}
                 placeholder="Décrivez le contenu de la section"
                 rows={4}
+                className={cn(
+                  newSectionErrors?.paragraph && "border-destructive",
+                )}
               />
-              {/* className={cn(errors.nom && "border-destructive")}
-          /> */}
+              {newSectionErrors.paragraph && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{newSectionErrors.paragraph}</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -485,6 +546,11 @@ export default function AjouterServiceForm() {
                 onClick={() => {
                   setIsAddingSectionOpen(false);
                   setNewSection({ title: "", paragraph: "", media: [] });
+                  if (errors.sections) {
+                    const newErrors = { ...errors };
+                    delete newErrors.sections;
+                    setErrors(newErrors);
+                  }
                 }}
               >
                 Annuler

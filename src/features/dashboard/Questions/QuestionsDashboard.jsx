@@ -181,7 +181,7 @@ export default function QuestionsDashboard() {
                     <TableHead className="max-w-[2rem]">Contenu</TableHead>
                     <TableHead className="max-w-md">Réponse</TableHead>
                     <TableHead className="whitespace-nowrap">
-                      Médecin à avoir répondu
+                      Médecin ayant répondu
                     </TableHead>
                     <TableHead className="text-center">Actions</TableHead>
                   </TableRow>

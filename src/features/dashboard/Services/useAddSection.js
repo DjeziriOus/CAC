@@ -22,7 +22,7 @@ export function useAddSection() {
       queryClient.invalidateQueries({
         queryKey: ["services"],
       });
-      queryClient.refetchQueries(["service"]);
+
       refreshJwtExpiration();
     },
     onError: (error) => {

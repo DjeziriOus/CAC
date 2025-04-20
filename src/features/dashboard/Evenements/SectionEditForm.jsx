@@ -7,7 +7,13 @@ import { API_URL } from "@/utils/constants";
 import { AlertCircle, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import ImageUpload from "./ImageUpload";
-const SectionEditForm = ({ section, onSave, onCancel }) => {
+const SectionEditForm = ({
+  section,
+  onSave,
+  onCancel,
+  errors: openMenuError,
+  setErrors: setOpenMenuError,
+}) => {
   const [title, setTitle] = useState(section.title || "");
   const [paragraph, setParagraph] = useState(section.paragraph || "");
   const [images, setImages] = useState(section.images || []);
@@ -46,6 +52,12 @@ const SectionEditForm = ({ section, onSave, onCancel }) => {
     if (Object.keys(errors).length > 0) {
       setErrors(errors);
       return;
+    }
+
+    if (openMenuError.sections) {
+      const newErrors = { ...openMenuError };
+      delete newErrors.sections;
+      setOpenMenuError(newErrors);
     }
 
     onSave(
